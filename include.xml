@@ -3,7 +3,7 @@
 	
 	<haxelib name="lime" />
 	
-	<template path="templates" />
+	<template path="backend/native/templates" />
 	
 	<source path="backend/native" if="windows" />
 	

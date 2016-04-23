@@ -1,18 +1,26 @@
 package bakeneko;
 
-import bakeneko.core.Application;
+/*import bakeneko.core.Application;
 import bakeneko.core.Core;
 import bakeneko.graphics4.Framebuffer;
 import bakeneko.graphics4.Graphics;
-import lime.graphics.GLRenderContext;
+import lime.app.Application;
+import lime.graphics.GLRenderContext;*/
 
-/**
- * ...
- * @author Christian
- */
+import lime.app.Application;
+
+@:access(lime.app.Application)
 class SystemImpl {
 
-	public static var g:Graphics;
+	static public var app:Application;
+	
+	static public function init() {
+		app = new Application();
+		app.setPreloader(ApplicationMain.preloader);
+		app.create(ApplicationMain.config);
+	}
+	
+	/*public static var g:Graphics;
 	public static var gl:GLRenderContext = new GLRenderContext();
 	public static var frame:bakeneko.graphics4.Framebuffer;
 	
@@ -27,6 +35,6 @@ class SystemImpl {
 			default:
 				throw "Can't use other context";
 		}
-	}
+	}*/
 	
 }

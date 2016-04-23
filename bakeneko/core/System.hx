@@ -2,8 +2,8 @@ package bakeneko.core;
 
 class System {
 
-	public function new() {
-		
+	static public function init() {
+		SystemImpl.init();
 	}
 	
 }
