@@ -2,6 +2,7 @@ package bakeneko;
 
 /*import bakeneko.core.Application;
 import bakeneko.core.Core;
+import bakeneko.core.System;
 import bakeneko.graphics4.Framebuffer;
 import bakeneko.graphics4.Graphics;
 import cpp.Void;
@@ -14,16 +15,32 @@ import lime.app.Application;
 class SystemImpl {
 
 	static public var app:LimeApplication;
-	
-	static var windows:Array<Window>;
+	static var windows:Map<lime.ui.Window, Window>;
 	
 	static public function init() {
+		windows = new Map();
+		
 		app = new LimeApplication();
 		app.setPreloader(ApplicationMain.preloader);
 		
 		var config = ApplicationMain.config;
 		config.windows[0].title = "Bakeneko App";
 		app.create(config);
+	}
+	
+	@:access(bakeneko.Window)
+	static public function createWindow(window:Window) {
+		windows.set(window.limeWindow, window);
+		
+		app.createWindow(window.limeWindow);
+	}
+	
+	static public function keyDown(window:lime.ui.Window, keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier):Void {
+		bakeneko.core.System.keyDown(windows[window], cast keyCode, cast modifier);
+	}
+	
+	static public function keyUp(window:lime.ui.Window, keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier):Void {
+		bakeneko.core.System.keyUp(windows[window], cast keyCode, cast modifier);
 	}
 	
 	/*public static var g:Graphics;

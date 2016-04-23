@@ -24,7 +24,7 @@
 	
 	<haxedef name="HXCPP_STACK_TRACE" />
 	<haxedef name="HXCPP_TELEMETRY" />
-	<haxelib name="hxtelemetry" if="windows" />
-	<haxedef name="telemetry" if="windows" />
+	<haxelib name="hxtelemetry" if="windows && debug" />
+	<haxedef name="telemetry" if="windows && debug" />
 
 </extension>

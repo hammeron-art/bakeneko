@@ -1,20 +1,27 @@
 package bakeneko.core;
 
 import bakeneko.core.WindowEvent;
+import bakeneko.input.InputSystem;
+import bakeneko.input.KeyCode;
+import bakeneko.input.KeyModifier;
 
 class Application {
 
-	// Exit events are dispatched when the application is exiting
-	public var onExit = new Event<Int->Void> ();
+	public var windows:Array<Window>;
 	// List of application systems
 	public var systems:Array<AppSystem>;
+	public var input:InputSystem;
+	public var frameCount:Int;
 	
 	var canAddSystens:Bool;
 	
 	static var application:Application;
 	
 	public function new () {
+		frameCount = 0;
+		
 		systems = [];
+		windows = [];
 		application = this;
 	}
 	
@@ -110,9 +117,26 @@ class Application {
 	 * Create core app systems
 	 */
 	function createDefaultSystems():Void {
+		input = createSystem(new InputSystem());
 		/*#if packer
 		packer = createSystem(new TexturePacker());
 		#end*/
 	}
 	
+	/**
+	 * Update of application
+	 *
+	 * @param	delta time from last update
+	 */
+	function update(delta:Float):Void {
+		++frameCount;
+	}
+	
+	function keyDown(window:Window, keyCode:KeyCode, modifier:KeyModifier):Void {
+		input.onKeyDown(window, keyCode, modifier);
+	}
+	
+	function keyUp(window:Window, keyCode:KeyCode, modifier:KeyModifier):Void {
+		input.onKeyUp(window, keyCode, modifier);
+	}
 }

@@ -2,15 +2,12 @@ package bakeneko.input;
 
 import bakeneko.core.Application;
 import bakeneko.core.AppSystem;
-import bakeneko.core.Core;
 import bakeneko.core.Event;
 import bakeneko.core.Log;
 import bakeneko.core.Window;
+import bakeneko.core.WindowEvent;
+import bakeneko.core.WindowEventType;
 import bakeneko.input.Input;
-
-import lime.ui.KeyCode;
-import lime.ui.KeyModifier;
-import lime.ui.Window;
 
 #if !macro
 /**
@@ -60,9 +57,7 @@ class InputSystem extends AppSystem {
 	}
 	
 	function setupMouse() {
-		var window = Application.core.window;
-		
-		//flash.events.KeyboardEvent.KEY_DOWN, onKeyDown);
+		var window = Application.get().windows[0];
 		
 		window.onMouseDown.add(function (x, y, device) {
 			mouseEvent({
@@ -161,129 +156,6 @@ class InputSystem extends AppSystem {
 		}
 		
 		lime.ui.Gamepad.onConnect.add(padConnected);
-		
-		#else
-
-		// Hack code
-		// because gamepad handling in flash is very weird
-		// Flash target is just for development anyway...
-		
-		/*hxd.Pad.wait(function(pad) {
-			
-			var device = @:privateAccess pad.d;
-
-			Log.info('Gamepad ${device.name} detected');
-		
-			var axisCount = 0;
-			for( i in 0...device.numControls ) {
-				var c = device.getControlAt(i);
-				if( StringTools.startsWith(c.id, "AXIS_") ) {
-					var axisID = axisCount++;
-					
-					var axis = switch (Std.parseInt(c.id.substr("AXIS_".length))) {
-						case 0:
-							PadAxis.LEFT_X;
-						case 1:
-							PadAxis.LEFT_Y;
-						case 2:
-							PadAxis.RIGHT_X;
-						case 3:
-							PadAxis.RIGHT_Y;
-						default:
-							PadAxis.UNKNOWN;
-					};
-					
-					c.addEventListener(flash.events.Event.CHANGE, function(_) {
-						var value = (c.value - c.minValue) / (c.maxValue - c.minValue);
-						
-						var event:PadEvent = {
-							axis: axis,
-							value: c.value,
-							kind: PAxis
-						}
-						
-						padEvent(event);
-					});
-				} else if ( StringTools.startsWith(c.id, "BUTTON_") ) {
-					var key = switch (Std.parseInt(c.id.substr("BUTTON_".length))) {
-						case 4:
-							PadKey.A;
-						case 5:
-							PadKey.B;
-						case 6:
-							PadKey.X;
-						case 7:
-							PadKey.Y;
-						case 10:
-							PadKey.LEFT_TRIGGER;
-						case 11:
-							PadKey.RIGHT_TRIGGER;
-						case 12:
-							PadKey.BACK;
-						case 13:
-							PadKey.START;
-						case 14:
-							PadKey.LEFT_STICK;
-						case 15:
-							PadKey.RIGHT_STICK;
-						case 16:
-							PadKey.DPAD_UP;
-						case 17:
-							PadKey.DPAD_DOWN;
-						case 18:
-							PadKey.DPAD_LEFT;
-						case 19:
-							PadKey.DPAD_RIGHT;
-						default:
-							PadKey.UNKNOWN;
-					};
-				
-					if (key != PadKey.UNKNOWN) {
-						c.addEventListener(flash.events.Event.CHANGE, function(_) {
-							var value = (c.value - c.minValue) / (c.maxValue - c.minValue);
-								
-							switch (key) {
-							case PadKey.LEFT_TRIGGER:
-								var event:PadEvent = {
-									axis: PadAxis.TRIGGER_LEFT,
-									value: c.value,
-									kind: PAxis
-								}
-								
-								padEvent(event);
-							
-							case PadKey.RIGHT_TRIGGER:
-								var event:PadEvent = {
-									axis: PadAxis.TRIGGER_RIGHT,
-									value: c.value,
-									kind: PAxis
-								}
-								
-								padEvent(event);
-							
-							default:
-								var kind = PUnknown;
-							
-								if (!isPadDown(key) && value >= 0.5)
-									kind = PKeyDown;
-								if (isPadDown(key) && value < 0.5)
-									kind = PKeyUp;
-								
-								if (kind == PUnknown)
-									return;
-									
-								var event:PadEvent = {
-									key: key,
-									kind: kind
-								}
-								
-								padEvent(event);
-							}
-						});
-					}
-				}
-			}
-		});*/
 		
 		#end
 	}
@@ -493,7 +365,7 @@ class InputSystem extends AppSystem {
 	#end
 	
 	static inline function getFrame() {
-		return Application.core.frameCount + 1;
+		return Application.get().frameCount + 1;
 	}
 	
 	
