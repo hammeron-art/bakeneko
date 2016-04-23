@@ -1,282 +1,118 @@
 package bakeneko.core;
 
-import bakeneko.input.Gamepad;
-import bakeneko.input.GamepadAxis;
-import bakeneko.input.GamepadButton;
-import bakeneko.input.KeyCode;
-import bakeneko.input.KeyModifier;
-import bakeneko.input.Touch;
+import bakeneko.core.WindowEvent;
 
 class Application {
 
-	/**
-	 * Exit events are dispatched when the application is exiting
-	 */
+	// Exit events are dispatched when the application is exiting
 	public var onExit = new Event<Int->Void> ();
+	// List of application systems
+	public var systems:Array<AppSystem>;
+	
+	var canAddSystens:Bool;
+	
+	static var application:Application;
 	
 	public function new () {
+		systems = [];
+		application = this;
 	}
 	
 	/**
-	 * Called when a gamepad axis move event is fired
-	 * @param	gamepad	The current gamepad
-	 * @param	axis	The axis that was moved
-	 * @param	value	The axis value (between 0 and 1)
+	 * Get application instance
 	 */
-	public function onGamepadAxisMove (gamepad:Gamepad, axis:GamepadAxis, value:Float):Void { }
-	
-	/**
-	 * Called when a gamepad button down event is fired
-	 * @param	gamepad	The current gamepad
-	 * @param	button	The button that was pressed
-	 */
-	public function onGamepadButtonDown (gamepad:Gamepad, button:GamepadButton):Void { }
-	
-	/**
-	 * Called when a gamepad button up event is fired
-	 * @param	gamepad	The current gamepad
-	 * @param	button	The button that was released
-	 */
-	public function onGamepadButtonUp (gamepad:Gamepad, button:GamepadButton):Void { }
-	
-	/**
-	 * Called when a gamepad is connected
-	 * @param	gamepad	The gamepad that was connected
-	 */
-	public function onGamepadConnect (gamepad:Gamepad):Void {
-		
-		trace ("onGamepadConnect (module)");
-		
+	public static function get():Application {
+		return application;
 	}
 	
 	/**
-	 * Called when a gamepad is disconnected
-	 * @param	gamepad	The gamepad that was disconnected
+	 * User defined
+	 * Create app systems
 	 */
-	public function onGamepadDisconnect (gamepad:Gamepad):Void { }
+	public function createSystems():Void { }
 
 	/**
-	 * Called when a key down event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	keyCode	The code of the key that was pressed
-	 * @param	modifier	The modifier of the key that was pressed
+	 * User defined
+	 * Called after all systems have been set up
 	 */
-	public function onKeyDown (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void { }
+	public function onInit():Void { }
 	
 	/**
-	 * Called when a key up event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	keyCode	The code of the key that was released
-	 * @param	modifier	The modifier of the key that was released
+	 * User defined
+	 * Push first stage
 	 */
-	public function onKeyUp (window:Window, keyCode:KeyCode, modifier:KeyModifier):Void { }
+	public function initialState():Void { }
 	
 	/**
-	 * Called when the module is exiting
+	 * User defined
+	 * Fixed update method called before any other system or state fixed update
+	 * @param	delta
 	 */
-	public function onModuleExit (code:Int):Void { }
+	public function onFixedUpdate(delta:Float):Void { }
 	
 	/**
-	 * Called when a mouse down event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	x	The current x coordinate of the mouse
-	 * @param	y	The current y coordinate of the mouse
-	 * @param	button	The ID of the mouse button that was pressed
+	 * User defined
+	 * Update method called before any other system or state update
+	 * @param	delta
 	 */
-	public function onMouseDown (window:Window, x:Float, y:Float, button:Int):Void { }
+	public function onUpdate(delta:Float):Void { }
+
+	/**
+	 * User defined
+	 * Called when an window event occurs
+	 * @param	event
+	 */
+	public function onWindowEvent(event:WindowEvent):Void {}
 	
 	/**
-	 * Called when a mouse move event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	x	The current x coordinate of the mouse
-	 * @param	y	The current y coordinate of the mouse
-	 * @param	button	The ID of the mouse button that was pressed
+	 * AppSystems are created with this method
 	 */
-	public function onMouseMove (window:Window, x:Float, y:Float):Void { }
+	public function createSystem<T:AppSystem>(appSystem:T):T {
+		Log.assert(canAddSystens == true, "Can't create app systems");
+
+		systems.push(cast appSystem);
+		return appSystem;
+	}
 	
 	/**
-	 * Called when a mouse move relative event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	x	The x movement of the mouse
-	 * @param	y	The y movement of the mouse
-	 * @param	button	The ID of the mouse button that was pressed
+	 * Get a AppSystem by type
 	 */
-	public function onMouseMoveRelative (window:Window, x:Float, y:Float):Void { }
+	@:generic public function getSystem<T:(AppSystem)>(c:Class<T>):T {
+		for (system in systems) {
+			if (Std.is(system, c)) {
+				return cast system;
+			}
+		}
+		return null;
+	}
 	
 	/**
-	 * Called when a mouse up event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	x	The current x coordinate of the mouse
-	 * @param	y	The current y coordinate of the mouse
-	 * @param	button	The ID of the button that was released
+	 * Inicialize application
+	 *
+	 * @param	bakenekoCore
 	 */
-	public function onMouseUp (window:Window, x:Float, y:Float, button:Int):Void { }
-	
+	function init():Void {
+		canAddSystens = true;
+		createDefaultSystems();
+		createSystems();
+		canAddSystens = false;
+		
+		for (appSystem in systems) {
+			appSystem.onInit();
+		}
+
+		onInit();
+		initialState();
+		//Log.assert(stateManager.operations.length > 0 && stateManager.operations.first().action == StateAction.Push, 'Can\'t start without a state');
+	}
+
 	/**
-	 * Called when a mouse wheel event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	deltaX	The amount of horizontal scrolling (if applicable)
-	 * @param	deltaY	The amount of vertical scrolling (if applicable)
+	 * Create core app systems
 	 */
-	public function onMouseWheel (window:Window, deltaX:Float, deltaY:Float):Void { }
-	
-	/**
-	 * Called when a preload complete event is fired
-	 */
-	public function onPreloadComplete ():Void { }
-	
-	/**
-	 * Called when a preload progress event is fired
-	 * @param	loaded	The number of items that are loaded
-	 * @param	total	The total number of items will be loaded
-	 */
-	public function onPreloadProgress (loaded:Int, total:Int):Void { }
-	
-	/**
-	 * Called when a render context is lost
-	 * @param	renderer	The renderer dispatching the event
-	 */
-	//public function onRenderContextLost (renderer:Renderer):Void { }
-	
-	/**
-	 * Called when a render context is restored
-	 * @param	renderer	The renderer dispatching the event
-	 * @param	context	The current render context
-	 */
-	//public function onRenderContextRestored (renderer:Renderer, context:RenderContext):Void { }
-	
-	/**
-	 * Called when a text edit event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	text	The current replacement text
-	 * @param	start	The starting index for the edit
-	 * @param	length	The length of the edit
-	 */
-	public function onTextEdit (window:Window, text:String, start:Int, length:Int):Void { }
-	
-	/**
-	 * Called when a text input event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	text	The current input text
-	 */
-	public function onTextInput (window:Window, text:String):Void { }
-	
-	/**
-	 * Called when a touch end event is fired
-	 * @param	touch	The current touch object
-	 */
-	public function onTouchEnd (touch:Touch):Void { }
-	
-	/**
-	 * Called when a touch move event is fired
-	 * @param	touch	The current touch object
-	 */
-	public function onTouchMove (touch:Touch):Void { }
-	
-	/**
-	 * Called when a touch start event is fired
-	 * @param	touch	The current touch object
-	 */
-	public function onTouchStart (touch:Touch):Void { }
-	
-	/**
-	 * Called when a window activate event is fired
-	 * @param	window	The window dispatching the event
-	 */
-	public function onWindowActivate (window:Window):Void { }
-	
-	/**
-	 * Called when a window close event is fired
-	 * @param	window	The window dispatching the event
-	 */
-	public function onWindowClose (window:Window):Void { }
-	
-	/**
-	 * Called when a window create event is fired
-	 * @param	window	The window dispatching the event
-	 */
-	public function onWindowCreate (window:Window):Void { }
-	
-	/**
-	 * Called when a window deactivate event is fired
-	 * @param	window	The window dispatching the event
-	 */
-	public function onWindowDeactivate (window:Window):Void { }
-	
-	/**
-	 * Called when a window drop file event is fired
-	 * @param	window	The window dispatching the event
-	 */
-	public function onWindowDropFile (window:Window, file:String):Void { }
-	
-	/**
-	 * Called when a window enter event is fired
-	 * @param	window	The window dispatching the event
-	 */
-	public function onWindowEnter (window:Window):Void { }
-	
-	/**
-	 * Called when a window focus in event is fired
-	 * @param	window	The window dispatching the event
-	 */
-	public function onWindowFocusIn (window:Window):Void { }
-	
-	/**
-	 * Called when a window focus out event is fired
-	 * @param	window	The window dispatching the event
-	 */
-	public function onWindowFocusOut (window:Window):Void { }
-	
-	/**
-	 * Called when a window enters fullscreen
-	 * @param	window	The window dispatching the event
-	 */
-	public function onWindowFullscreen (window:Window):Void { }
-	
-	/**
-	 * Called when a window leave event is fired
-	 * @param	window	The window dispatching the event
-	 */
-	public function onWindowLeave (window:Window):Void { }
-	
-	/**
-	 * Called when a window move event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	x	The x position of the window in desktop coordinates
-	 * @param	y	The y position of the window in desktop coordinates
-	 */
-	public function onWindowMove (window:Window, x:Float, y:Float):Void { }
-	
-	/**
-	 * Called when a window is minimized
-	 * @param	window	The window dispatching the event
-	 */
-	public function onWindowMinimize (window:Window):Void { }
-	
-	/**
-	 * Called when a window resize event is fired
-	 * @param	window	The window dispatching the event
-	 * @param	width	The width of the window
-	 * @param	height	The height of the window
-	 */
-	public function onWindowResize (window:Window, width:Int, height:Int):Void { }
-	
-	/**
-	 * Called when a window is restored from being minimized or fullscreen
-	 * @param	window	The window dispatching the event
-	 */
-	public function onWindowRestore (window:Window):Void { }
-	
-	/**
-	 * Called when a render event is fired
-	 * @param	renderer	The renderer dispatching the event
-	 */
-	//public function render (renderer:Renderer):Void { }
-	
-	/**
-	 * Called when an update event is fired
-	 * @param	deltaTime	The amount of time in milliseconds that has elapsed since the last update
-	 */
-	public function update (deltaTime:Int):Void { }
+	function createDefaultSystems():Void {
+		/*#if packer
+		packer = createSystem(new TexturePacker());
+		#end*/
+	}
 	
 }

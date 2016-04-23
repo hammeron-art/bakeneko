@@ -1,7 +1,7 @@
 package bakeneko;
 
 import bakeneko.core.Event;
-import bakeneko.core.Window.WindowEvent;
+import bakeneko.core.WindowEvent;
 import bakeneko.core.WindowConfig;
 
 class Window implements bakeneko.core.Window {
