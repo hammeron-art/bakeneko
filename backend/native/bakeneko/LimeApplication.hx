@@ -1,8 +1,18 @@
 package bakeneko;
 
+import bakeneko.core.System;
 import lime.app.Config;
 
+@:access(bakeneko.core.Application)
 class LimeApplication extends lime.app.Application {
+	
+	var bWindows:Map<lime.ui.Window, bakeneko.core.Window>;
+	
+	public function new() {
+		super();
+		
+		bWindows = new Map();
+	}
 	
 	override public function create(config:Config):Void {
 		
@@ -35,11 +45,34 @@ class LimeApplication extends lime.app.Application {
 	}
 	
 	override public function onKeyDown(window:lime.ui.Window, keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier):Void {
-		SystemImpl.keyDown(window, keyCode, modifier);
+		System.app.keyDown(bWindows[window], keyCode, modifier);
 	}
 	
 	override public function onKeyUp(window:lime.ui.Window, keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier):Void {
-		SystemImpl.keyUp(window, keyCode, modifier);
+		System.app.keyUp(bWindows[window], keyCode, modifier);
+	}
+	
+	override public function onMouseDown(window:lime.ui.Window, x:Float, y:Float, button:Int):Void {
+		System.app.mouseDown(bWindows[window], x, y, button);
+	}
+	
+	override public function onMouseMove(window:lime.ui.Window, x:Float, y:Float):Void {
+		System.app.mouseMove(bWindows[window], x, y);
+	}
+	
+	
+	override public function onMouseMoveRelative(window:lime.ui.Window, x:Float, y:Float):Void {
+		System.app.mouseMoveRelative(bWindows[window], x, y);
+	}
+	
+	
+	override public function onMouseUp(window:lime.ui.Window, x:Float, y:Float, button:Int):Void {
+		System.app.mouseUp(bWindows[window], x, y, button);
+	}
+	
+	
+	override public function onMouseWheel(window:lime.ui.Window, deltaX:Float, deltaY:Float):Void {
+		System.app.mouseWheel(bWindows[window], deltaX, deltaY);
 	}
 	
 }

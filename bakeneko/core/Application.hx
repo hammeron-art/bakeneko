@@ -118,6 +118,7 @@ class Application {
 	 */
 	function createDefaultSystems():Void {
 		input = createSystem(new InputSystem());
+		
 		/*#if packer
 		packer = createSystem(new TexturePacker());
 		#end*/
@@ -138,5 +139,25 @@ class Application {
 	
 	function keyUp(window:Window, keyCode:KeyCode, modifier:KeyModifier):Void {
 		input.onKeyUp(window, keyCode, modifier);
+	}
+	
+	function mouseMove (window:Window, x:Float, y:Float):Void {
+		window.onMouseMove.dispatch(x, y);
+	}
+	
+	function mouseMoveRelative (window:Window, x:Float, y:Float):Void {
+		window.onMouseMoveRelative.dispatch(x, y);
+	}
+	
+	function mouseUp (window:Window, x:Float, y:Float, button:Int):Void {
+		window.onMouseUp.dispatch(x, y, button);
+	}
+	
+	function mouseWheel (window:Window, deltaX:Float, deltaY:Float):Void {
+		window.onMouseWheel.dispatch(deltaX, deltaY);
+	}
+	
+	function mouseDown(window:Window, x:Float, y:Float, button:Int):Void {
+		window.onMouseDown.dispatch(x, y, button);
 	}
 }

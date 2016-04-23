@@ -15,11 +15,8 @@ import lime.app.Application;
 class SystemImpl {
 
 	static public var app:LimeApplication;
-	static var windows:Map<lime.ui.Window, Window>;
 	
 	static public function init() {
-		windows = new Map();
-		
 		app = new LimeApplication();
 		app.setPreloader(ApplicationMain.preloader);
 		
@@ -30,17 +27,11 @@ class SystemImpl {
 	
 	@:access(bakeneko.Window)
 	static public function createWindow(window:Window) {
-		windows.set(window.limeWindow, window);
-		
+		@:privateAccess
+		app.bWindows.set(window.limeWindow, window);
 		app.createWindow(window.limeWindow);
-	}
-	
-	static public function keyDown(window:lime.ui.Window, keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier):Void {
-		bakeneko.core.System.keyDown(windows[window], cast keyCode, cast modifier);
-	}
-	
-	static public function keyUp(window:lime.ui.Window, keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier):Void {
-		bakeneko.core.System.keyUp(windows[window], cast keyCode, cast modifier);
+		
+		bakeneko.core.System.app.windows.push(window);
 	}
 	
 	/*public static var g:Graphics;
