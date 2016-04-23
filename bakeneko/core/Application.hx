@@ -3,7 +3,7 @@ package bakeneko.core;
 import bakeneko.core.Window;
 import bakeneko.input.Input.KeyCode;
 import bakeneko.input.InputSystem;
-import bakeneko.graphics.RenderSystem;
+import bakeneko.graphics4.RenderSystem;
 import bakeneko.asset.ResourceManager;
 import bakeneko.state.StateManager;
 import bakeneko.core.TimerManager;
