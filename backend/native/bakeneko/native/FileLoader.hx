@@ -1,4 +1,4 @@
-package bakeneko.backend;
+package bakeneko.native;
 
 import bakeneko.task.Task;
 import bakeneko.task.TaskCompletionSource;
