@@ -160,4 +160,18 @@ class Application {
 	function mouseDown(window:Window, x:Float, y:Float, button:Int):Void {
 		window.onMouseDown.dispatch(x, y, button);
 	}
+	
+	function windowEvent(event:WindowEvent) {
+		
+		switch(event.type) {
+			case WindowEventType.focusIn:
+				//foreground();
+			case WindowEventType.focusOut:
+				//background();
+			default:
+		}
+		
+		onWindowEvent(event);
+	}
+
 }

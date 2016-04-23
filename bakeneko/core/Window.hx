@@ -1,9 +1,20 @@
 package bakeneko.core;
 
+import bakeneko.graphics4.Framebuffer;
 import bakeneko.input.KeyCode;
 import bakeneko.input.KeyModifier;
 
 interface Window {
+	public var x (get, set):Int;
+	public var y (get, set):Int;
+	public var width(get, never):Int;
+	public var height(get, never):Int;
+	
+	public var resizable (get, set):Bool;
+	public var scale (get, null):Float;
+	public var title (get, set):String;
+	public var borderless (get, set):Bool;
+	
 	public var onActivate:Event<Void->Void>;
 	public var onClose:Event<Void->Void>;
 	public var onCreate:Event<Void->Void>;

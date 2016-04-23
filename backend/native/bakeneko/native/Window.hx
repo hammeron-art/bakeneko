@@ -1,4 +1,4 @@
-package bakeneko;
+package bakeneko.native;
 
 import bakeneko.core.Event;
 import bakeneko.core.WindowEvent;
@@ -8,6 +8,16 @@ import bakeneko.input.KeyModifier;
 
 class Window implements bakeneko.core.Window {
 
+	public var x (get, set):Int;
+	public var y (get, set):Int;
+	public var width(get, never):Int;
+	public var height(get, never):Int;
+	
+	public var resizable (get, set):Bool;
+	public var scale (get, null):Float;
+	public var title (get, set):String;
+	public var borderless (get, set):Bool;
+	
 	public var onActivate = new Event<Void->Void> ();
 	public var onClose = new Event<Void->Void> ();
 	public var onCreate = new Event<Void->Void> ();
@@ -36,6 +46,59 @@ class Window implements bakeneko.core.Window {
 	
 	public function new(config:WindowConfig) {
 		limeWindow = new lime.ui.Window(config);
+	}
+	
+	inline function get_width() {
+		return limeWindow.width;
+	}
+	inline function set_width(value) {
+		return limeWindow.width = value;
+	}
+	
+	inline function get_height() {
+		return limeWindow.height;
+	}
+	inline function set_height(value) {
+		return limeWindow.height = value;
+	}
+	
+	inline function get_x() {
+		return limeWindow.x;
+	}
+	inline function set_x(value) {
+		return limeWindow.x = value;
+	}
+	
+	inline function get_y() {
+		return limeWindow.y;
+	}
+	inline function set_y(value) {
+		return limeWindow.y = value;
+	}
+	
+	inline function get_resizable() {
+		return limeWindow.resizable;
+	}
+	inline function set_resizable(value) {
+		return limeWindow.resizable = value;
+	}
+	
+	inline function get_scale() {
+		return limeWindow.scale;
+	}
+	
+	inline function get_title() {
+		return limeWindow.title;
+	}
+	inline function set_title(value) {
+		return limeWindow.title = value;
+	}
+	
+	inline function get_borderless() {
+		return limeWindow.borderless;
+	}
+	inline function set_borderless(value) {
+		return limeWindow.borderless = value;
 	}
 	
 }

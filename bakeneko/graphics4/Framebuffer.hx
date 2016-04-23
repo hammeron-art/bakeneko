@@ -1,5 +1,6 @@
 package bakeneko.graphics4;
 import bakeneko.core.Application;
+import bakeneko.core.System;
 
 /**
  * The Framebuffer represents the visible color output buffer.
@@ -66,7 +67,7 @@ class Framebuffer {
 	public var width(get, null): Int;
 
 	private function get_width(): Int {
-		return Application.core.window.width;
+		return System.app.windows[0].width;
 	}
 
 	/**
@@ -75,6 +76,6 @@ class Framebuffer {
 	public var height(get, null): Int;
 
 	private function get_height(): Int {
-		return Application.core.window.height;
+		return System.app.windows[0].height;
 	}
 }

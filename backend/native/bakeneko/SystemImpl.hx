@@ -1,14 +1,5 @@
 package bakeneko;
 
-/*import bakeneko.core.Application;
-import bakeneko.core.Core;
-import bakeneko.core.System;
-import bakeneko.graphics4.Framebuffer;
-import bakeneko.graphics4.Graphics;
-import cpp.Void;
-import lime.app.Application;
-import lime.graphics.GLRenderContext;*/
-
 import lime.app.Application;
 
 @:access(lime.app.Application)
@@ -25,30 +16,13 @@ class SystemImpl {
 		app.create(config);
 	}
 	
-	@:access(bakeneko.Window)
-	static public function createWindow(window:Window) {
+	@:access(bakeneko.native.Window)
+	static public function createWindow(window:bakeneko.native.Window) {
 		@:privateAccess
 		app.bWindows.set(window.limeWindow, window);
 		app.createWindow(window.limeWindow);
 		
 		bakeneko.core.System.app.windows.push(window);
 	}
-	
-	/*public static var g:Graphics;
-	public static var gl:GLRenderContext = new GLRenderContext();
-	public static var frame:bakeneko.graphics4.Framebuffer;
-	
-	public function new() {
-		frame = new Framebuffer(0, new bakeneko.native.graphics4.Graphics());
-	}
-	
-	public static function init(core:Core) {
-		gl = switch(core.renderer.context) {
-			case OPENGL(context):
-				gl = context;
-			default:
-				throw "Can't use other context";
-		}
-	}*/
 	
 }
