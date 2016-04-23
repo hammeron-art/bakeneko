@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="Hello World" package="com.hammeronart.bakeneko" version="1.0.0" company="Hammer On Art" />
+	<app main="Main" path="Export" file="bakeneko" />
+	
+	<source path="Source" />
+	
+	<haxelib name="bakeneko" />
+	
+	<assets path="Assets" rename="assets" />
+	
+</project>
