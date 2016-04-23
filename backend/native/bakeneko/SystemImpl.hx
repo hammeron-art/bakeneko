@@ -4,6 +4,7 @@ package bakeneko;
 import bakeneko.core.Core;
 import bakeneko.graphics4.Framebuffer;
 import bakeneko.graphics4.Graphics;
+import cpp.Void;
 import lime.app.Application;
 import lime.graphics.GLRenderContext;*/
 
@@ -12,12 +13,17 @@ import lime.app.Application;
 @:access(lime.app.Application)
 class SystemImpl {
 
-	static public var app:Application;
+	static public var app:LimeApplication;
+	
+	static var windows:Array<Window>;
 	
 	static public function init() {
-		app = new Application();
+		app = new LimeApplication();
 		app.setPreloader(ApplicationMain.preloader);
-		app.create(ApplicationMain.config);
+		
+		var config = ApplicationMain.config;
+		config.windows[0].title = "Bakeneko App";
+		app.create(config);
 	}
 	
 	/*public static var g:Graphics;

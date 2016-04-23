@@ -2,8 +2,6 @@ package bakeneko.input;
 
 import bakeneko.core.Window;
 
-typedef KeyCode = lime.ui.KeyCode;
-
 @:enum abstract PointerKey(Int) from Int to Int from UInt to UInt {
 	
 	var LEFT = 0;

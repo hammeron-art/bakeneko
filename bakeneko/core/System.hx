@@ -2,8 +2,11 @@ package bakeneko.core;
 
 class System {
 
-	static public function init() {
+	static var app:Application;
+	
+	static public function init(create:Void->Application) {
 		SystemImpl.init();
+		app = create();
 	}
 	
 }

@@ -1,6 +1,10 @@
 package bakeneko.core;
 
-typedef Window = lime.ui.Window;
+//typedef Window = lime.ui.Window;
+
+interface Window {
+	public var onWindowEvent:Event<WindowEvent->Void>;
+}
 
 typedef WindowEvent = {
 	var type:WindowEventType;

@@ -20,7 +20,6 @@
 	<haxeflag name="-resource" value="resources/shaders/vertexColor.vs@shaders.vertexColor.vs" />
 	<haxeflag name="-resource" value="resources/shaders/vertexColor.fs@shaders.vertexColor.fs" />
 	
-	<haxeflag name="-debug"/>
 	<haxedef name="source-map-content" />
 	
 	<haxedef name="HXCPP_STACK_TRACE" />
