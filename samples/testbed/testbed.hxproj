@@ -5,30 +5,30 @@
     <movie outputType="CustomBuild" />
     <movie input="" />
     <movie path="project.xml" />
-    <movie fps="30" />
-    <movie width="800" />
-    <movie height="600" />
-    <movie version="1" />
+    <movie fps="60" />
+    <movie width="960" />
+    <movie height="540" />
+    <movie version="0" />
     <movie minorVersion="0" />
     <movie platform="Lime" />
     <movie background="FFFFFF" />
-    <movie preferredSDK=";3;" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
     <class path="C:\Works\Bakeneko" />
     <class path="C:\HaxeToolkit\haxe\lib\lime\git" />
     <class path="Source" />
-    <class path="Export\windows\cpp\haxe" />
+    <class path="C:\Works\Bakeneko\backend\native" />
+    <class path="Build\windows\cpp\haxe" />
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="bakeneko=0.0.0&#xA;lime=2.9.1&#xA;tools=2.9.1&#xA;no-compilation&#xA;lime-native&#xA;source-map-content&#xA;windows&#xA;desktop&#xA;display" />
+    <option directives="bakeneko=0.0.0&#xA;lime=2.9.1&#xA;tools=2.9.1&#xA;HXCPP_STACK_TRACE&#xA;no-compilation&#xA;HXCPP_TELEMETRY&#xA;lime-native&#xA;source-map-content&#xA;windows&#xA;desktop&#xA;display" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="False" />
-    <option additional="-resource resources/shaders/default.vs@shaders.default.vs&#xA;-resource resources/shaders/default.fs@shaders.default.fs&#xA;-resource resources/shaders/screen.vs@shaders.screen.vs&#xA;-resource resources/shaders/screen.fs@shaders.screen.fs&#xA;-resource resources/shaders/wire.vs@shaders.wire.vs&#xA;-resource resources/shaders/wire.fs@shaders.wire.fs&#xA;-resource resources/shaders/vertexColor.vs@shaders.vertexColor.vs&#xA;-resource resources/shaders/vertexColor.fs@shaders.vertexColor.fs&#xA;-debug &#xA;#--macro keep(&quot;Main&quot;)" />
+    <option additional="-resource resources/shaders/default.vs@shaders.default.vs&#xA;-resource resources/shaders/default.fs@shaders.default.fs&#xA;-resource resources/shaders/screen.vs@shaders.screen.vs&#xA;-resource resources/shaders/screen.fs@shaders.screen.fs&#xA;-resource resources/shaders/wire.vs@shaders.wire.vs&#xA;-resource resources/shaders/wire.fs@shaders.wire.fs&#xA;-resource resources/shaders/vertexColor.vs@shaders.vertexColor.vs&#xA;-resource resources/shaders/vertexColor.fs@shaders.vertexColor.fs&#xA;#--macro keep(&quot;Main&quot;)" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>
@@ -36,8 +36,8 @@
   </haxelib>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>
-    <compile path="..\..\bakeneko\backend\Assets.hx" />
-    <compile path="..\..\bakeneko\backend\FileLoader.hx" />
+    <compile path="src\Main.hx" />
+    <compile path="..\..\BakenekoApp.hx" />
   </compileTargets>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>

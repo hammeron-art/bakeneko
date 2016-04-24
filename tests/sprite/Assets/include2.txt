@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<extension>
-	
-	<!-- <source path="Source" /> -->
-	
-	<haxelib name="lime" />
-	<template path="templates" />
-	
-</extension>

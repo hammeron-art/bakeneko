@@ -1,6 +1,6 @@
 package bakeneko.render;
 
-import bakeneko.backend.opengl.GL;
+import lime.graphics.opengl.GL;
 
 /**
  * Vertex attribute format to be send to the shader

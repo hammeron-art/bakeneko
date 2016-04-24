@@ -5,14 +5,17 @@ import bakeneko.input.InputSystem;
 import bakeneko.input.KeyCode;
 import bakeneko.input.KeyModifier;
 import bakeneko.render.Color;
+import bakeneko.state.StateManager;
 
 class Application {
 
 	public var windows:Array<IWindow>;
 	// List of application systems
 	public var systems:Array<AppSystem>;
-	public var input:InputSystem;
 	public var frameCount:Int;
+	
+	public var input:InputSystem;
+	public var stateManager:StateManager;
 	
 	var canAddSystens:Bool;
 	
@@ -111,7 +114,7 @@ class Application {
 
 		onInit();
 		initialState();
-		//Log.assert(stateManager.operations.length > 0 && stateManager.operations.first().action == StateAction.Push, 'Can\'t start without a state');
+		Log.assert(stateManager.operations.length > 0 && stateManager.operations.first().action == StateAction.Push, 'Can\'t start without a state');
 	}
 
 	/**
@@ -119,6 +122,7 @@ class Application {
 	 */
 	function createDefaultSystems():Void {
 		input = createSystem(new InputSystem());
+		stateManager = createSystem(new StateManager());
 		
 		/*#if packer
 		packer = createSystem(new TexturePacker());
@@ -131,6 +135,13 @@ class Application {
 	 * @param	delta time from last update
 	 */
 	function update(delta:Float):Void {
+		
+		for (appSystem in systems) {
+			appSystem.onUpdate(delta);
+		}
+
+		stateManager.updateStates(delta);
+		
 		++frameCount;
 	}
 	

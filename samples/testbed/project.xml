@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="pProject" package="com.hammeronart.pproject" version="1.0.0" company="Hammer On Art" />
+	<app main="Main" path="Build" file="bakeneko" />
+	
+	<source path="Source" />
+	
+	<haxelib name="bakeneko" />
+	<!-- <haxelib name="logneko" />
+	<haxeflag name="--macro" value="addGlobalMetadata('lime.graphics.opengl.GL', '@:build(logneko.inspector.Macros.build())')" />
+	<haxedef name="logneko" /> -->
+	
+	<!-- <assets path="Assets/assets" rename="assets" /> -->
+	<window orientation="landscape" />
+	
+</project>

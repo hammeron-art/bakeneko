@@ -2,7 +2,7 @@ package bakeneko.state;
 
 import bakeneko.core.Application;
 import bakeneko.core.Log.*;
-import bakeneko.entity.Scene;
+//import bakeneko.entity.Scene;
 
 @:allow(bakeneko.state.StateManager)
 class State
@@ -12,14 +12,14 @@ class State
 	var systems:Array<StateSystem>;
 	var canAddSystens:Bool = true;
 
-	public var scene(default, null):Scene;
+	//public var scene(default, null):Scene;
 
 	public function new()
 	{
 		app = Application.get();
 
 		systems = [];
-		scene = new Scene();
+		//scene = new Scene();
 	}
 
 	/**
@@ -88,7 +88,7 @@ class State
 	function init() {
 		canAddSystens = true;
 
-		createSystem(scene);
+		//createSystem(scene);
 		// user defined systems
 		createSystems();
 
