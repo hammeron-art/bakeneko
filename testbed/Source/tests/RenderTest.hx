@@ -22,9 +22,7 @@ class RenderTest extends State {
 		
 		var structure = new VertexStructure();
 		structure.add("pos", VertexData.Float3);
-		
-		vertexBuffer = renderer.createVertexBuffer(structure);
-		
+
 		var pass = renderer.createPass();
 		pass.addShader(renderer.createShader());
 		
@@ -32,6 +30,8 @@ class RenderTest extends State {
 			positions: [[ -1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 1.0, 0.0]],
 			indices: [0, 1, 2],
 		};
+		
+		vertexBuffer = renderer.createVertexBuffer(data.indices.length, structure);
 	}
 	
 	function render(window:Window) {

@@ -18,6 +18,7 @@ class VertexBuffer {
 	private var instanceDataStepRate: Int;
 	
 	var render:Renderer;
+	var vertexCount:Int = 0;
 	
 	function new(render:Renderer, structure:VertexStructure, usage:Usage) {
 		this.usage = usage != null ? usage : Usage.StaticUsage;

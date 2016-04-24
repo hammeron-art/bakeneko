@@ -42,11 +42,12 @@ class Renderer implements IRenderer {
 		
 	}
 	
-	public function createVertexBuffer(structure: VertexStructure, ?usage:Usage) {
+	public function createVertexBuffer(vertexCount:Int, structure: VertexStructure, ?usage:Usage) {
 		var buffer = gl.createBuffer();
 		
 		var vBuffer = new VertexBuffer(this, structure, usage);
 		vBuffer.buffer = buffer;
+		vBuffer.vertexCount = vertexCount;
 		
 		return vBuffer;
 	}
@@ -97,7 +98,12 @@ class Renderer implements IRenderer {
 import flash.events.Event;
 import flash.display.StageScaleMode;
 import flash.display3D.Context3DClearMask;
+import flash.display3D.Context3DBufferUsage;
+import flash.display3D.Context3DRenderMode;
+import flash.display3D.Context3DProfile;
 
+@:access(bakeneko.render.VertexBuffer)
+@:access(bakeneko.render.Pass)
 class Renderer implements IRenderer {
 
 	var window:bakeneko.core.Window;
@@ -128,7 +134,7 @@ class Renderer implements IRenderer {
 		
 		stage3D = stage.stage3Ds[0];
 		stage3D.addEventListener(Event.CONTEXT3D_CREATE, onReady);
-		stage3D.requestContext3D(cast flash.display3D.Context3DRenderMode.AUTO, cast 'standard');
+		stage3D.requestContext3D(cast Context3DRenderMode.AUTO, Context3DProfile.STANDARD);
 	}
 	
 	function onReady(_): Void {
@@ -154,6 +160,46 @@ class Renderer implements IRenderer {
 	
 	public function end():Void {
 		
+	}
+	
+	public function createVertexBuffer(vertexCount:Int, structure: VertexStructure, ?usage:Usage) {
+
+		var stride = 0;
+		for (element in structure.elements) {
+			switch (element.data) {
+			case VertexData.Float1:
+				stride += 1;
+			case VertexData.Float2:
+				stride += 2;
+			case VertexData.Float3:
+				stride += 3;
+			case VertexData.Float4:
+				stride += 4;
+			case VertexData.Float4x4:
+				stride += 4 * 4;
+			}
+		}
+		
+		var buffer = context.createVertexBuffer(vertexCount, stride, usage == Usage.DynamicUsage ? Context3DBufferUsage.DYNAMIC_DRAW : Context3DBufferUsage.STATIC_DRAW);
+		
+		var vBuffer = new VertexBuffer(this, structure, usage);
+		vBuffer.buffer = buffer;
+		vBuffer.vertexCount = vertexCount;
+		
+		return vBuffer;
+	}
+
+	function uploadVertexBuffer(buffer:VertexBuffer) {
+		var b:flash.display3D.VertexBuffer3D = cast buffer.buffer;
+		b.uploadFromByteArray(cast buffer.data.toBytes(), 0, 0, buffer.vertexCount);
+	}
+	
+	inline public function createPass():Pass {
+		return new Pass(this);
+	}
+	
+	public function createShader():Shader {
+		return new Shader();
 	}
 	
 	inline public function viewport(x:Int, y:Int, width:Int, height:Int): Void{

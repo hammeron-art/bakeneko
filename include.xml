@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension>
 	
+	<haxeflag name="-swf-version" value="15" />
 	<haxelib name="lime" />
 	
 	<template path="backend/native/templates" />

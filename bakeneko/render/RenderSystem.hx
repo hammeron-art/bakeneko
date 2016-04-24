@@ -13,6 +13,8 @@ class RenderSystem extends AppSystem {
 	
 	public var onRenderEvent = new Event<Window->Void>();
 	
+	var backColor = Color.fromInt32(0x1c1d23);
+	
 	override public function onInit():Void {
 	}
 	
@@ -20,7 +22,7 @@ class RenderSystem extends AppSystem {
 		var g = window.renderer;
 		
 		g.begin();
-		g.clear(Color.WHITE);
+		g.clear(backColor);
 		g.end();
 		
 		onRenderEvent.dispatch(window);
