@@ -2,11 +2,10 @@
 <extension>
 	
 	<haxeflag name="-swf-version" value="15" />
+	
 	<haxelib name="lime" />
-	
-	<template path="backend/native/templates" />
-	
-	<source path="backend/native" />
+	<template path="backend/lime/templates" />
+	<source path="backend/lime" />
 	
 	<window width="960" height="540" />
 	<window fps="60" />
