@@ -1,7 +1,7 @@
 package bakeneko;
 
-import bakeneko.graphics4.Renderer;
-import bakeneko.graphics4.Surface;
+import bakeneko.render.Renderer;
+import bakeneko.render.Surface;
 import lime.app.Application;
 
 @:access(lime.app.Application)

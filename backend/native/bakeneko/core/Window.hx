@@ -3,8 +3,8 @@ package bakeneko.core;
 import bakeneko.core.Event;
 import bakeneko.core.WindowEvent;
 import bakeneko.core.WindowConfig;
-import bakeneko.graphics4.IRenderer;
-import bakeneko.graphics4.Surface;
+import bakeneko.render.IRenderer;
+import bakeneko.render.Surface;
 import bakeneko.input.KeyCode;
 import bakeneko.input.KeyModifier;
 

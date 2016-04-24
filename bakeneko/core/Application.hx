@@ -1,7 +1,7 @@
 package bakeneko.core;
 
 import bakeneko.core.WindowEvent;
-import bakeneko.graphics4.RenderSystem;
+import bakeneko.render.RenderSystem;
 import bakeneko.input.InputSystem;
 import bakeneko.input.KeyCode;
 import bakeneko.input.KeyModifier;

@@ -1,7 +1,7 @@
 package bakeneko.core;
 
-import bakeneko.graphics4.Surface;
-import bakeneko.graphics4.IRenderer;
+import bakeneko.render.Surface;
+import bakeneko.render.IRenderer;
 import bakeneko.input.KeyCode;
 import bakeneko.input.KeyModifier;
 
@@ -42,60 +42,4 @@ interface IWindow {
 	public var onRestore:Event<Void->Void>;
 	public var onTextEdit:Event<String->Int->Int->Void>;
 	public var onTextInput:Event<String->Void>;
-	
-	/*public function new(config:WindowConfig) {
-	}
-	
-	function get_width() {
-		return 0;
-	}
-	function set_width(value) {
-		return 0;
-	}
-	
-	function get_height() {
-		return 0;
-	}
-	function set_height(value) {
-		return 0;
-	}
-	
-	function get_x() {
-		return 0;
-	}
-	function set_x(value) {
-		return 0;
-	}
-	
-	function get_y() {
-		return 0;
-	}
-	function set_y(value) {
-		return 0;
-	}
-	
-	function get_resizable() {
-		return false;
-	}
-	function set_resizable(value) {
-		return false;
-	}
-	
-	function get_scale() {
-		return 0.0;
-	}
-	
-	function get_title() {
-		return '';
-	}
-	function set_title(value) {
-		return '';
-	}
-	
-	function get_borderless() {
-		return false;
-	}
-	function set_borderless(value) {
-		return false;
-	}*/
 }

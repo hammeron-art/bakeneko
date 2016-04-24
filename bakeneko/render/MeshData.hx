@@ -5,7 +5,7 @@ typedef Face = Array<Int>;
 
 typedef MeshData = {
 	@:optional var name:String;
-	@:optional var vertexFormat:VertexFormat;
+	@:optional var structure:VertexStructure;
 	
 	@:optional var positions:Array<Vector>;
 	@:optional var uvs:Array<Vector>;

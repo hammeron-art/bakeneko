@@ -1,15 +1,15 @@
 package tests;
 
-import bakeneko.graphics4.Shader;
 import bakeneko.core.Window;
-import bakeneko.graphics4.Pass;
-import bakeneko.graphics4.Renderer;
-import bakeneko.graphics4.VertexData;
-import bakeneko.graphics4.VertexStructure;
-import bakeneko.graphics4.VertexBuffer;
+import bakeneko.state.State;
+import bakeneko.render.Shader;
+import bakeneko.render.Pass;
+import bakeneko.render.Renderer;
+import bakeneko.render.VertexData;
+import bakeneko.render.VertexStructure;
+import bakeneko.render.VertexBuffer;
 import bakeneko.render.Color;
 import bakeneko.render.MeshData;
-import bakeneko.state.State;
 
 class RenderTest extends State {
 	
