@@ -2,13 +2,9 @@ package;
 
 import bakeneko.core.Application;
 import bakeneko.core.WindowEvent;
-import states.RenderTest;
+import samples.RenderTest;
 
-class Project extends Application {
-	
-	public function new() {
-		super();
-	}
+class Testbed extends Application {
 	
 	override public function initialState():Void {
 		stateManager.push(new RenderTest());

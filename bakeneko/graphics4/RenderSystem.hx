@@ -1,6 +1,8 @@
 package bakeneko.graphics4;
 
 import bakeneko.core.AppSystem;
+import bakeneko.core.Event;
+import bakeneko.core.Window;
 import bakeneko.render.Color;
 
 /**
@@ -9,20 +11,21 @@ import bakeneko.render.Color;
  */
 class RenderSystem extends AppSystem {
 	
-	public var driver:Dynamic;
+	public var onRenderEvent = new Event<Window->Void>();
 	
 	override public function onInit():Void {
-		trace('inie');
 	}
 	
-	public function onRender(frame:ISurface) {
-		//var g = frame.g4;
+	public function onRender(window:Window) {
+		var g = window.renderer;
 		
-		//g.clear(new Color(1.0, 0.5, 0.0, 1.0));
-		/*var g = SystemImpl.gl;
+		g.begin();
+		g.clear(Color.WHITE);
+		g.end();
 		
-		g.clearColor(1.0, 0.5, 0.0, 1.0);
-		g.clear(gl.COLOR_BUFFER_BIT);*/
+		onRenderEvent.dispatch(window);
+		
+		g.present();
 	}
 	
 }

@@ -1,6 +1,7 @@
 package bakeneko.core;
 
 import bakeneko.core.WindowEvent;
+import bakeneko.graphics4.RenderSystem;
 import bakeneko.input.InputSystem;
 import bakeneko.input.KeyCode;
 import bakeneko.input.KeyModifier;
@@ -16,6 +17,7 @@ class Application {
 	
 	public var input:InputSystem;
 	public var stateManager:StateManager;
+	public var renderSystem:RenderSystem;
 	
 	var canAddSystens:Bool;
 	
@@ -114,7 +116,7 @@ class Application {
 
 		onInit();
 		initialState();
-		Log.assert(stateManager.operations.length > 0 && stateManager.operations.first().action == StateAction.Push, 'Can\'t start without a state');
+		//Log.assert(stateManager.operations.length > 0 && stateManager.operations.first().action == StateAction.Push, 'Can\'t start without a state');
 	}
 
 	/**
@@ -123,6 +125,7 @@ class Application {
 	function createDefaultSystems():Void {
 		input = createSystem(new InputSystem());
 		stateManager = createSystem(new StateManager());
+		renderSystem = createSystem(new RenderSystem());
 		
 		/*#if packer
 		packer = createSystem(new TexturePacker());
@@ -146,13 +149,7 @@ class Application {
 	}
 	
 	function render(window:Window) {
-		var g = window.renderer;
-		
-		g.begin();
-		g.clear(Color.WHITE);
-		g.end();
-		
-		g.present();
+		renderSystem.onRender(window);
 	}
 	
 	function keyDown(window:Window, keyCode:KeyCode, modifier:KeyModifier):Void {
