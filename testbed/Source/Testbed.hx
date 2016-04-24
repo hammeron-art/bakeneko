@@ -2,7 +2,7 @@ package;
 
 import bakeneko.core.Application;
 import bakeneko.core.WindowEvent;
-import samples.RenderTest;
+import tests.RenderTest;
 
 class Testbed extends Application {
 	

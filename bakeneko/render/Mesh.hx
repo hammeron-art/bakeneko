@@ -58,13 +58,13 @@ class Mesh {
 			colors: data.colors != null ? data.colors : [],
 			normals: data.normals != null ? data.normals : [],
 			faces: data.faces != null ? data.faces : [],
-			indexes: data.indexes != null ? data.indexes : [],
+			indexes: data.indices != null ? data.indices : [],
 		}
 		
 		//this.data = data != null ? data : {positions: [], uvs: [], colors: [], normals: [], faces: [], indexes: []};
 		
 		vertexList = MeshTools.buildVertexData(this.data, this.format);
-		indexList = this.data.indexes;
+		indexList = this.data.indices;
 	}
 	
 	public inline function setVertexFromArray(data:Array<Float>) {

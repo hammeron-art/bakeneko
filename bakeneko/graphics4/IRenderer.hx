@@ -6,6 +6,10 @@ interface IRenderer {
 	public function begin(surfaces:Array<Surface> = null):Void;
 	public function end():Void;
 	
+	public function createVertexBuffer(structure: VertexStructure, ?usage:Usage):VertexBuffer;
+	public function createPass():Pass;
+	public function createShader():Shader;
+	
 	public function clear(?color:Color, ?depth:Float, ?stencil:Int):Void;
 	public function viewport(x:Int, y:Int, width:Int, height:Int):Void;
 	

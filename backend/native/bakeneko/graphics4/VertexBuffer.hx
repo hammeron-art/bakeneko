@@ -6,6 +6,7 @@ import bakeneko.graphics4.Usage;
 import bakeneko.graphics4.VertexStructure;
 import bakeneko.graphics4.VertexData;
 
+@:access(bakeneko.graphics4.Renderer)
 class VertexBuffer {
 	private var buffer: Dynamic;
 	private var data: Float32Array;
@@ -16,8 +17,13 @@ class VertexBuffer {
 	private var usage: Usage;
 	private var instanceDataStepRate: Int;
 	
-	public function new(vertexCount: Int, structure: VertexStructure, usage: Usage, instanceDataStepRate: Int = 0, canRead: Bool = false) {
-		this.usage = usage;
+	var render:Renderer;
+	
+	function new(render:Renderer, structure:VertexStructure, usage:Usage) {
+		this.usage = usage != null ? usage : Usage.StaticUsage;
+		this.render = render;
+		
+		/*this.usage = usage;
 		this.instanceDataStepRate = instanceDataStepRate;
 		mySize = vertexCount;
 		myStride = 0;
@@ -75,16 +81,15 @@ class VertexBuffer {
 				offset += 4 * 4 * 4;
 			}
 			++index;
-		}
+		}*/
 	}
 	
-	public function lock(?start: Int, ?count: Int): Float32Array {
+	inline public function lock(): Float32Array {
 		return data;
 	}
 	
-	public function unlock(): Void {
-		SystemImpl.gl.bindBuffer(GL.ARRAY_BUFFER, buffer);
-		SystemImpl.gl.bufferData(GL.ARRAY_BUFFER, cast data, usage == Usage.DynamicUsage ? GL.DYNAMIC_DRAW : GL.STATIC_DRAW);
+	inline public function unlock(): Void {
+		render.uploadVertexBuffer(this);
 	}
 	
 	public function stride(): Int {
@@ -93,36 +98,5 @@ class VertexBuffer {
 	
 	public function count(): Int {
 		return mySize;
-	}
-	
-	public function set(offset: Int): Int {
-		var ext: Dynamic = SystemImpl.gl.getExtension("ANGLE_instanced_arrays");
-		SystemImpl.gl.bindBuffer(GL.ARRAY_BUFFER, buffer);
-		var attributesOffset = 0;
-		for (i in 0...sizes.length) {
-			if (sizes[i] > 4) {
-				var size = sizes[i];
-				var addonOffset = 0;
-				while (size > 0) {
-					SystemImpl.gl.enableVertexAttribArray(offset + attributesOffset);
-					SystemImpl.gl.vertexAttribPointer(offset + attributesOffset, 4, GL.FLOAT, false, myStride, offsets[i] + addonOffset);
-					if (ext) {
-						ext.vertexAttribDivisorANGLE(offset + attributesOffset, instanceDataStepRate);
-					}
-					size -= 4;
-					addonOffset += 4 * 4;
-					++attributesOffset;
-				}
-			}
-			else {
-				SystemImpl.gl.enableVertexAttribArray(offset + attributesOffset);
-				SystemImpl.gl.vertexAttribPointer(offset + attributesOffset, sizes[i], GL.FLOAT, false, myStride, offsets[i]);
-				if (ext) {
-					ext.vertexAttribDivisorANGLE(offset + attributesOffset, instanceDataStepRate);
-				}
-				++attributesOffset;
-			}
-		}
-		return attributesOffset;
 	}
 }

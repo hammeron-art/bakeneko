@@ -10,6 +10,8 @@ import bakeneko.render.Color;
 
 import lime.graphics.GLRenderContext;
 
+@:access(bakeneko.graphics4.VertexBuffer)
+@:access(bakeneko.graphics4.Pass)
 class Renderer implements IRenderer {
 
 	var window:bakeneko.core.Window;
@@ -38,6 +40,28 @@ class Renderer implements IRenderer {
 	
 	public function end():Void {
 		
+	}
+	
+	public function createVertexBuffer(structure: VertexStructure, ?usage:Usage) {
+		var buffer = gl.createBuffer();
+		
+		var vBuffer = new VertexBuffer(this, structure, usage);
+		vBuffer.buffer = buffer;
+		
+		return vBuffer;
+	}
+
+	function uploadVertexBuffer(buffer:VertexBuffer) {
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, cast buffer.data, buffer.usage == Usage.DynamicUsage ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
+	}
+	
+	inline public function createPass():Pass {
+		return new Pass(this);
+	}
+	
+	public function createShader():Shader {
+		return new Shader();
 	}
 	
 	inline public function viewport(x:Int, y:Int, width:Int, height:Int): Void{

@@ -12,5 +12,5 @@ typedef MeshData = {
 	@:optional var colors:Array<Vector>;
 	@:optional var normals:Array<Vector>;
 	@:optional var faces:Array<Face>;
-	@:optional var indexes:Array<Int>;
+	@:optional var indices:Array<Int>;
 }
