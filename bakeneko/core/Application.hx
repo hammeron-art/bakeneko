@@ -4,10 +4,11 @@ import bakeneko.core.WindowEvent;
 import bakeneko.input.InputSystem;
 import bakeneko.input.KeyCode;
 import bakeneko.input.KeyModifier;
+import bakeneko.render.Color;
 
 class Application {
 
-	public var windows:Array<Window>;
+	public var windows:Array<IWindow>;
 	// List of application systems
 	public var systems:Array<AppSystem>;
 	public var input:InputSystem;
@@ -131,6 +132,14 @@ class Application {
 	 */
 	function update(delta:Float):Void {
 		++frameCount;
+	}
+	
+	function render(window:Window) {
+		var g = window.renderer;
+		
+		g.begin();
+		g.clear(Color.WHITE);
+		g.end();
 	}
 	
 	function keyDown(window:Window, keyCode:KeyCode, modifier:KeyModifier):Void {

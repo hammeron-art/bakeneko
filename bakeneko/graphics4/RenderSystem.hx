@@ -15,7 +15,7 @@ class RenderSystem extends AppSystem {
 		trace('inie');
 	}
 	
-	public function onRender(frame:Framebuffer) {
+	public function onRender(frame:ISurface) {
 		//var g = frame.g4;
 		
 		//g.clear(new Color(1.0, 0.5, 0.0, 1.0));

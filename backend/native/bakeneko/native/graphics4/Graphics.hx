@@ -1,8 +1,18 @@
 package bakeneko.native.graphics4;
 
-class Graphics implements bakeneko.graphics4.Graphics {
+import bakeneko.graphics4.IRenderer;
+import bakeneko.render.Color;
+import lime.graphics.GLRenderContext;
 
-	public function new() {
+class Graphics implements IRenderer {
+
+	var gl:GLRenderContext;
+	
+	public function new(context:GLRenderContext = null) {
+		this.gl = context != null ? context : switch (SystemImpl.app.window.renderer.context) { case OPENGL(gl): gl; default: throw "Unsupported context"; };
+	}
+	
+	public function clear(?color:Color, ?depth:Float, ?stencil:Int):Void {
 		
 	}
 	

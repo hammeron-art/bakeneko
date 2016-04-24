@@ -7,6 +7,13 @@ class Color
 	public var b:Float;
 	public var a:Float;
 	
+	public static var WHITE = new Color(1.0, 1.0, 1.0);
+	public static var BLACK = new Color(0.0, 0.0, 0.0);
+	public static var GREY = new Color(0.5, 0.5, 0.5);
+	public static var RED = new Color(1.0, 0.0, 0.0);
+	public static var GREEN = new Color(0.0, 1.0, 0.0);
+	public static var BLUE = new Color(0.0, 0.0, 1.0);
+	
 	public inline function new(r:Float = 1.0, g:Float = 1.0, b:Float = 1.0, a:Float = 1.0)
 	{
 		set(r, g, b, a);
@@ -70,7 +77,7 @@ class Color
 }
 
 // Common colors
-@:enum abstract ColorSet(Color) from Color to Color
+/*@:enum abstract ColorSet(Color) from Color to Color
 {
 	public static var white = new Color(1.0, 1.0, 1.0);
 	public static var black = new Color(0.0, 0.0, 0.0);
@@ -78,4 +85,4 @@ class Color
 	public static var red = new Color(1.0, 0.0, 0.0);
 	public static var green = new Color(0.0, 1.0, 0.0);
 	public static var blue = new Color(0.0, 0.0, 1.0);
-}
+}*/

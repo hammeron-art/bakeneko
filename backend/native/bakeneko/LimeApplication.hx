@@ -4,6 +4,7 @@ import bakeneko.core.System;
 import bakeneko.core.WindowEvent;
 import bakeneko.core.WindowEventType;
 import lime.app.Config;
+import lime.graphics.Renderer;
 import lime.ui.Window;
 
 @:access(bakeneko.core.Application)
@@ -31,7 +32,7 @@ class LimeApplication extends lime.app.Application {
 			if (Reflect.hasField (config, "windows")) {
 				for (windowConfig in config.windows) {
 					
-					var window = new bakeneko.native.Window(windowConfig);
+					var window = new bakeneko.core.Window(windowConfig);
 					SystemImpl.createWindow(window);
 					
 					#if (flash || html5)
@@ -45,6 +46,14 @@ class LimeApplication extends lime.app.Application {
 				onPreloadComplete ();
 			}
 		}
+	}
+	
+	override public function update(deltaTime:Int):Void {
+		System.app.update(deltaTime / 1000.0);
+	}
+	
+	override public function render(renderer:Renderer):Void {
+		System.app.render(bWindows[renderer.window]);
 	}
 	
 	override public function onKeyDown(window:lime.ui.Window, keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier):Void {

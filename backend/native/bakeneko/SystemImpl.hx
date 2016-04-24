@@ -1,5 +1,7 @@
 package bakeneko;
 
+import bakeneko.graphics4.Renderer;
+import bakeneko.graphics4.Surface;
 import lime.app.Application;
 
 @:access(lime.app.Application)
@@ -16,11 +18,15 @@ class SystemImpl {
 		app.create(config);
 	}
 	
-	@:access(bakeneko.native.Window)
-	static public function createWindow(window:bakeneko.native.Window) {
+	@:access(bakeneko.core.Window)
+	static public function createWindow(window:bakeneko.core.Window) {
 		@:privateAccess
 		app.bWindows.set(window.limeWindow, window);
 		app.createWindow(window.limeWindow);
+		
+		window.renderer = new Renderer(window);
+		
+		window.surface = new Surface();
 		
 		bakeneko.core.System.app.windows.push(window);
 	}

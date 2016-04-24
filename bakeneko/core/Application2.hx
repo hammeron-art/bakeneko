@@ -17,7 +17,7 @@ import lime.ui.KeyModifier;
  */
 @:allow(bakeneko.core.Core)
 @:access(bakeneko.input.InputSystem)
-class Application {
+class Application2 {
 	// The core framework
 	public static var core(default, null):Core;
 	// Reference to this instance

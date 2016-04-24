@@ -1,13 +1,15 @@
-package bakeneko.native;
+package bakeneko.core;
 
 import bakeneko.core.Event;
 import bakeneko.core.WindowEvent;
 import bakeneko.core.WindowConfig;
+import bakeneko.graphics4.IRenderer;
+import bakeneko.graphics4.Surface;
 import bakeneko.input.KeyCode;
 import bakeneko.input.KeyModifier;
 
-class Window implements bakeneko.core.Window {
-
+class Window implements bakeneko.core.IWindow {
+	
 	public var x (get, set):Int;
 	public var y (get, set):Int;
 	public var width(get, never):Int;
@@ -17,6 +19,9 @@ class Window implements bakeneko.core.Window {
 	public var scale (get, null):Float;
 	public var title (get, set):String;
 	public var borderless (get, set):Bool;
+	
+	public var surface:Surface;
+	public var renderer:IRenderer;
 	
 	public var onActivate = new Event<Void->Void> ();
 	public var onClose = new Event<Void->Void> ();
@@ -48,56 +53,56 @@ class Window implements bakeneko.core.Window {
 		limeWindow = new lime.ui.Window(config);
 	}
 	
-	inline function get_width() {
+	function get_width() {
 		return limeWindow.width;
 	}
-	inline function set_width(value) {
+	function set_width(value) {
 		return limeWindow.width = value;
 	}
 	
-	inline function get_height() {
+	function get_height() {
 		return limeWindow.height;
 	}
-	inline function set_height(value) {
+	function set_height(value) {
 		return limeWindow.height = value;
 	}
 	
-	inline function get_x() {
+	function get_x() {
 		return limeWindow.x;
 	}
-	inline function set_x(value) {
+	function set_x(value) {
 		return limeWindow.x = value;
 	}
 	
-	inline function get_y() {
+	function get_y() {
 		return limeWindow.y;
 	}
-	inline function set_y(value) {
+	function set_y(value) {
 		return limeWindow.y = value;
 	}
 	
-	inline function get_resizable() {
+	function get_resizable() {
 		return limeWindow.resizable;
 	}
-	inline function set_resizable(value) {
+	function set_resizable(value) {
 		return limeWindow.resizable = value;
 	}
 	
-	inline function get_scale() {
+	function get_scale() {
 		return limeWindow.scale;
 	}
 	
-	inline function get_title() {
+	function get_title() {
 		return limeWindow.title;
 	}
-	inline function set_title(value) {
+	function set_title(value) {
 		return limeWindow.title = value;
 	}
 	
-	inline function get_borderless() {
+	function get_borderless() {
 		return limeWindow.borderless;
 	}
-	inline function set_borderless(value) {
+	function set_borderless(value) {
 		return limeWindow.borderless = value;
 	}
 	
