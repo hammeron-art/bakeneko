@@ -140,6 +140,8 @@ class Application {
 		g.begin();
 		g.clear(Color.WHITE);
 		g.end();
+		
+		g.present();
 	}
 	
 	function keyDown(window:Window, keyCode:KeyCode, modifier:KeyModifier):Void {

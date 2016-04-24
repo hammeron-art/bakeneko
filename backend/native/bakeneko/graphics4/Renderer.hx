@@ -40,6 +40,10 @@ class Renderer implements IRenderer {
 		
 	}
 	
+	inline public function viewport(x:Int, y:Int, width:Int, height:Int): Void{
+		gl.viewport(x, y, width, height);
+	}
+	
 	public function clear(?color:Color, ?depth:Float, ?stencil:Int):Void {
 		var clearMask: Int = 0;
 		if (color != null) {
@@ -59,6 +63,9 @@ class Renderer implements IRenderer {
 		gl.clear(clearMask);
 	}
 	
+	public function present():Void {
+	}
+	
 }
 
 #else
@@ -74,6 +81,8 @@ class Renderer implements IRenderer {
 	var stage3D:flash.display.Stage3D;
 	var stage:flash.display.Stage;
 	var context:flash.display3D.Context3D;
+	
+	var surfaces:Array<Surface>;
 	
 	public function new(window:bakeneko.core.Window) {
 		this.window = window != null ? window : cast System.app.windows[0];
@@ -111,6 +120,8 @@ class Renderer implements IRenderer {
 	}
 	
 	public function begin(surfaces:Array<Surface> = null):Void {
+		this.surfaces = surfaces;
+		
 		if (surfaces == null)
 			context.setRenderToBackBuffer();
 		else
@@ -118,7 +129,13 @@ class Renderer implements IRenderer {
 	}
 	
 	public function end():Void {
-		context.present();
+		
+	}
+	
+	inline public function viewport(x:Int, y:Int, width:Int, height:Int): Void{
+		stage3D.x = x;
+		stage3D.y = y;
+		context.configureBackBuffer(width, height, 0);
 	}
 	
 	public function clear(?color:Color, ?depth:Float, ?stencil:Int):Void {
@@ -134,6 +151,10 @@ class Renderer implements IRenderer {
 		var a = color == null ? 1.0 : color.a;
 		
 		context.clear(r, g, b, a, depth == null ? 1.0 : depth, stencil == null ? 0 : stencil, clearMask);
+	}
+	
+	public function present():Void {
+		context.present();
 	}
 	
 }
