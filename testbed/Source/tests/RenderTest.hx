@@ -2,7 +2,6 @@ package tests;
 
 import bakeneko.core.Window;
 import bakeneko.state.State;
-import bakeneko.render.Shader;
 import bakeneko.render.Pass;
 import bakeneko.render.Renderer;
 import bakeneko.render.VertexData;
@@ -14,6 +13,12 @@ import bakeneko.render.MeshData;
 class RenderTest extends State {
 	
 	var vertexBuffer:VertexBuffer;
+	var color:Color;
+	
+	public function new(color:Color) {
+		super();
+		this.color = color;
+	}
 	
 	override public function onInit():Void {
 		app.renderSystem.onRenderEvent.add(render);
@@ -24,7 +29,7 @@ class RenderTest extends State {
 		structure.add("pos", VertexData.Float3);
 
 		var pass = renderer.createPass();
-		pass.addShader(renderer.createShader());
+		//pass.addShader(renderer.createShader());
 		
 		var data:MeshData = {
 			positions: [[ -1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 1.0, 0.0]],
@@ -34,13 +39,15 @@ class RenderTest extends State {
 		vertexBuffer = renderer.createVertexBuffer(data.indices.length, structure);
 	}
 	
+	override public function onDestroy():Void {
+		app.renderSystem.onRenderEvent.remove(render);
+	}
+	
 	function render(window:Window) {
 		var g = window.renderer;
 		
 		g.begin();
-		
-		g.clear(Color.fromInt32(0x1c1d23));
-		
+		g.clear(color);
 		g.end();
 	}
 	

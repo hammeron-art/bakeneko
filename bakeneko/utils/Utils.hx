@@ -40,5 +40,9 @@ class Utils {
 
 		return 0;
 	}
+	
+	public static inline function cycle(value:Int, max:Int) {
+		return ((value % max) + max) % max;
+	}
 
 }

@@ -31,6 +31,18 @@ class Renderer implements IRenderer {
 		}
 		
 		out = new GlslOut();
+		
+		reset();
+	}
+	
+	public function reset():Void {
+		begin();
+		clear(Color.BLACK);
+		end();
+		
+		present();
+		
+		trace('reset');
 	}
 	
 	public function begin(surfaces:Array<Surface> = null):Void {
@@ -139,6 +151,16 @@ class Renderer implements IRenderer {
 		stage3D = stage.stage3Ds[0];
 		stage3D.addEventListener(Event.CONTEXT3D_CREATE, onReady);
 		stage3D.requestContext3D(cast Context3DRenderMode.AUTO, Context3DProfile.STANDARD);
+	}
+	
+	public function reset():Void {
+		begin();
+		clear(Color.BLACK);
+		end();
+		
+		present();
+		
+		trace('reset');
 	}
 	
 	function onReady(_): Void {

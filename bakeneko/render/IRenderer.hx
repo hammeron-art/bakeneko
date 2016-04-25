@@ -3,6 +3,8 @@ package bakeneko.render;
 import bakeneko.render.Color;
 
 interface IRenderer {
+	public function reset():Void;
+	
 	public function begin(surfaces:Array<Surface> = null):Void;
 	public function end():Void;
 	

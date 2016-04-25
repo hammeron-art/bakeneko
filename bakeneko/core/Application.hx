@@ -145,6 +145,8 @@ class Application {
 
 		stateManager.updateStates(delta);
 		
+		onUpdate(delta);
+		
 		++frameCount;
 	}
 	

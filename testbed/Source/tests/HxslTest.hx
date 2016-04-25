@@ -19,6 +19,7 @@ class HxslTest extends State {
 	var compiledShader:RuntimeShader;
 	
 	override public function onInit():Void {
+		trace('hxsl');
 		cache = Cache.get();
 		
 		var globals = new Globals();
