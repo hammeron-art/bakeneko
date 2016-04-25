@@ -2,7 +2,7 @@ package bakeneko.render;
 
 import bakeneko.core.Application;
 import bakeneko.core.Log;
-import bakeneko.render.VertexFormat;
+import bakeneko.render.VertexStructure;
 import bakeneko.render.MeshData;
 
 class MeshTools {
@@ -25,7 +25,7 @@ class MeshTools {
 			positions: [[-0.5, 0.5, 0.0], [0.5, 0.5, 0.0], [-0.5, -0.5, 0.0], [0.5, -0.5, 0.0]],
 			colors: [[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0]],
 			uvs: [[0.0, 1.0], [1.0, 1.0], [0.0, 0.0], [1.0, 0.0]],
-			indexes: elements,
+			indices: elements,
 		}
 
 		//var mesh = new Mesh(Application.get().getSystem(RenderSystem).defaultFormat, data);
@@ -66,7 +66,7 @@ class MeshTools {
 	 * @param	customFormat use other format instead of the actual mesh format
 	 * @return
 	 */
-	public static function buildVertexData(mesh:MeshData, format:VertexFormat):Array<Float> {
+	public static function buildVertexData(mesh:MeshData, format:VertexStructure):Array<Float> {
 		Log.assert(format != null, "Can't build vertex data without a vertex format");
 
 		var vertexData:Array<Float> = [];
@@ -83,7 +83,6 @@ class MeshTools {
 			switch (element.semantic) {
 				case SPosition:
 					check(mesh.positions);
-					count = Std.int(mesh.positions.length);
 				case STexcoord:
 					check(mesh.uvs);
 				case SNormal:

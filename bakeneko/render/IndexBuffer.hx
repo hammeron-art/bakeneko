@@ -1,9 +1,35 @@
 package bakeneko.render;
 
-extern class IndexBuffer {
-	public function new(indexCount: Int, usage: Usage, canRead: Bool = false);
-	public function lock(): Array<Int>;
-	public function unlock(): Void;
-	public function set(): Void;
-	public function count(): Int;
+import lime.graphics.opengl.GL;
+import lime.utils.UInt16Array;
+import bakeneko.render.Usage;
+
+class IndexBuffer {
+	var buffer: Dynamic;
+	var data: UInt16Array;
+	var size: Int;
+	var usage: Usage;
+	
+	var render:Renderer;
+	
+	public function new(render:Renderer, count:Int, structure:VertexStructure, usage:Usage) {
+		this.usage = usage != null ? usage : Usage.StaticUsage;
+		this.render = render;
+		size = count;
+		
+		data = new UInt16Array(size);
+	}
+	
+	public function lock():UInt16Array {
+		return data;
+	}
+	
+	public function unlock(): Void {
+		@:privateAccess
+		render.uploadIndexBuffer(this);
+	}
+	
+	public function count(): Int {
+		return size;
+	}
 }

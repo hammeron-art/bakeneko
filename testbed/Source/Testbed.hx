@@ -19,12 +19,12 @@ class Testbed extends Application {
 		super();
 		
 		createState = [];
-		currentState = 2;
+		currentState = 0;
 	}
 	
 	override public function onInit():Void {
-		addState(new HxslTest());
 		addState(new RenderTest());
+		addState(new HxslTest());
 		addState(new InputTest());
 	}
 	

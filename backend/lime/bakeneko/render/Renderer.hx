@@ -5,6 +5,7 @@ import bakeneko.core.System;
 import bakeneko.core.Window;
 import bakeneko.hxsl.GlslOut;
 import bakeneko.hxsl.Shader;
+import bakeneko.hxsl.ShaderList;
 import bakeneko.render.IRenderer;
 import bakeneko.render.Color;
 
@@ -13,7 +14,8 @@ import bakeneko.render.Color;
 import lime.graphics.GLRenderContext;
 
 @:access(bakeneko.render.VertexBuffer)
-@:access(bakeneko.render.Pass)
+@:access(bakeneko.render.IndexBuffer)
+@:access(bakeneko.render.Pipeline)
 class Renderer implements IRenderer {
 
 	var window:bakeneko.core.Window;
@@ -62,11 +64,19 @@ class Renderer implements IRenderer {
 	public function createVertexBuffer(vertexCount:Int, structure: VertexStructure, ?usage:Usage) {
 		var buffer = gl.createBuffer();
 		
-		var vBuffer = new VertexBuffer(this, structure, usage);
+		var vBuffer = new VertexBuffer(this, vertexCount, structure, usage);
 		vBuffer.buffer = buffer;
-		vBuffer.vertexCount = vertexCount;
 		
 		return vBuffer;
+	}
+	
+	public function createIndexBuffer(vertexCount:Int, structure: VertexStructure, ?usage:Usage) {
+		var buffer = gl.createBuffer();
+		
+		var iBuffer = new IndexBuffer(this, vertexCount, structure, usage);
+		iBuffer.buffer = buffer;
+		
+		return iBuffer;
 	}
 
 	function uploadVertexBuffer(buffer:VertexBuffer) {
@@ -74,8 +84,13 @@ class Renderer implements IRenderer {
 		gl.bufferData(gl.ARRAY_BUFFER, cast buffer.data, buffer.usage == Usage.DynamicUsage ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
 	}
 	
-	inline public function createPass():Pass {
-		return new Pass(this);
+	function uploadIndexBuffer(buffer:IndexBuffer) {
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.buffer);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cast buffer.data, buffer.usage == Usage.DynamicUsage ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
+	}
+	
+	inline public function createPipeline(?shaderList:ShaderList):Pipeline {
+		return new Pipeline(this, shaderList);
 	}
 	
 	public function compileShader(shader:Shader) {
@@ -119,7 +134,8 @@ import flash.display3D.Context3DRenderMode;
 import flash.display3D.Context3DProfile;
 
 @:access(bakeneko.render.VertexBuffer)
-@:access(bakeneko.render.Pass)
+@:access(bakeneko.render.IndexBuffer)
+@:access(bakeneko.render.Pipeline)
 class Renderer implements IRenderer {
 
 	var window:bakeneko.core.Window;
@@ -190,9 +206,9 @@ class Renderer implements IRenderer {
 	
 	public function createVertexBuffer(vertexCount:Int, structure: VertexStructure, ?usage:Usage) {
 
-		var stride = 0;
-		for (element in structure.elements) {
-			switch (element.data) {
+		var stride = structure.totalNumValues;
+		/*for (element in structure.elements) {
+			switch (element.) {
 			case VertexData.Float1:
 				stride += 1;
 			case VertexData.Float2:
@@ -204,28 +220,37 @@ class Renderer implements IRenderer {
 			case VertexData.Float4x4:
 				stride += 4 * 4;
 			}
-		}
+		}*/
 		
 		var buffer = context.createVertexBuffer(vertexCount, stride, usage == Usage.DynamicUsage ? Context3DBufferUsage.DYNAMIC_DRAW : Context3DBufferUsage.STATIC_DRAW);
 		
-		var vBuffer = new VertexBuffer(this, structure, usage);
+		var vBuffer = new VertexBuffer(this, vertexCount, structure, usage);
 		vBuffer.buffer = buffer;
-		vBuffer.vertexCount = vertexCount;
 		
 		return vBuffer;
+	}
+	
+	public function createIndexBuffer(vertexCount:Int, structure: VertexStructure, ?usage:Usage) {
+		var buffer = context.createIndexBuffer(vertexCount, usage == Usage.DynamicUsage ? Context3DBufferUsage.DYNAMIC_DRAW : Context3DBufferUsage.STATIC_DRAW);
+		
+		var iBuffer = new IndexBuffer(this, vertexCount, structure, usage);
+		iBuffer.buffer = buffer;
+		
+		return iBuffer;
 	}
 
 	function uploadVertexBuffer(buffer:VertexBuffer) {
 		var b:flash.display3D.VertexBuffer3D = cast buffer.buffer;
-		b.uploadFromByteArray(cast buffer.data.toBytes(), 0, 0, buffer.vertexCount);
+		//b.uploadFromByteArray(cast buffer.data.toBytes(), 0, 0, buffer.count());
 	}
 	
-	inline public function createPass():Pass {
-		return new Pass(this);
+	function uploadIndexBuffer(buffer:IndexBuffer) {
+		var b:flash.display3D.IndexBuffer3D = cast buffer.buffer;
+		//b.uploadFromByteArray(cast buffer.data.toBytes(), 0, 0, buffer.count());
 	}
 	
-	public function createShader():Shader {
-		return new Shader();
+	inline public function createPipeline(?shaderList:ShaderList):Pipeline {
+		return new Pipeline(this);
 	}
 	
 	inline public function viewport(x:Int, y:Int, width:Int, height:Int): Void{
