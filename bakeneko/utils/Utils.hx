@@ -37,12 +37,17 @@ class Utils {
 	public static inline function int(bool:Bool):Int {
 		if (bool)
 			return 1;
-
 		return 0;
 	}
 	
-	public static inline function cycle(value:Int, max:Int) {
+	@:generic
+	public static inline function cycle<T:(Float, Int)>(value:T, max:T) {
 		return ((value % max) + max) % max;
+	}
+	
+	@:generic
+	public static inline function angleDifference<T:(Float, Int)>(angle1:T, angle2:T) {
+		return ((((angle1 - angle2) % 360) + 540) % 360) - 180;
 	}
 
 }

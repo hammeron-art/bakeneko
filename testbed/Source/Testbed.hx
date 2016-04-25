@@ -6,32 +6,34 @@ import bakeneko.input.KeyCode;
 import bakeneko.render.Color;
 import bakeneko.state.State;
 import bakeneko.utils.Utils;
-import tests.HxslTest;
-import tests.RenderTest;
+import states.HxslTest;
+import states.InputTest;
+import states.RenderTest;
 
 class Testbed extends Application {
 	
-	var createState:Array<Void->State>;
-	var currentState:Int = 0;
+	var createState:Array<State>;
+	var currentState:Int;
 	
 	public function new() {
 		super();
 		
 		createState = [];
-		currentState = 0;
+		currentState = 2;
 	}
 	
 	override public function onInit():Void {
-		addState(HxslTest.new.bind());
-		addState(RenderTest.new.bind(Color.fromInt32(0x4b151e/*0x1c1d23*/)));
+		addState(new HxslTest());
+		addState(new RenderTest());
+		addState(new InputTest());
 	}
 	
 	override public function initialState():Void {
-		stateManager.push(createState[currentState]());
+		stateManager.push(createState[currentState]);
 	}
 	
 	override public function onUpdate(delta:Float):Void {
-		var dir = Utils.int(input.isKeyPressed(KeyCode.RIGHT)) - Utils.int(input.isKeyPressed(KeyCode.LEFT));
+		var dir = Utils.int(input.isKeyPressed(KeyCode.PAGE_UP)) - Utils.int(input.isKeyPressed(KeyCode.PAGE_DOWN));
 		
 		if (dir != 0) {
 			currentState = Utils.cycle(currentState + dir, createState.length);
@@ -39,12 +41,12 @@ class Testbed extends Application {
 		}
 	}
 	
-	function addState(method:Void->State) {
+	function addState(method:State) {
 		createState.push(method);
 	}
 	
 	function changeState(index:Int) {
-		stateManager.change(createState[currentState]());
+		stateManager.change(createState[currentState]);
 	}
 	
 }

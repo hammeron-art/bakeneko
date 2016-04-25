@@ -9,7 +9,6 @@ import bakeneko.core.WindowEvent;
 import bakeneko.core.WindowEventType;
 import bakeneko.input.Input;
 
-#if !macro
 /**
  * Handle all player input
  * Keyboard, mouse, touch and gamepad
@@ -19,6 +18,7 @@ class InputSystem extends AppSystem {
 	
 	public var onKeyEvent = new Event<KeyEvent->Void>();
 	public var onPointerEvent = new Event<PointerEvent->Void>();
+	public var onPadEvent = new Event<PadEvent->Void>();
 	public var onTextEvent = new Event<Window->String->Void>();
 	
 	var keyStates:Map<KeyCode, Int>;
@@ -147,17 +147,12 @@ class InputSystem extends AppSystem {
 	}
 	
 	function setupGamePad() {
-		
-		#if (!flash && lime)
-		
-		for (pad in lime.ui.Gamepad.devices) {
+		for (pad in Gamepad.devices) {
 			if (pad.connected == true)
 				padConnected(pad);
 		}
 		
-		lime.ui.Gamepad.onConnect.add(padConnected);
-		
-		#end
+		Gamepad.onConnect.add(padConnected);
 	}
 	
 	public function isDown(name:String) {
@@ -321,8 +316,7 @@ class InputSystem extends AppSystem {
 		pointerBindings[name].push(key);
 	}
 	
-	#if (!flash && lime)
-	function padConnected(pad:lime.ui.Gamepad) {
+	function padConnected(pad:Gamepad) {
 		Log.info('Gamepad ${pad.name} detected');
 		Log.info([pad.guid, pad.name]);
 		
@@ -359,10 +353,9 @@ class InputSystem extends AppSystem {
 		});
 	}
 	
-	function padDisconnected(pad:lime.ui.Gamepad) {
+	function padDisconnected(pad:Gamepad) {
 		Log.info('Gamepad ${pad.name} disconnected');
 	}
-	#end
 	
 	static inline function getFrame() {
 		return Application.get().frameCount + 1;
@@ -479,6 +472,9 @@ class InputSystem extends AppSystem {
 	}
 	
 	function padEvent(event:PadEvent) {
+		
+		onPadEvent.dispatch(event);
+		
 		switch (event.kind) {
 		case PKeyDown:
 			if (getPadState(event.key) <= 0)
@@ -625,4 +621,3 @@ typedef AxisState = {
 	var frame:Int;
 	var value:Float;
 }
-#end

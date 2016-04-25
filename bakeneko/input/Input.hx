@@ -71,7 +71,7 @@ import bakeneko.core.Window;
 			case RSTICK_RIGHT: "RSTICK_RIGHT";
 			case RSTICK_UP: "RSTICK_UP";
 			case RSTICK_DOWN: "RSTICK_DOWN";
-			default: "UNKNOWN (" + this + ")";
+			default: "UNKNOWN(" + this + ")";
 			
 		}
 		
@@ -102,7 +102,7 @@ import bakeneko.core.Window;
 			case RIGHT_Y: "RIGHT_Y";
 			case TRIGGER_LEFT: "TRIGGER_LEFT";
 			case TRIGGER_RIGHT: "TRIGGER_RIGHT";
-			default: "UNKNOWN (" + this + ")";
+			default: "UNKNOWN(" + this + ")";
 			
 		}
 		

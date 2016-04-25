@@ -1,4 +1,4 @@
-package tests;
+package states;
 
 import bakeneko.core.Log;
 import bakeneko.hxsl.AgalOptim;
@@ -19,7 +19,6 @@ class HxslTest extends State {
 	var compiledShader:RuntimeShader;
 	
 	override public function onInit():Void {
-		trace('hxsl');
 		cache = Cache.get();
 		
 		var globals = new Globals();

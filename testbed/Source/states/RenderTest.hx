@@ -1,4 +1,4 @@
-package tests;
+package states;
 
 import bakeneko.core.Window;
 import bakeneko.state.State;
@@ -15,12 +15,9 @@ class RenderTest extends State {
 	var vertexBuffer:VertexBuffer;
 	var color:Color;
 	
-	public function new(color:Color) {
-		super();
-		this.color = color;
-	}
-	
 	override public function onInit():Void {
+		color = Color.fromInt32(0x4b151e);
+		
 		app.renderSystem.onRenderEvent.add(render);
 		
 		var renderer:Renderer = cast app.windows[0].renderer;
