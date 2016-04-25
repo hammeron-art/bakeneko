@@ -1,7 +1,7 @@
 package bakeneko.hxsl;
 
 class ShaderList {
-	public var s : hxsl.Shader;
+	public var s : bakeneko.hxsl.Shader;
 	public var next : ShaderList;
 	public function new(s, ?n) {
 		this.s = s;

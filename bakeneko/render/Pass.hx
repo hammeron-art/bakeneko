@@ -1,6 +1,6 @@
 package bakeneko.render;
 
-import lime.graphics.opengl.GL;
+import bakeneko.hxsl.Shader;
 import bakeneko.render.FragmentShader;
 import bakeneko.render.VertexData;
 import bakeneko.render.VertexShader;

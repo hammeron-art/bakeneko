@@ -3,6 +3,8 @@ package bakeneko.render;
 import bakeneko.core.Log;
 import bakeneko.core.System;
 import bakeneko.core.Window;
+import bakeneko.hxsl.GlslOut;
+import bakeneko.hxsl.Shader;
 import bakeneko.render.IRenderer;
 import bakeneko.render.Color;
 
@@ -16,6 +18,7 @@ class Renderer implements IRenderer {
 
 	var window:bakeneko.core.Window;
 	var gl:GLRenderContext;
+	var out:GlslOut;
 	
 	public function new(window:bakeneko.core.Window) {
 		this.window = window != null ? window : cast System.app.windows[0];
@@ -26,6 +29,8 @@ class Renderer implements IRenderer {
 			default:
 				throw "Unsupported context";
 		}
+		
+		out = new GlslOut();
 	}
 	
 	public function begin(surfaces:Array<Surface> = null):Void {
@@ -61,8 +66,7 @@ class Renderer implements IRenderer {
 		return new Pass(this);
 	}
 	
-	public function createShader():Shader {
-		return new Shader();
+	public function compileShader(shader:Shader) {
 	}
 	
 	inline public function viewport(x:Int, y:Int, width:Int, height:Int): Void{

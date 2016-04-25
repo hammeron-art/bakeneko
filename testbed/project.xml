@@ -9,4 +9,6 @@
 	<haxelib name="bakeneko" />
 	<window orientation="landscape" />
 	
+	<haxeflag name="--connect" value="6000" />
+	
 </project>

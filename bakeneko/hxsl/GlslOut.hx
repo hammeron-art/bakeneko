@@ -1,6 +1,6 @@
 package bakeneko.hxsl;
 
-import hxsl.Ast;
+import bakeneko.hxsl.Ast;
 
 class GlslOut {
 
@@ -11,7 +11,7 @@ class GlslOut {
 	static var KWDS = [for( k in KWD_LIST ) k => true];
 	static var GLOBALS = {
 		var m = new Map();
-		for( g in hxsl.Ast.TGlobal.createAll() ) {
+		for( g in bakeneko.hxsl.Ast.TGlobal.createAll() ) {
 			var n = "" + g;
 			n = n.charAt(0).toLowerCase() + n.substr(1);
 			m.set(g, n);

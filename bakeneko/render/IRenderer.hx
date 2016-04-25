@@ -8,7 +8,6 @@ interface IRenderer {
 	
 	public function createVertexBuffer(vertexCount:Int, structure: VertexStructure, ?usage:Usage):VertexBuffer;
 	public function createPass():Pass;
-	public function createShader():Shader;
 	
 	public function clear(?color:Color, ?depth:Float, ?stencil:Int):Void;
 	public function viewport(x:Int, y:Int, width:Int, height:Int):Void;

@@ -17,18 +17,19 @@
   <classpaths>
     <class path="C:\Works\Bakeneko" />
     <class path="C:\HaxeToolkit\haxe\lib\lime\git" />
+    <class path="C:\HaxeToolkit\haxe\lib\format\3,2,1" />
     <class path="Source" />
     <class path="C:\Works\Bakeneko\backend\lime" />
     <class path="Build\flash\haxe" />
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="bakeneko=0.0.0&#xA;lime=2.9.1&#xA;tools=2.9.1&#xA;HXCPP_STACK_TRACE&#xA;no-compilation&#xA;HXCPP_TELEMETRY&#xA;source-map-content&#xA;web&#xA;display" />
+    <option directives="bakeneko=0.0.0&#xA;lime=2.9.1&#xA;format=3.2.1&#xA;tools=2.9.1&#xA;HXCPP_STACK_TRACE&#xA;no-compilation&#xA;HXCPP_TELEMETRY&#xA;source-map-content&#xA;web&#xA;display" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />
     <option enabledebug="False" />
-    <option additional="-swf-version 15&#xA;-resource resources/shaders/default.vs@shaders.default.vs&#xA;-resource resources/shaders/default.fs@shaders.default.fs&#xA;-resource resources/shaders/screen.vs@shaders.screen.vs&#xA;-resource resources/shaders/screen.fs@shaders.screen.fs&#xA;-resource resources/shaders/wire.vs@shaders.wire.vs&#xA;-resource resources/shaders/wire.fs@shaders.wire.fs&#xA;-resource resources/shaders/vertexColor.vs@shaders.vertexColor.vs&#xA;-resource resources/shaders/vertexColor.fs@shaders.vertexColor.fs&#xA;-swf-version 11.2" />
+    <option additional="-swf-version 15&#xA;-resource resources/shaders/default.vs@shaders.default.vs&#xA;-resource resources/shaders/default.fs@shaders.default.fs&#xA;-resource resources/shaders/screen.vs@shaders.screen.vs&#xA;-resource resources/shaders/screen.fs@shaders.screen.fs&#xA;-resource resources/shaders/wire.vs@shaders.wire.vs&#xA;-resource resources/shaders/wire.fs@shaders.wire.fs&#xA;-resource resources/shaders/vertexColor.vs@shaders.vertexColor.vs&#xA;-resource resources/shaders/vertexColor.fs@shaders.vertexColor.fs&#xA;-swf-version 11.2&#xA;-debug " />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

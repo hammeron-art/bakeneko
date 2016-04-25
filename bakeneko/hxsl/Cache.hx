@@ -45,7 +45,7 @@ class Cache {
 	}
 
 	@:noDebug
-	public function link( shaders : hxsl.ShaderList, outVars : Int ) {
+	public function link( shaders : bakeneko.hxsl.ShaderList, outVars : Int ) {
 		var c = linkCache.get(outVars);
 		if( c == null ) {
 			c = new SearchMap();
@@ -66,7 +66,7 @@ class Cache {
 		return c.linked;
 	}
 
-	function compileRuntimeShader( shaders : hxsl.ShaderList, outVars : Int ) {
+	function compileRuntimeShader( shaders : bakeneko.hxsl.ShaderList, outVars : Int ) {
 		var shaderDatas = [];
 		var index = 0;
 		for( s in shaders ) {
@@ -80,7 +80,7 @@ class Cache {
 		for( s in shaderDatas ) Printer.check(s.inst.shader);
 		#end
 
-		var linker = new hxsl.Linker();
+		var linker = new bakeneko.hxsl.Linker();
 		var s = linker.link([for( s in shaderDatas ) s.inst.shader], this.outVars[outVars]);
 
 		#if debug
@@ -100,7 +100,7 @@ class Cache {
 			}
 
 		var prev = s;
-		var s = new hxsl.Splitter().split(s);
+		var s = new bakeneko.hxsl.Splitter().split(s);
 
 		#if debug
 		Printer.check(s.vertex,[prev]);
@@ -108,7 +108,7 @@ class Cache {
 		#end
 
 		var prev = s;
-		var s = new hxsl.Dce().dce(s.vertex, s.fragment);
+		var s = new bakeneko.hxsl.Dce().dce(s.vertex, s.fragment);
 
 		#if debug
 		Printer.check(s.vertex,[prev.vertex]);
