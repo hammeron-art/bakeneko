@@ -23,7 +23,7 @@ class VertexBuffer {
 		this.render = render;
 		size = count;
 		
-		data = new Float32Array(size);
+		data = new Float32Array(size * structure.totalNumValues);
 		
 		/*this.usage = usage;
 		this.instanceDataStepRate = instanceDataStepRate;

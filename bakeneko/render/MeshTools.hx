@@ -8,13 +8,13 @@ import bakeneko.render.MeshData;
 class MeshTools {
 
 	public static function createQuad():MeshData {
-		var vertices = [
+		/*var vertices = [
 		//	 X	   Y	 Z	  R	   G	B	 A    U	   V
 			-0.5,  0.5,  0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0,	// top-left
 			 0.5,  0.5,  0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, // top-right
 			-0.5, -0.5,  0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, // bottom-left
 			 0.5, -0.5,  0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, // bottom-right
-		];
+		];*/
 
 		var elements = [
 			0, 1, 2,
@@ -22,14 +22,13 @@ class MeshTools {
 		];
 		
 		var data:MeshData = {
+			vertexCount: 3 * 4,
 			positions: [[-0.5, 0.5, 0.0], [0.5, 0.5, 0.0], [-0.5, -0.5, 0.0], [0.5, -0.5, 0.0]],
 			colors: [[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0]],
 			uvs: [[0.0, 1.0], [1.0, 1.0], [0.0, 0.0], [1.0, 0.0]],
 			indices: elements,
 		}
 
-		//var mesh = new Mesh(Application.get().getSystem(RenderSystem).defaultFormat, data);
-		
 		return data;
 	}
 	
@@ -72,30 +71,31 @@ class MeshTools {
 		var vertexData:Array<Float> = [];
 		
 		// Validate mesh data
-		var count:Int = 0;
-		
-		for (element in format.elements) {
-			
-			inline function check(array:Array<Dynamic>) {
-				Log.assert(array != null || array.length != 0 || array.length % element.numData() == 0);
-			}
+		Log.check({
+			trace('UEAH');
+			for (element in format.elements) {
+				
+				inline function check(array:Array<Dynamic>) {
+					Log.assert(array != null || array.length != 0 || array.length % element.numData() == 0);
+				}
 
-			switch (element.semantic) {
-				case SPosition:
-					check(mesh.positions);
-				case STexcoord:
-					check(mesh.uvs);
-				case SNormal:
-					check(mesh.normals);
-				case SColor:
-					check(mesh.colors);
-				case SJointIndex | SWeight:
-					Log.api("Not implemented!");
+				switch (element.semantic) {
+					case SPosition:
+						check(mesh.positions);
+					case STexcoord:
+						check(mesh.uvs);
+					case SNormal:
+						check(mesh.normals);
+					case SColor:
+						check(mesh.colors);
+					case SJointIndex | SWeight:
+						Log.api("Not implemented!");
+				}
 			}
-		}
+		});
 		
 		// Build vertex data
-		for (i in 0...count) {
+		for (i in 0...format.totalNumValues) {
 			for (element in format.elements) {
 				var n = element.numData();
 				

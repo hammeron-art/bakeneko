@@ -10,6 +10,8 @@ import bakeneko.input.KeyModifier;
 
 class Window implements bakeneko.core.IWindow {
 	
+	public var id (get, null):Int;
+	
 	public var x (get, set):Int;
 	public var y (get, set):Int;
 	public var width(get, never):Int;
@@ -51,6 +53,10 @@ class Window implements bakeneko.core.IWindow {
 	
 	public function new(config:WindowConfig) {
 		limeWindow = new lime.ui.Window(config);
+	}
+	
+	function get_id() {
+		return limeWindow.id;
 	}
 	
 	function get_width() {

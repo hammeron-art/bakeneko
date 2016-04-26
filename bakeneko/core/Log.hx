@@ -78,6 +78,13 @@ class Log {
 		return macro null;
 	}
 
+	macro public static function check(func:Expr, ?level:Int = 1) {
+		if (level <= debugLevel)
+			return macro $func;
+		
+		return macro null;
+	}
+	
 	macro static function getSender() {
 		return macro Context.getPosInfos(Context.currentPos()).file;
 	}

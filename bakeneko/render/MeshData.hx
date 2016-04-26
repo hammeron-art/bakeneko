@@ -4,6 +4,8 @@ typedef Vector = Array<Float>;
 typedef Face = Array<Int>;
 
 typedef MeshData = {
+	var vertexCount:Int;
+	
 	@:optional var name:String;
 	@:optional var structure:VertexStructure;
 	

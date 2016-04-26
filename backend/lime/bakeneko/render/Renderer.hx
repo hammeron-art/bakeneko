@@ -44,7 +44,7 @@ class Renderer implements IRenderer {
 		
 		present();
 		
-		trace('reset');
+		Log.info('Renderer for window(${window.id}) reset');
 	}
 	
 	public function begin(surfaces:Array<Surface> = null):Void {
@@ -176,7 +176,7 @@ class Renderer implements IRenderer {
 		
 		present();
 		
-		trace('reset');
+		Log.info('Renderer for window(${window.id}) reset');
 	}
 	
 	function onReady(_): Void {
@@ -205,24 +205,7 @@ class Renderer implements IRenderer {
 	}
 	
 	public function createVertexBuffer(vertexCount:Int, structure: VertexStructure, ?usage:Usage) {
-
-		var stride = structure.totalNumValues;
-		/*for (element in structure.elements) {
-			switch (element.) {
-			case VertexData.Float1:
-				stride += 1;
-			case VertexData.Float2:
-				stride += 2;
-			case VertexData.Float3:
-				stride += 3;
-			case VertexData.Float4:
-				stride += 4;
-			case VertexData.Float4x4:
-				stride += 4 * 4;
-			}
-		}*/
-		
-		var buffer = context.createVertexBuffer(vertexCount, stride, usage == Usage.DynamicUsage ? Context3DBufferUsage.DYNAMIC_DRAW : Context3DBufferUsage.STATIC_DRAW);
+		var buffer = context.createVertexBuffer(vertexCount, structure.totalNumValues, usage == Usage.DynamicUsage ? Context3DBufferUsage.DYNAMIC_DRAW : Context3DBufferUsage.STATIC_DRAW);
 		
 		var vBuffer = new VertexBuffer(this, vertexCount, structure, usage);
 		vBuffer.buffer = buffer;
@@ -241,12 +224,12 @@ class Renderer implements IRenderer {
 
 	function uploadVertexBuffer(buffer:VertexBuffer) {
 		var b:flash.display3D.VertexBuffer3D = cast buffer.buffer;
-		//b.uploadFromByteArray(cast buffer.data.toBytes(), 0, 0, buffer.count());
+		b.uploadFromByteArray(buffer.data.buffer.getData(), 0, 0, buffer.count());
 	}
 	
 	function uploadIndexBuffer(buffer:IndexBuffer) {
 		var b:flash.display3D.IndexBuffer3D = cast buffer.buffer;
-		//b.uploadFromByteArray(cast buffer.data.toBytes(), 0, 0, buffer.count());
+		b.uploadFromByteArray(buffer.data.buffer.getData(), 0, 0, buffer.count());
 	}
 	
 	inline public function createPipeline(?shaderList:ShaderList):Pipeline {

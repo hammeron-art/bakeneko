@@ -38,18 +38,24 @@ class RenderTest extends State {
 		pipeline.addShader(shader);
 		
 		var data:MeshData = {
+			vertexCount: 3,
 			positions: [[ -1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 1.0, 0.0]],
 			indices: [0, 1, 2],
 		};
 		
-		vertexBuffer = renderer.createVertexBuffer(data.indices.length, structure);
-		indexBuffer = renderer.createIndexBuffer(data.indices.length, structure);
-		
 		var vertexData = MeshTools.buildVertexData(data, structure);
 		
-		trace(vertexData);
+		vertexBuffer = renderer.createVertexBuffer(data.positions.length, structure);
+		indexBuffer = renderer.createIndexBuffer(data.indices.length, structure);
 		
+		var vb = vertexBuffer.lock();
+		for (i in 0...vertexData.length)
+			vb[i] = i;
 		vertexBuffer.unlock();
+		
+		var ib = indexBuffer.lock();
+		for (i in 0...data.indices.length)
+			ib[i] = i;
 		indexBuffer.unlock();
 		
 	}

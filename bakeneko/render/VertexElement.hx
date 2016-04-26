@@ -17,7 +17,7 @@ class VertexElement {
 		}
 	}
 
-	public inline function numData():Int {
+	public function numData():Int {
 		return switch(type) {
 			case TInt(size): size;
 			case TFloat(size): size;
