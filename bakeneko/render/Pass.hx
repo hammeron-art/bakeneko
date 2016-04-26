@@ -1,13 +1,17 @@
 package bakeneko.render;
 
+import bakeneko.hxsl.ShaderList;
+
 class Pass {
 
+	var manager:ShaderManager;
+	
 	public function new() {
+		manager = new ShaderManager(['pixelColor']);
 	}
 
-	public function compileShader( p : h3d.mat.Pass ) : hxsl.RuntimeShader {
-		throw "Not implemented for this pass";
-		return null;
+	function compileShader(shaders:ShaderList):bakeneko.hxsl.RuntimeShader {
+		return manager.compileShaders(shaders);
 	}
 
 	public function dispose() {

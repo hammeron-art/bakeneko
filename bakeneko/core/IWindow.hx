@@ -1,7 +1,7 @@
 package bakeneko.core;
 
 import bakeneko.render.Surface;
-import bakeneko.render.IRenderer;
+import bakeneko.render.Renderer;
 import bakeneko.input.KeyCode;
 import bakeneko.input.KeyModifier;
 
@@ -17,7 +17,7 @@ interface IWindow {
 	public var borderless (get, set):Bool;
 	
 	public var surface:Surface;
-	public var renderer:IRenderer;
+	public var renderer:Renderer;
 	
 	public var onActivate:Event<Void->Void>;
 	public var onClose:Event<Void->Void>;

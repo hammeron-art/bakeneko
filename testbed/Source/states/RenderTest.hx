@@ -19,6 +19,7 @@ class RenderTest extends State {
 	var vertexBuffer:VertexBuffer;
 	var indexBuffer:IndexBuffer;
 	var color:Color;
+	var pipeline:Pipeline;
 	
 	override public function onInit():Void {
 		color = Color.fromInt32(0x4b151e);
@@ -33,7 +34,7 @@ class RenderTest extends State {
 		var shader = new PixelColorShader();
 		shader.additive = false;
 		
-		var pipeline = renderer.createPipeline();
+		pipeline = renderer.createPipeline();
 		pipeline.vertexStructures = [structure];
 		pipeline.addShader(shader);
 		
@@ -66,6 +67,7 @@ class RenderTest extends State {
 	
 	function render(window:Window) {
 		var g = window.renderer;
+		g.setPipeline(pipeline);
 		
 		g.begin();
 		g.clear(color);

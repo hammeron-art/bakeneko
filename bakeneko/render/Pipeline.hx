@@ -25,12 +25,8 @@ class Pipeline {
 	public var stencilWriteMask: Int;
 
 	// One, Zero deactivates blending
-	public var blendSource: BlendingFactor;
-	public var blendDestination: BlendingFactor;
-	public var blendOperation: BlendingOperation;
-	public var alphaBlendSource: BlendingFactor;
-	public var alphaBlendDestination: BlendingFactor;
-	public var alphaBlendOperation: BlendingOperation;
+	public var blendSource: BlendingOperation;
+	public var blendDestination: BlendingOperation;
 	
 	public var colorWriteMask(never, set) : Bool;
 	public var colorWriteMaskRed : Bool;
@@ -63,12 +59,8 @@ class Pipeline {
 		stencilReadMask = 0xff;
 		stencilWriteMask = 0xff;
 
-		blendSource = BlendingFactor.BlendOne;
-		blendDestination = BlendingFactor.BlendZero;
-		blendOperation = BlendingOperation.Add;
-		alphaBlendSource = BlendingFactor.BlendOne;
-		alphaBlendDestination = BlendingFactor.BlendZero;
-		alphaBlendOperation = BlendingOperation.Add;
+		blendSource = BlendingOperation.BlendOne;
+		blendDestination = BlendingOperation.BlendZero;
 		
 		colorWriteMask = true;
 

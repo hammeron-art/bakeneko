@@ -1,9 +1,11 @@
 package bakeneko.render;
 
 enum BlendingOperation {
-	Add;
-	Subtract;
-	ReverseSubtract;
-	Min;
-	Max;
+	Undefined;
+	BlendOne;
+	BlendZero;
+	SourceAlpha;
+	DestinationAlpha;
+	InverseSourceAlpha;
+	InverseDestinationAlpha;
 }

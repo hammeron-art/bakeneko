@@ -3,6 +3,8 @@ package bakeneko.render;
 import bakeneko.core.Log;
 import bakeneko.core.System;
 import bakeneko.core.Window;
+import bakeneko.hxsl.Cache;
+import bakeneko.hxsl.Globals;
 import bakeneko.hxsl.GlslOut;
 import bakeneko.hxsl.Shader;
 import bakeneko.hxsl.ShaderList;
@@ -10,8 +12,10 @@ import bakeneko.render.IRenderer;
 import bakeneko.render.Color;
 
 #if !flash
-
 import lime.graphics.GLRenderContext;
+#end
+
+#if !flash
 
 @:access(bakeneko.render.VertexBuffer)
 @:access(bakeneko.render.IndexBuffer)
@@ -20,10 +24,12 @@ class Renderer implements IRenderer {
 
 	var window:bakeneko.core.Window;
 	var gl:GLRenderContext;
-	var out:GlslOut;
+	
+	var defaultPass:Pass;
 	
 	public function new(window:bakeneko.core.Window) {
 		this.window = window != null ? window : cast System.app.windows[0];
+		defaultPass = new Pass();
 		
 		gl = switch (@:privateAccess this.window.limeWindow.renderer.context) {
 			case OPENGL(gl):
@@ -31,8 +37,6 @@ class Renderer implements IRenderer {
 			default:
 				throw "Unsupported context";
 		}
-		
-		out = new GlslOut();
 		
 		reset();
 	}
@@ -96,6 +100,134 @@ class Renderer implements IRenderer {
 	public function compileShader(shader:Shader) {
 	}
 	
+	public function setPipeline(pipe:Pipeline) {
+		setCullMode(pipe.cullMode);
+		setDepthMode(pipe.depthWrite, pipe.depthMode);
+		setStencilParameters(pipe.stencilMode, pipe.stencilBothPass, pipe.stencilDepthFail, pipe.stencilFail, pipe.stencilReferenceValue, pipe.stencilReadMask, pipe.stencilWriteMask);
+		setBlendingMode(pipe.blendSource, pipe.blendDestination);
+	}
+	
+	public function setCullMode(mode:CullMode) {
+		switch (mode) {
+			case None:
+				gl.disable(gl.CULL_FACE);
+			case Clockwise:
+				gl.enable(gl.CULL_FACE);
+				gl.cullFace(gl.FRONT);
+			case CounterClockwise:
+				gl.enable(gl.CULL_FACE);
+				gl.cullFace(gl.BACK);
+		}
+	}
+	
+	public function setDepthMode(write:Bool, mode:CompareMode) {
+		switch (mode) {
+			case Always:
+				gl.disable(gl.DEPTH_TEST);
+				gl.depthFunc(gl.ALWAYS);
+			case Never:
+				gl.enable(gl.DEPTH_TEST);
+				gl.depthFunc(gl.NEVER);
+			case Equal:
+				gl.enable(gl.DEPTH_TEST);
+				gl.depthFunc(gl.EQUAL);
+			case NotEqual:
+				gl.enable(gl.DEPTH_TEST);
+				gl.depthFunc(gl.NOTEQUAL);
+			case Less:
+				gl.enable(gl.DEPTH_TEST);
+				gl.depthFunc(gl.LESS);
+			case LessEqual:
+				gl.enable(gl.DEPTH_TEST);
+				gl.depthFunc(gl.LEQUAL);
+			case Greater:
+				gl.enable(gl.DEPTH_TEST);
+				gl.depthFunc(gl.GREATER);
+			case GreaterEqual:
+				gl.enable(gl.DEPTH_TEST);
+				gl.depthFunc(gl.GEQUAL);
+		}
+		gl.depthMask(write);
+	}
+	
+	public function setStencilParameters(compareMode:CompareMode, bothPass:StencilAction, depthFail:StencilAction, stencilFail:StencilAction, referenceValue:Int, readMask:Int = 0xff, writeMask:Int = 0xff) {
+		if (compareMode == CompareMode.Always && bothPass == StencilAction.Keep && depthFail == StencilAction.Keep && stencilFail == StencilAction.Keep) {
+				gl.disable(gl.STENCIL_TEST);
+		} else {
+			gl.enable(gl.STENCIL_TEST);
+			var stencilFunc = 0;
+			switch (compareMode) {
+				case CompareMode.Always:
+					stencilFunc = gl.ALWAYS;
+				case CompareMode.Equal:
+					stencilFunc = gl.EQUAL;
+				case CompareMode.Greater:
+					stencilFunc = gl.GREATER;
+				case CompareMode.GreaterEqual:
+					stencilFunc = gl.GEQUAL;
+				case CompareMode.Less:
+					stencilFunc = gl.LESS;
+				case CompareMode.LessEqual:
+					stencilFunc = gl.LEQUAL;
+				case CompareMode.Never:
+					stencilFunc = gl.NEVER;
+				case CompareMode.NotEqual:
+					stencilFunc = gl.NOTEQUAL;
+			}
+			gl.stencilMask(writeMask);
+			gl.stencilOp(convertStencilAction(stencilFail), convertStencilAction(depthFail), convertStencilAction(bothPass));
+			gl.stencilFunc(stencilFunc, referenceValue, readMask);
+		}
+	}
+	
+	function convertStencilAction(action:StencilAction) {
+		return switch (action) {
+				case StencilAction.Decrement:
+					gl.DECR;
+				case StencilAction.DecrementWrap:
+					gl.DECR_WRAP;
+				case StencilAction.Increment:
+					gl.INCR;
+				case StencilAction.IncrementWrap:
+					gl.INCR_WRAP;
+				case StencilAction.Invert:
+					gl.INVERT;
+				case StencilAction.Keep:
+					gl.KEEP;
+				case StencilAction.Replace:
+					gl.REPLACE;
+				case StencilAction.Zero:
+					gl.ZERO;
+		}
+	}
+	
+	public function setBlendingMode(source: BlendingOperation, destination: BlendingOperation): Void {
+		if (source == BlendOne && destination == BlendZero) {
+			gl.disable(gl.BLEND);
+		}
+		else {
+			gl.enable(gl.BLEND);
+			gl.blendFunc(getBlendFunc(source), getBlendFunc(destination));
+		}
+	}
+	
+	function getBlendFunc(op: BlendingOperation): Int {
+		return switch (op) {
+			case BlendZero, Undefined:
+				gl.ZERO;
+			case BlendOne:
+				gl.ONE;
+			case SourceAlpha:
+				gl.SRC_ALPHA;
+			case DestinationAlpha:
+				gl.DST_ALPHA;
+			case InverseSourceAlpha:
+				gl.ONE_MINUS_SRC_ALPHA;
+			case InverseDestinationAlpha:
+				gl.ONE_MINUS_DST_ALPHA;
+		}
+	}
+	
 	inline public function viewport(x:Int, y:Int, width:Int, height:Int): Void{
 		gl.viewport(x, y, width, height);
 	}
@@ -132,6 +264,10 @@ import flash.display3D.Context3DClearMask;
 import flash.display3D.Context3DBufferUsage;
 import flash.display3D.Context3DRenderMode;
 import flash.display3D.Context3DProfile;
+import flash.display3D.Context3DTriangleFace;
+import flash.display3D.Context3DBlendFactor;
+import flash.display3D.Context3DCompareMode;
+import flash.display3D.Context3DStencilAction;
 
 @:access(bakeneko.render.VertexBuffer)
 @:access(bakeneko.render.IndexBuffer)
@@ -234,6 +370,97 @@ class Renderer implements IRenderer {
 	
 	inline public function createPipeline(?shaderList:ShaderList):Pipeline {
 		return new Pipeline(this);
+	}
+	
+	public function setPipeline(pipe:Pipeline) {
+		setCullMode(pipe.cullMode);
+		setDepthMode(pipe.depthWrite, pipe.depthMode);
+		setStencilParameters(pipe.stencilMode, pipe.stencilBothPass, pipe.stencilDepthFail, pipe.stencilFail, pipe.stencilReferenceValue, pipe.stencilReadMask, pipe.stencilWriteMask);
+		setBlendingMode(pipe.blendSource, pipe.blendDestination);
+		context.setColorMask(pipe.colorWriteMaskRed, pipe.colorWriteMaskGreen, pipe.colorWriteMaskBlue, pipe.colorWriteMaskAlpha);
+	}
+	
+	public function setCullMode(mode: CullMode): Void {
+		switch (mode) {
+		case Clockwise:
+			context.setCulling(Context3DTriangleFace.FRONT);
+		case CounterClockwise:
+			context.setCulling(Context3DTriangleFace.BACK);
+		case None:
+			context.setCulling(Context3DTriangleFace.NONE);
+		}
+	}
+	
+	public function setBlendingMode(source: BlendingOperation, destination: BlendingOperation): Void {
+		context.setBlendFactors(getBlendFactor(source), getBlendFactor(destination));
+	}
+	
+	function getBlendFactor(op: BlendingOperation): Context3DBlendFactor {
+		switch (op) {
+			case BlendZero, Undefined:
+				return Context3DBlendFactor.ZERO;
+			case BlendOne:
+				return Context3DBlendFactor.ONE;
+			case SourceAlpha:
+				return Context3DBlendFactor.SOURCE_ALPHA;
+			case DestinationAlpha:
+				return Context3DBlendFactor.DESTINATION_ALPHA;
+			case InverseSourceAlpha:
+				return Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA;
+			case InverseDestinationAlpha:
+				return Context3DBlendFactor.ONE_MINUS_DESTINATION_ALPHA;
+		}
+	}
+	
+	public function setDepthMode(write: Bool, mode: CompareMode): Void {
+		context.setDepthTest(write, getCompareMode(mode));
+	}
+	
+	public function setStencilParameters(compareMode: CompareMode, bothPass: StencilAction, depthFail: StencilAction, stencilFail: StencilAction, referenceValue: Int, readMask: Int = 0xff, writeMask: Int = 0xff): Void {
+		context.setStencilReferenceValue(referenceValue, readMask, writeMask);
+		context.setStencilActions(Context3DTriangleFace.FRONT_AND_BACK, getCompareMode(compareMode), getStencilAction(bothPass), getStencilAction(depthFail), getStencilAction(stencilFail));
+	}
+	
+	function getCompareMode(mode: CompareMode): Context3DCompareMode {
+		switch (mode) {
+		case Always:
+			return Context3DCompareMode.ALWAYS;
+		case Equal:
+			return Context3DCompareMode.EQUAL;
+		case Greater:
+			return Context3DCompareMode.GREATER;
+		case GreaterEqual:
+			return Context3DCompareMode.GREATER_EQUAL;
+		case Less:
+			return Context3DCompareMode.LESS;
+		case LessEqual:
+			return Context3DCompareMode.LESS_EQUAL;
+		case Never:
+			return Context3DCompareMode.NEVER;
+		case NotEqual:
+			return Context3DCompareMode.NOT_EQUAL;
+		}
+	}
+	
+	private function getStencilAction(action: StencilAction): Context3DStencilAction {
+		switch (action) {
+		case Keep:
+			return Context3DStencilAction.KEEP;
+		case Replace:
+			return Context3DStencilAction.SET;
+		case Zero:
+			return Context3DStencilAction.ZERO;
+		case Invert:
+			return Context3DStencilAction.INVERT;
+		case Increment:
+			return Context3DStencilAction.INCREMENT_SATURATE;
+		case IncrementWrap:
+			return Context3DStencilAction.INCREMENT_WRAP;
+		case Decrement:
+			return Context3DStencilAction.DECREMENT_SATURATE;
+		case DecrementWrap:
+			return Context3DStencilAction.DECREMENT_WRAP;
+		}
 	}
 	
 	inline public function viewport(x:Int, y:Int, width:Int, height:Int): Void{

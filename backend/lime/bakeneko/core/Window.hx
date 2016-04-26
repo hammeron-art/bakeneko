@@ -3,7 +3,7 @@ package bakeneko.core;
 import bakeneko.core.Event;
 import bakeneko.core.WindowEvent;
 import bakeneko.core.WindowConfig;
-import bakeneko.render.IRenderer;
+import bakeneko.render.Renderer;
 import bakeneko.render.Surface;
 import bakeneko.input.KeyCode;
 import bakeneko.input.KeyModifier;
@@ -23,7 +23,7 @@ class Window implements bakeneko.core.IWindow {
 	public var borderless (get, set):Bool;
 	
 	public var surface:Surface;
-	public var renderer:IRenderer;
+	public var renderer:Renderer;
 	
 	public var onActivate = new Event<Void->Void> ();
 	public var onClose = new Event<Void->Void> ();

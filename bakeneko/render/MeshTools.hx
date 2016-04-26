@@ -72,7 +72,6 @@ class MeshTools {
 		
 		// Validate mesh data
 		Log.check({
-			trace('UEAH');
 			for (element in format.elements) {
 				
 				inline function check(array:Array<Dynamic>) {
