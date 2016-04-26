@@ -1,5 +1,6 @@
 package states;
 
+import bakeneko.hxsl.Shader;
 import bakeneko.core.Log;
 import bakeneko.core.Window;
 import bakeneko.hxsl.AgalOptim;
@@ -10,8 +11,10 @@ import bakeneko.hxsl.GlslOut;
 import bakeneko.hxsl.RuntimeShader;
 import bakeneko.hxsl.ShaderList;
 import bakeneko.hxsl.SharedShader;
+import bakeneko.input.KeyCode;
 import bakeneko.render.Color;
 import bakeneko.state.State;
+import haxe.Timer;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLProgram;
@@ -22,8 +25,10 @@ class HxslTest extends State {
 	var globals:Globals;
 	var cache:Cache;
 	var output:Int;
+	var shader:TestShader;
 	var compiledShader:RuntimeShader;
 	var program:GLProgram;
+	var paramValues:Float32Array;
 	
 	var positions:Array<Float>;
 	
@@ -41,9 +46,13 @@ class HxslTest extends State {
 		var globals = new Globals();
 		var output = cache.allocOutputVars(["output.position", "output.color"]);
 		
-		var shader = new TestShader();
+		shader = new TestShader();
+		shader.constTest = true;
+		shader.factor = 1.0;
+		//shader.constTest = true;
 		
 		compiledShader = compileShaders(new ShaderList(shader));
+		paramValues = new Float32Array(compiledShader.fragment.paramsSize << 2);
 		
 		positions = [
 			-1.0, -1.0, 0.0,  0.9, 	0.9,  0.83, 1.0,
@@ -114,13 +123,31 @@ class HxslTest extends State {
 		//Log.info('${format.agal.Tools.toString(vertexSource)}\n\n${format.agal.Tools.toString(fragmentSource)}', 0);
 	}
 	
+	override public function onUpdate(delta:Float):Void {
+		shader.factor = Math.cos(Timer.stamp()) * 0.5 + 0.5;
+	}
+	
 	function render(window:Window) {
 		var g = window.renderer;
+		
+		applyParams();
 		
 		GL.clearColor(0.12, 0.05, 0.16, 1.0);
 		GL.clear(GL.COLOR_BUFFER_BIT);
 		
 		GL.drawArrays(GL.TRIANGLES, 0, 3);
+	}
+	
+	function applyParams() {
+		var param = compiledShader.fragment.params;
+
+		var i = 0;
+		while (param != null) {
+			paramValues[param.index] = shader.getParamValue(param.index);
+			param = compiledShader.fragment.params.next;
+		}
+		
+		GL.uniform4fv(compiledShader.fragment.params.pos, paramValues);
 	}
 	
 	function compileShaders(shaders:ShaderList) {
@@ -135,21 +162,32 @@ class TestShader extends bakeneko.hxsl.Shader {
 
 	static var SRC = {
 		@input var input: {
-			var position: Vec3;
-			var color: Vec4;
+			var position:Vec3;
+			var color:Vec4;
 		};
 		
 		var output : {
 			var position:Vec4;
 			var color:Vec4;
 		};
-
+		
+		@param var factor:Float;
+		@const var constTest:Bool;
+		var initTest:Float;
+		
+		function __init__() {
+			initTest = 1.0;
+		}
+		
 		function vertex() {
 			output.position = vec4(input.position, 1.0);
 		}
 		
 		function fragment() {
-			output.color = input.color;
+			if (constTest)
+				output.color = input.color * initTest * (factor);
+			else
+				output.color = vec4(1.0);
 		}
 	}
 
