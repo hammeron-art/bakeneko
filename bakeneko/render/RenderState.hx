@@ -7,7 +7,7 @@ import bakeneko.render.VertexData;
 import bakeneko.render.VertexShader;
 import bakeneko.render.VertexStructure;
 
-class Pipeline {
+class RenderState {
 
 	public var vertexStructures: Array<VertexStructure>;
 
@@ -34,16 +34,10 @@ class Pipeline {
 	public var colorWriteMaskBlue : Bool;
 	public var colorWriteMaskAlpha : Bool;
 	
-	var shaderList:ShaderList;
 	var textures: Array<String>;
 	var textureValues: Array<Dynamic>;
 	
-	var render:Renderer;
-	
-	function new(render:Renderer, ?shaderList:ShaderList) {
-		this.render = render;
-		this.shaderList = shaderList;
-		
+	public function new() {
 		vertexStructures = [];
 
 		cullMode = CullMode.None;
@@ -66,26 +60,6 @@ class Pipeline {
 
 		textures = new Array<String>();
 		textureValues = new Array<Dynamic>();
-	}
-	
-	public function addShader(?shader:Shader) {
-		shaderList = new ShaderList(shader, shaderList);
-	}
-	
-	public function removeShader(shader:Shader) {
-		var sl = shaderList, prev = null;
-		while( sl != null ) {
-			if( sl.s == shader ) {
-				if( prev == null )
-					shaderList = sl.next;
-				else
-					prev.next = sl.next;
-				return true;
-			}
-			prev = sl;
-			sl = sl.next;
-		}
-		return false;
 	}
 	
 	/*public function getShader< T:hxsl.Shader >(t:Class<T>) : T {

@@ -19,13 +19,17 @@ import lime.graphics.GLRenderContext;
 
 @:access(bakeneko.render.VertexBuffer)
 @:access(bakeneko.render.IndexBuffer)
-@:access(bakeneko.render.Pipeline)
+@:access(bakeneko.render.RenderState)
 class Renderer implements IRenderer {
 
 	var window:bakeneko.core.Window;
 	var gl:GLRenderContext;
 	
 	var defaultPass:Pass;
+	
+	var boundVertexBuffer:VertexBuffer = null;
+	var boundIndexBuffer:IndexBuffer = null;
+	//var boundProgram:Dynamic = null;
 	
 	public function new(window:bakeneko.core.Window) {
 		this.window = window != null ? window : cast System.app.windows[0];
@@ -93,14 +97,60 @@ class Renderer implements IRenderer {
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cast buffer.data, buffer.usage == Usage.DynamicUsage ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
 	}
 	
-	inline public function createPipeline(?shaderList:ShaderList):Pipeline {
-		return new Pipeline(this, shaderList);
+	public function setVertexBuffer(buffer:VertexBuffer) {
+		
+		if (boundVertexBuffer == buffer)
+			return;
+		
+		var stride = 0;
+
+		@:privateAccess
+		for (element in buffer.structure.elements) {
+			stride += element.size();
+		}
+
+		var offset = 0;
+		
+		var i = 0;
+		for (element in buffer.structure.elements) {
+			//var verticeAttribute = driver.getAttribLocation(shader.program, element.attributeName());
+			//Log.assert(verticeAttribute >= 0, 'Vertex attribute (${element.attributeName()}) not found for shader (${this.shader}). Check the vertexFormat or not used variables in the shader.');
+			
+			gl.enableVertexAttribArray(i);
+			gl.vertexAttribPointer(i, element.numData(), getElementType(element), false, stride, offset);
+
+			offset += element.size();
+			
+			++i;
+		}
+		
+		boundVertexBuffer = buffer;
+	}
+	
+	public function setIndexBuffer(buffer:IndexBuffer) {
+		if (boundIndexBuffer == buffer)
+			return;
+			
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.buffer);
+		
+		boundIndexBuffer = buffer;
+	}
+	
+	function getElementType(element:VertexElement) {
+		return switch (element.type) {
+			case TByte(_):
+				gl.BYTE;
+			case TInt(_):
+				gl.INT;
+			case TFloat(_):
+				gl.FLOAT;
+		}
 	}
 	
 	public function compileShader(shader:Shader) {
 	}
 	
-	public function setPipeline(pipe:Pipeline) {
+	public function setRenderState(pipe:RenderState) {
 		setCullMode(pipe.cullMode);
 		setDepthMode(pipe.depthWrite, pipe.depthMode);
 		setStencilParameters(pipe.stencilMode, pipe.stencilBothPass, pipe.stencilDepthFail, pipe.stencilFail, pipe.stencilReferenceValue, pipe.stencilReadMask, pipe.stencilWriteMask);
@@ -271,7 +321,7 @@ import flash.display3D.Context3DStencilAction;
 
 @:access(bakeneko.render.VertexBuffer)
 @:access(bakeneko.render.IndexBuffer)
-@:access(bakeneko.render.Pipeline)
+@:access(bakeneko.render.RenderState)
 class Renderer implements IRenderer {
 
 	var window:bakeneko.core.Window;
@@ -368,11 +418,7 @@ class Renderer implements IRenderer {
 		b.uploadFromByteArray(buffer.data.buffer.getData(), 0, 0, buffer.count());
 	}
 	
-	inline public function createPipeline(?shaderList:ShaderList):Pipeline {
-		return new Pipeline(this);
-	}
-	
-	public function setPipeline(pipe:Pipeline) {
+	public function setRenderState(pipe:RenderState) {
 		setCullMode(pipe.cullMode);
 		setDepthMode(pipe.depthWrite, pipe.depthMode);
 		setStencilParameters(pipe.stencilMode, pipe.stencilBothPass, pipe.stencilDepthFail, pipe.stencilFail, pipe.stencilReferenceValue, pipe.stencilReadMask, pipe.stencilWriteMask);

@@ -16,11 +16,14 @@ class VertexBuffer {
 	var usage: Usage;
 	var instanceDataStepRate: Int;
 	
+	var structure:VertexStructure;
+	
 	var render:Renderer;
 	
 	function new(render:Renderer, count:Int, structure:VertexStructure, usage:Usage) {
 		this.usage = usage != null ? usage : Usage.StaticUsage;
 		this.render = render;
+		this.structure = structure;
 		size = count;
 		
 		data = new Float32Array(size * structure.totalNumValues);

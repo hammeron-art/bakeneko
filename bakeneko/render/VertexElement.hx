@@ -9,7 +9,7 @@ class VertexElement {
 		this.semantic = semantic;
 	}
 
-	public inline function size():Int {
+	public function size():Int {
 		return switch(type) {
 			case TInt(size): size * 4;
 			case TFloat(size): size * 4;
