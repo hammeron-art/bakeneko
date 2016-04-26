@@ -15,9 +15,13 @@ import bakeneko.input.KeyCode;
 import bakeneko.render.Color;
 import bakeneko.state.State;
 import haxe.Timer;
+import lime.graphics.opengl.GLUniformLocation;
+
+#if !flash
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLProgram;
+#end
 import lime.utils.Float32Array;
 
 class HxslTest extends State {
@@ -30,10 +34,11 @@ class HxslTest extends State {
 	var program:GLProgram;
 	var paramValues:Float32Array;
 	
-	var positions:Array<Float>;
+	var vertexData:Float32Array;
 	
 	var vertex:GLBuffer;
 	var index:GLBuffer;
+	var location:GLUniformLocation;
 	
 	override public function onInit():Void {
 		
@@ -44,21 +49,20 @@ class HxslTest extends State {
 		#end
 		
 		var globals = new Globals();
-		var output = cache.allocOutputVars(["output.position", "output.color"]);
+		output = cache.allocOutputVars(["output.position", "output.color"]);
 		
 		shader = new TestShader();
 		shader.constTest = true;
 		shader.factor = 1.0;
-		//shader.constTest = true;
 		
 		compiledShader = compileShaders(new ShaderList(shader));
 		paramValues = new Float32Array(compiledShader.fragment.paramsSize << 2);
 		
-		positions = [
+		vertexData = new Float32Array([
 			-1.0, -1.0, 0.0,  0.9, 	0.9,  0.83, 1.0,
 			 1.0, -1.0, 0.0,  0.5, 	0.65, 0.75, 1.0,
 			 0.0,  1.0, 0.0,  0.55, 0.87, 1.0,  1.0
-		];
+		]);
 		
 		tryOpengGl();
 		tryFlash();
@@ -68,7 +72,6 @@ class HxslTest extends State {
 	
 	function tryOpengGl() {
 		#if !flash
-		
 		var out = new GlslOut();
 		var vertexSource = out.run(compiledShader.vertex.data);
 		var fragmentSource = out.run(compiledShader.fragment.data);
@@ -77,7 +80,7 @@ class HxslTest extends State {
 		index = GL.createBuffer();
 		
 		GL.bindBuffer(GL.ARRAY_BUFFER, vertex);
-		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(positions), GL.STATIC_DRAW);
+		GL.bufferData(GL.ARRAY_BUFFER, vertexData, GL.STATIC_DRAW);
 		
 		GL.vertexAttribPointer(0, 3, GL.FLOAT, false, 7 * 4, 0);
 		GL.enableVertexAttribArray(0);
@@ -105,12 +108,14 @@ class HxslTest extends State {
 		
 		GL.useProgram(program);
 		
-		Log.info('$vertexSource\n\n$fragmentSource', 0);
+		location = GL.getUniformLocation(program, 'fragmentParams');
 		
+		Log.info('$vertexSource\n\n$fragmentSource', 0);
 		#end
 	}
 	
 	function tryFlash() {
+		#if flash
 		//cache.constsToGlobal = true;
 		/*var out = new AgalOut();
 		
@@ -121,6 +126,7 @@ class HxslTest extends State {
 		fragmentSource = opt.optimize(fragmentSource);*/
 		
 		//Log.info('${format.agal.Tools.toString(vertexSource)}\n\n${format.agal.Tools.toString(fragmentSource)}', 0);
+		#end
 	}
 	
 	override public function onUpdate(delta:Float):Void {
@@ -130,24 +136,19 @@ class HxslTest extends State {
 	function render(window:Window) {
 		var g = window.renderer;
 		
-		applyParams();
-		
-		GL.clearColor(0.12, 0.05, 0.16, 1.0);
-		GL.clear(GL.COLOR_BUFFER_BIT);
-		
-		GL.drawArrays(GL.TRIANGLES, 0, 3);
-	}
-	
-	function applyParams() {
 		var param = compiledShader.fragment.params;
-
 		var i = 0;
 		while (param != null) {
 			paramValues[param.index] = shader.getParamValue(param.index);
 			param = compiledShader.fragment.params.next;
 		}
 		
-		GL.uniform4fv(compiledShader.fragment.params.pos, paramValues);
+		#if !flash
+		GL.clearColor(0.12, 0.05, 0.16, 1.0);
+		GL.clear(GL.COLOR_BUFFER_BIT);
+		GL.drawArrays(GL.TRIANGLES, 0, 3);
+		GL.uniform4fv(location, paramValues);
+		#end
 	}
 	
 	function compileShaders(shaders:ShaderList) {
@@ -185,7 +186,7 @@ class TestShader extends bakeneko.hxsl.Shader {
 		
 		function fragment() {
 			if (constTest)
-				output.color = input.color * initTest * (factor);
+				output.color = input.color * initTest * factor;
 			else
 				output.color = vec4(1.0);
 		}
