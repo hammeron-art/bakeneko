@@ -369,6 +369,8 @@ class Renderer implements IRenderer {
 		context = stage3D.context3D;
 		context.setRenderToBackBuffer();
 		resize();
+		
+		reset();
 	}
 	
 	function resize() {

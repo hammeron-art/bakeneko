@@ -113,8 +113,8 @@ class RenderTest extends State {
 		
 		g.begin();
 		g.clear(color);
-		g.setVertexBuffer(vertexBuffer);
-		g.setIndexBuffer(indexBuffer);
+		//g.setVertexBuffer(vertexBuffer);
+		//g.setIndexBuffer(indexBuffer);
 		
 		GL.drawElements(GL.TRIANGLES, 3, GL.UNSIGNED_SHORT, 0);
 		
