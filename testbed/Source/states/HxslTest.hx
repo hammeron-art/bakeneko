@@ -18,8 +18,7 @@ import bakeneko.render.Color;
 import bakeneko.state.State;
 import format.agal.Tools;
 import haxe.Timer;
-import lime.utils.UInt32Array;
-
+import lime.utils.UInt16Array;
 import lime.utils.Float32Array;
 
 #if !flash
@@ -40,7 +39,7 @@ private class Graphics {
 	
 	var backColor:Color;
 	
-	public function new(compiledShader:RuntimeShader, vertexData:Float32Array, indexData:UInt32Array, backColor: Color) {
+	public function new(compiledShader:RuntimeShader, vertexData:Float32Array, indexData:UInt16Array, backColor: Color) {
 		this.compiledShader = compiledShader;
 		this.backColor = backColor;
 		
@@ -52,6 +51,9 @@ private class Graphics {
 		
 		vertex = GL.createBuffer();
 		index = GL.createBuffer();
+		
+		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, index);
+		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexData, GL.STATIC_DRAW);
 		
 		GL.bindBuffer(GL.ARRAY_BUFFER, vertex);
 		GL.bufferData(GL.ARRAY_BUFFER, vertexData, GL.STATIC_DRAW);
@@ -94,7 +96,7 @@ private class Graphics {
 		
 		GL.clearColor(backColor.r, backColor.g, backColor.b, backColor.a);
 		GL.clear(GL.COLOR_BUFFER_BIT);
-		GL.drawArrays(GL.TRIANGLES, 0, 3);
+		GL.drawElements(GL.TRIANGLES, 3, GL.UNSIGNED_SHORT, 0);
 	}
 
 }
@@ -117,40 +119,39 @@ private class Graphics {
 	var index:IndexBuffer3D;
 	var location:Int;
 	
+	var globalVertexParams:Float32Array;
+	var globalFragmentParams:Float32Array;
 	var backColor:Color;
 	
 	var fragmentParams:flash.Vector<Float>;
 	var vertexParams:flash.Vector<Float>;
 	
-	public function new(compiledShader:RuntimeShader, vertexData:Float32Array, indexData:UInt32Array, backColor:Color) {
+	public function new(compiledShader:RuntimeShader, vertexData:Float32Array, indexData:UInt16Array, backColor:Color) {
 		this.compiledShader = compiledShader;
 		this.backColor = backColor;
+		
+		globalVertexParams = new Float32Array(compiledShader.vertex.consts.length << 2);
+		for (i in 0...compiledShader.vertex.consts.length)
+			globalVertexParams[i] = compiledShader.vertex.consts[i];
+			
+		globalFragmentParams = new Float32Array(compiledShader.fragment.consts.length << 2);
+		for (i in 0...compiledShader.vertex.consts.length)
+			globalFragmentParams[i] = compiledShader.fragment.consts[i];
 		
 		stage3D = flash.Lib.current.stage.stage3Ds[0];
 		stage3D.addEventListener(flash.events.Event.CONTEXT3D_CREATE, init.bind(_, vertexData, indexData));
 		stage3D.requestContext3D(cast flash.display3D.Context3DRenderMode.AUTO, flash.display3D.Context3DProfile.STANDARD);
 	}
 	
-	public function init(_, vertexData:Float32Array, indexData:UInt32Array) {
+	public function init(_, vertexData:Float32Array, indexData:UInt16Array) {
 		context3D = stage3D.context3D;
 		//context3D.configureBackBuffer(System.app.windows[0].width, System.app.windows[0].height, 0, true);
 		
 		vertex  = context3D.createVertexBuffer(3, 7);
 		index = context3D.createIndexBuffer(3);
 	
-		//vertex.uploadFromByteArray(vertexData.buffer.getData(), 0, 0, 3);
-		//index.uploadFromByteArray(indexData.buffer.getData(), 0, 0, 3);
-		
-		var a = new flash.Vector<Float>(vertexData.length);
-		for (i in 0...vertexData.length)
-			a[i] = vertexData[i];
-		
-		var v = new flash.Vector<UInt>(indexData.length);
-		for (i in 0...indexData.length)
-			v[i] = indexData[i];
-		
-		vertex.uploadFromVector(a, 0, 3);
-		index.uploadFromVector(v, 0, 3);
+		vertex.uploadFromByteArray(vertexData.buffer.getData(), 0, 0, 3);
+		index.uploadFromByteArray(indexData.buffer.getData(), 0, 0, 3);
 		
 		var vertexSource = AgalOut.toAgal(compiledShader.vertex, 2);
 		var fragmentSource = AgalOut.toAgal(compiledShader.fragment, 2);
@@ -167,8 +168,6 @@ private class Graphics {
 		
 		var vb = vBytes.getBytes().getData();
 		var fb = fBytes.getBytes().getData();
-		vb.endian = flash.utils.Endian.LITTLE_ENDIAN;
-		fb.endian = flash.utils.Endian.LITTLE_ENDIAN;
 		
 		program = context3D.createProgram();
 		program.upload(vb, fb);
@@ -177,16 +176,6 @@ private class Graphics {
 	public function render(vertexValues:Float32Array, fragValues:Float32Array) {
 		if (context3D == null)
 			return;
-		
-		if (vertexParams == null || vertexParams.length != vertexValues.length)
-			vertexParams = new flash.Vector<Float>(vertexValues.length);
-		if (fragmentParams == null || fragmentParams.length != fragValues.length)
-			fragmentParams = new flash.Vector<Float>(fragValues.length);
-		
-		for (i in 0...vertexValues.length)
-			vertexParams[i] = vertexValues[i];
-		for (i in 0...fragValues.length)
-			fragmentParams[i] = fragValues[i];
 			
 		context3D.clear(backColor.r, backColor.g, backColor.b, backColor.a);
 		
@@ -195,23 +184,14 @@ private class Graphics {
 		context3D.setProgram(program);
 		
 		if (compiledShader.vertex.paramsSize > 0)
-			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.VERTEX, compiledShader.vertex.globalsSize, vertexParams, compiledShader.vertex.paramsSize);
+			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.VERTEX, compiledShader.vertex.globalsSize, compiledShader.vertex.paramsSize, vertexValues.buffer.getData(), 0);
 		if (compiledShader.fragment.paramsSize > 0)
-			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.FRAGMENT, compiledShader.fragment.globalsSize, fragmentParams, compiledShader.fragment.paramsSize);
-		
-		var globalVertexParams = new flash.Vector<Float>(compiledShader.vertex.consts.length << 2);
-		for (i in 0...compiledShader.vertex.consts.length)
-			globalVertexParams[i] = compiledShader.vertex.consts[i];
-			
-		var globalFragmentParams = new flash.Vector<Float>(compiledShader.fragment.consts.length << 2);
-		for (i in 0...compiledShader.vertex.consts.length)
-			globalFragmentParams[i] = compiledShader.fragment.consts[i];
+			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.FRAGMENT, compiledShader.fragment.globalsSize, compiledShader.fragment.paramsSize, fragValues.buffer.getData(), 0);
 
 		if (compiledShader.vertex.globalsSize > 0)
-			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.VERTEX, 0, globalVertexParams, compiledShader.vertex.globalsSize);
+			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.VERTEX, 0, compiledShader.vertex.globalsSize, globalVertexParams.buffer.getData(), 0);
 		if (compiledShader.fragment.globalsSize > 0)
-			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.FRAGMENT, 0, globalFragmentParams, compiledShader.fragment.globalsSize);
-		
+			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.FRAGMENT, 0, compiledShader.fragment.globalsSize, globalFragmentParams.buffer.getData(), 0);
 		
 		context3D.drawTriangles(index);
 		
@@ -234,7 +214,7 @@ class HxslTest extends State {
 	var vertexParams:Float32Array;
 	var fragmentParams:Float32Array;
 	var vertexData:Float32Array;
-	var indexData:UInt32Array;
+	var indexData:UInt16Array;
 	
 	var graphics:Graphics;
 	
@@ -265,7 +245,7 @@ class HxslTest extends State {
 			 0.5, -0.5,  0.0,  0.5,	 0.65, 0.75, 1.0,
 			-0.5, -0.5,  0.0,  0.55, 0.87, 1.0,  1.0
 		]);
-		indexData = new UInt32Array([0, 1, 2]);
+		indexData = new UInt16Array([0, 1, 2]);
 		
 		
 		backColor = new Color(0.12, 0.05, 0.16, 1.0);
