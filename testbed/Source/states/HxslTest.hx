@@ -86,9 +86,11 @@ private class Graphics {
 		fragmentLocation = GL.getUniformLocation(program, 'fragmentParams');
 	}
 	
-	public function render(paramValues:Float32Array) {
-		GL.uniform4fv(vertexLocation, paramValues);
-		GL.uniform4fv(fragmentLocation, paramValues);
+	public function render(vertexValues:Float32Array, fragmentValues:Float32Array) {
+		if (compiledShader.vertex.paramsSize > 0)
+			GL.uniform4fv(vertexLocation, vertexValues);
+		if (compiledShader.fragment.paramsSize > 0)
+			GL.uniform4fv(fragmentLocation, fragmentValues);
 		
 		GL.clearColor(backColor.r, backColor.g, backColor.b, backColor.a);
 		GL.clear(GL.COLOR_BUFFER_BIT);
@@ -117,7 +119,8 @@ private class Graphics {
 	
 	var backColor:Color;
 	
-	var params:flash.Vector<Float>;
+	var fragmentParams:flash.Vector<Float>;
+	var vertexParams:flash.Vector<Float>;
 	
 	public function new(compiledShader:RuntimeShader, vertexData:Float32Array, indexData:UInt32Array, backColor:Color) {
 		this.compiledShader = compiledShader;
@@ -171,15 +174,19 @@ private class Graphics {
 		program.upload(vb, fb);
 	}
 	
-	public function render(paramValues:Float32Array) {
+	public function render(vertexValues:Float32Array, fragValues:Float32Array) {
 		if (context3D == null)
 			return;
 		
-		if (params == null || params.length != paramValues.length)
-			params = new flash.Vector<Float>(paramValues.length);
+		if (vertexParams == null || vertexParams.length != vertexValues.length)
+			vertexParams = new flash.Vector<Float>(vertexValues.length);
+		if (fragmentParams == null || fragmentParams.length != fragValues.length)
+			fragmentParams = new flash.Vector<Float>(fragValues.length);
 		
-		for (i in 0...paramValues.length)
-			params[i] = paramValues[i];
+		for (i in 0...vertexValues.length)
+			vertexParams[i] = vertexValues[i];
+		for (i in 0...fragValues.length)
+			fragmentParams[i] = fragValues[i];
 			
 		context3D.clear(backColor.r, backColor.g, backColor.b, backColor.a);
 		
@@ -188,9 +195,9 @@ private class Graphics {
 		context3D.setProgram(program);
 		
 		if (compiledShader.vertex.paramsSize > 0)
-			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.VERTEX, compiledShader.vertex.globalsSize, params, compiledShader.vertex.paramsSize);
+			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.VERTEX, compiledShader.vertex.globalsSize, vertexParams, compiledShader.vertex.paramsSize);
 		if (compiledShader.fragment.paramsSize > 0)
-			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.FRAGMENT, compiledShader.fragment.globalsSize, params, compiledShader.fragment.paramsSize);
+			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.FRAGMENT, compiledShader.fragment.globalsSize, fragmentParams, compiledShader.fragment.paramsSize);
 		
 		var globalVertexParams = new flash.Vector<Float>(compiledShader.vertex.consts.length << 2);
 		for (i in 0...compiledShader.vertex.consts.length)
@@ -224,7 +231,8 @@ class HxslTest extends State {
 	var shader:TestShader;
 	var compiledShader:RuntimeShader;
 	
-	var paramValues:Float32Array;
+	var vertexParams:Float32Array;
+	var fragmentParams:Float32Array;
 	var vertexData:Float32Array;
 	var indexData:UInt32Array;
 	
@@ -248,7 +256,9 @@ class HxslTest extends State {
 		shader.factor = 1.0;
 		
 		compiledShader = compileShaders(new ShaderList(shader));
-		paramValues = new Float32Array(compiledShader.fragment.paramsSize << 2);
+
+		vertexParams = new Float32Array(compiledShader.vertex.paramsSize << 2);
+		fragmentParams = new Float32Array(compiledShader.fragment.paramsSize << 2);
 		
 		vertexData = new Float32Array([
 			 0.0,  0.5,  0.0,  0.9,	 0.9,  0.83, 1.0,
@@ -276,7 +286,7 @@ class HxslTest extends State {
 		setParams();
 		
 		window.renderer.begin();
-		graphics.render(paramValues);
+		graphics.render(vertexParams, fragmentParams);
 		window.renderer.end();
 	}
 	
@@ -284,8 +294,15 @@ class HxslTest extends State {
 		var param = compiledShader.fragment.params;
 		var i = 0;
 		while (param != null) {
-			paramValues[param.index] = shader.getParamValue(param.index);
+			fragmentParams[param.index] = shader.getParamValue(param.index);
 			param = compiledShader.fragment.params.next;
+		}
+		
+		param = compiledShader.vertex.params;
+		i = 0;
+		while (param != null) {
+			vertexParams[param.index] = shader.getParamValue(param.index);
+			param = compiledShader.vertex.params.next;
 		}
 	}
 	
