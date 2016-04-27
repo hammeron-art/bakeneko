@@ -16,6 +16,7 @@ import bakeneko.hxsl.SharedShader;
 import bakeneko.input.KeyCode;
 import bakeneko.render.Color;
 import bakeneko.state.State;
+import format.agal.Tools;
 import haxe.Timer;
 import lime.utils.UInt32Array;
 
@@ -123,40 +124,40 @@ private class Graphics {
 		this.backColor = backColor;
 		
 		stage3D = flash.Lib.current.stage.stage3Ds[0];
-		stage3D.addEventListener(flash.events.Event.CONTEXT3D_CREATE, init.bind(_, vertexData, indexData, compiledShader));
+		stage3D.addEventListener(flash.events.Event.CONTEXT3D_CREATE, init.bind(_, vertexData, indexData));
 		stage3D.requestContext3D(cast flash.display3D.Context3DRenderMode.AUTO, flash.display3D.Context3DProfile.STANDARD);
 	}
 	
-	public function init(_, vertexData:Float32Array, indexData:UInt32Array, compiledShader:RuntimeShader) {
+	public function init(_, vertexData:Float32Array, indexData:UInt32Array) {
 		context3D = stage3D.context3D;
 		//context3D.configureBackBuffer(System.app.windows[0].width, System.app.windows[0].height, 0, true);
 		
 		vertex  = context3D.createVertexBuffer(3, 7);
 		index = context3D.createIndexBuffer(3);
-		
-		var v = new flash.Vector<UInt>(3);
-		v[0] = 0;
-		v[1] = 1;
-		v[2] = 2;
-		
+	
 		//vertex.uploadFromByteArray(vertexData.buffer.getData(), 0, 0, 3);
 		//index.uploadFromByteArray(indexData.buffer.getData(), 0, 0, 3);
 		
 		var a = new flash.Vector<Float>(vertexData.length);
-		
 		for (i in 0...vertexData.length)
 			a[i] = vertexData[i];
+		
+		var v = new flash.Vector<UInt>(indexData.length);
+		for (i in 0...indexData.length)
+			v[i] = indexData[i];
 		
 		vertex.uploadFromVector(a, 0, 3);
 		index.uploadFromVector(v, 0, 3);
 		
-		var out = new AgalOut();
-		var vertexSource = out.compile(compiledShader.vertex, 2);
-		var fragmentSource = out.compile(compiledShader.fragment, 2);
-		var opt = new AgalOptim();
+		//var out = new AgalOut();
+		var vertexSource = AgalOut.toAgal(compiledShader.vertex, 2);
+		var fragmentSource = AgalOut.toAgal(compiledShader.fragment, 2);
+		/*var opt = new AgalOptim();
 		vertexSource = opt.optimize(vertexSource);
-		fragmentSource = opt.optimize(fragmentSource);
-
+		fragmentSource = opt.optimize(fragmentSource);*/
+		
+		/*trace(Printer.shaderToString(compiledShader.fragment.data));
+		trace(Printer.shaderToString(compiledShader.vertex.data));*/
 		Log.info('${format.agal.Tools.toString(vertexSource)}\n\n${format.agal.Tools.toString(fragmentSource)}', 0);
 		
 		var vBytes = new haxe.io.BytesOutput();
@@ -164,8 +165,13 @@ private class Graphics {
 		var fBytes = new haxe.io.BytesOutput();
 		new format.agal.Writer(fBytes).write(fragmentSource);
 		
+		var vb = vBytes.getBytes().getData();
+		var fb = fBytes.getBytes().getData();
+		vb.endian = flash.utils.Endian.LITTLE_ENDIAN;
+		fb.endian = flash.utils.Endian.LITTLE_ENDIAN;
+		
 		program = context3D.createProgram();
-		program.upload(vBytes.getBytes().getData(), fBytes.getBytes().getData());
+		program.upload(vb, fb);
 	}
 	
 	public function render(paramValues:Float32Array) {
@@ -184,13 +190,17 @@ private class Graphics {
 		context3D.setVertexBufferAt(1, vertex, 3, flash.display3D.Context3DVertexBufferFormat.FLOAT_4);
 		context3D.setProgram(program);
 		
-		if (compiledShader.fragment.globalsSize > 0)
-			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.FRAGMENT, 0, params, compiledShader.fragment.globalsSize);
+		if (compiledShader.vertex.paramsSize > 0)
+			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.VERTEX, compiledShader.vertex.globalsSize, params, compiledShader.vertex.paramsSize);
 		if (compiledShader.fragment.paramsSize > 0)
 			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.FRAGMENT, compiledShader.fragment.globalsSize, params, compiledShader.fragment.paramsSize);
-		//context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.VERTEX, 0, 1, paramValues.buffer.getData(), 0);
 		
-		//context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.FRAGMENT, compiledShader.fragment.globalsSize, compiledShader.fragment.paramsSize, paramValues.buffer.getData(), 0);
+		if (compiledShader.vertex.globalsSize > 0)
+			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.VERTEX, 0, params, compiledShader.vertex.globalsSize);
+		if (compiledShader.fragment.globalsSize > 0)
+			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.FRAGMENT, 0, params, compiledShader.fragment.globalsSize);
+		
+		
 		context3D.drawTriangles(index);
 		
 		context3D.present();
@@ -247,7 +257,7 @@ class HxslTest extends State {
 	}
 	
 	override public function onUpdate(delta:Float):Void {
-		shader.factor = Math.cos(Timer.stamp()) * 0.5 + 0.5;
+		shader.factor = 0.5 + (Math.cos(Timer.stamp()) * 0.5 + 0.5) * 0.5;
 	}
 	
 	function render(window:Window) {
@@ -297,7 +307,7 @@ private class TestShader extends bakeneko.hxsl.Shader {
 		}
 		
 		function vertex() {
-			output.position = vec4(input.position * factor, 1.0);
+			output.position = vec4(input.position.x, input.position.y, input.position.z, 1.0);
 		}
 		
 		function fragment() {

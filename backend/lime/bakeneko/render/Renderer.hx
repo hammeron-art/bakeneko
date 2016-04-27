@@ -47,6 +47,10 @@ class Renderer implements IRenderer {
 	
 	public function reset():Void {
 		begin();
+		
+		gl.enable(gl.BLEND);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		
 		clear(Color.BLACK);
 		end();
 		
@@ -55,10 +59,7 @@ class Renderer implements IRenderer {
 		Log.info('Renderer for window(${window.id}) reset');
 	}
 	
-	public function begin(surfaces:Array<Surface> = null):Void {
-		gl.enable(gl.BLEND);
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		
+	public function begin(surfaces:Array<Surface> = null):Void {		
 		if (surfaces == null) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			gl.viewport(0, 0, window.width, window.height);
@@ -357,6 +358,7 @@ class Renderer implements IRenderer {
 	
 	public function reset():Void {
 		begin();
+		context.setBlendFactors(Context3DBlendFactor.SOURCE_ALPHA, Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
 		clear(Color.BLACK);
 		end();
 		
