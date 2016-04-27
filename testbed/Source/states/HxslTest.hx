@@ -149,15 +149,12 @@ private class Graphics {
 		vertex.uploadFromVector(a, 0, 3);
 		index.uploadFromVector(v, 0, 3);
 		
-		//var out = new AgalOut();
 		var vertexSource = AgalOut.toAgal(compiledShader.vertex, 2);
 		var fragmentSource = AgalOut.toAgal(compiledShader.fragment, 2);
 		var opt = new AgalOptim();
 		vertexSource = opt.optimize(vertexSource);
 		fragmentSource = opt.optimize(fragmentSource);
 		
-		/*trace(Printer.shaderToString(compiledShader.fragment.data));
-		trace(Printer.shaderToString(compiledShader.vertex.data));*/
 		Log.info('${format.agal.Tools.toString(vertexSource)}\n\n${format.agal.Tools.toString(fragmentSource)}', 0);
 		
 		var vBytes = new haxe.io.BytesOutput();
@@ -195,15 +192,18 @@ private class Graphics {
 		if (compiledShader.fragment.paramsSize > 0)
 			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.FRAGMENT, compiledShader.fragment.globalsSize, params, compiledShader.fragment.paramsSize);
 		
-		var globalParams = new flash.Vector<Float>(compiledShader.vertex.consts.length * 4);
-		
+		var globalVertexParams = new flash.Vector<Float>(compiledShader.vertex.consts.length << 2);
 		for (i in 0...compiledShader.vertex.consts.length)
-			globalParams[i] = compiledShader.vertex.consts[i];
+			globalVertexParams[i] = compiledShader.vertex.consts[i];
+			
+		var globalFragmentParams = new flash.Vector<Float>(compiledShader.fragment.consts.length << 2);
+		for (i in 0...compiledShader.vertex.consts.length)
+			globalFragmentParams[i] = compiledShader.fragment.consts[i];
 
 		if (compiledShader.vertex.globalsSize > 0)
-			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.VERTEX, 0, globalParams, compiledShader.vertex.globalsSize);
+			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.VERTEX, 0, globalVertexParams, compiledShader.vertex.globalsSize);
 		if (compiledShader.fragment.globalsSize > 0)
-			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.FRAGMENT, 0, globalParams, compiledShader.fragment.globalsSize);
+			context3D.setProgramConstantsFromVector(flash.display3D.Context3DProgramType.FRAGMENT, 0, globalFragmentParams, compiledShader.fragment.globalsSize);
 		
 		
 		context3D.drawTriangles(index);
@@ -213,6 +213,9 @@ private class Graphics {
 }
 #end
 
+/**
+ * Hxsl usage test without bakeneko render api and using native OpenGl or Stage3D
+ */
 class HxslTest extends State {
 	
 	var globals:Globals;
@@ -241,7 +244,7 @@ class HxslTest extends State {
 		output = cache.allocOutputVars(["output.position", "output.color"]);
 		
 		shader = new TestShader();
-		//shader.constTest = true;
+		shader.constTest = true;
 		shader.factor = 1.0;
 		
 		compiledShader = compileShaders(new ShaderList(shader));
@@ -308,22 +311,22 @@ private class TestShader extends bakeneko.hxsl.Shader {
 		};
 		
 		@param var factor:Float;
-		//@const var constTest:Bool;
-		var initTest:Float;
+		@const var constTest:Bool;
+		var localTest:Float;
 		
 		function __init__() {
-			//initTest = 0.50;
+			localTest = 0.20;
 		}
 		
 		function vertex() {
-			output.position = vec4(input.position.xyz * factor, 1.0);
+			output.position = vec4(input.position.xyz * factor * (localTest + 0.75), 1.0);
 		}
 		
 		function fragment() {
-			//if (constTest)
-				output.color = input.color /* initTest */* factor;
-			//else
-				//output.color = input.color;
+			if (constTest)
+				output.color = input.color * (localTest + 0.8) * factor;
+			else
+				output.color = input.color;
 		}
 	}
 
