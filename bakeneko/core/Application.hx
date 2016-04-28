@@ -1,5 +1,6 @@
 package bakeneko.core;
 
+import bakeneko.asset.AssetManager;
 import bakeneko.core.WindowEvent;
 import bakeneko.render.RenderSystem;
 import bakeneko.input.InputSystem;
@@ -18,6 +19,7 @@ class Application {
 	public var input:InputSystem;
 	public var stateManager:StateManager;
 	public var renderSystem:RenderSystem;
+	public var assets:AssetManager;
 	
 	var canAddSystens:Bool;
 	
@@ -126,6 +128,7 @@ class Application {
 		input = createSystem(new InputSystem());
 		stateManager = createSystem(new StateManager());
 		renderSystem = createSystem(new RenderSystem());
+		assets = createSystem(new AssetManager());
 		
 		/*#if packer
 		packer = createSystem(new TexturePacker());

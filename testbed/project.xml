@@ -5,6 +5,7 @@
 	<app main="Main" path="Build" file="testbed" />
 	
 	<source path="Source" />
+	<assets path="Assets" rename="assets" />
 	
 	<haxelib name="bakeneko" />
 	<window orientation="landscape" />

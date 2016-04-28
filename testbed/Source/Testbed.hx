@@ -6,6 +6,7 @@ import bakeneko.input.KeyCode;
 import bakeneko.render.Color;
 import bakeneko.state.State;
 import bakeneko.utils.Utils;
+import states.AssetTest;
 import states.HxslTest;
 import states.InputTest;
 import states.RenderTest;
@@ -19,13 +20,14 @@ class Testbed extends Application {
 		super();
 		
 		createState = [];
-		currentState = 1;
+		currentState = 3;
 	}
 	
 	override public function onInit():Void {
-		addState(new RenderTest());
-		addState(new HxslTest());
 		addState(new InputTest());
+		addState(new HxslTest());
+		addState(new RenderTest());
+		addState(new AssetTest());
 	}
 	
 	override public function initialState():Void {

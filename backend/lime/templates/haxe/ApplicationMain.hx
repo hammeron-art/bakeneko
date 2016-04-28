@@ -3,7 +3,7 @@ import lime.Assets;
 import lime.app.Application;
 
 @:access(lime.app.Application)
-@:access(bakeneko.native.FileLoader)
+@:access(bakeneko.FileLoader)
 class ApplicationMain {
 
 
@@ -15,7 +15,7 @@ class ApplicationMain {
 	
 	public static function create ():Void {
 		
-		bakeneko.native.FileLoader.init();
+		bakeneko.FileLoader.init();
 		
 		preloader = new ::if (PRELOADER_NAME != "")::::PRELOADER_NAME::::else::lime.app.Preloader::end:: ();
 
