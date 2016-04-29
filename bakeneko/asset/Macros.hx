@@ -1,37 +1,89 @@
 package bakeneko.asset;
 
+import bakeneko.utils.MacroUtils;
 import haxe.macro.Context;
-import haxe.macro.Expr;
 import haxe.macro.Expr.Field;
-import lime.Assets;
-import lime.project.Library;
+import haxe.macro.Expr;
+import sys.FileSystem;
+
+using StringTools;
 
 class Macros {
-	static public function build() {
+	
+	static public function build(directory:String) {
 		var fields = Context.getBuildFields();
 		
-		//var a = new Library();
+		var root = Context.resolvePath(directory);
+		var files = getFileStructure(root);
 		
-		//trace(ApplicationMain.config.assetsPrefix);
-		var ids = ['jkl', 'fdg'];
-		
-		var gtype = TAnonymous([for (id in ids) {name: id, pos: Context.currentPos(), kind:FVar(macro : String)}]);
-		
-		var gids : Field = {
-			name: 'gids',
-			pos: Context.currentPos(),
-			kind: FVar(gtype),
-			access: [AStatic],
-		};
+		var expr:Array<{field:String, expr:Expr}> = [];
 		
 		for (i in 0...fields.length) {
-			if (fields[i].name == 'gids') {
-				fields[i] = gids;
+			for (meta in fields[i].meta) {
+				if (meta.name == 'assets') {
+					fields[i] = {
+						name: fields[i].name,
+						pos: Context.currentPos(),
+						kind: FVar(buildComplexType(files), {expr: MacroUtils.reifyDynamicStruct(files), pos: Context.currentPos()}),
+						access: [AStatic],
+					};
+				}
 			}
 		}
 		
-		//fields.push(gids);
-		
 		return fields;
 	}
+	
+	static function buildComplexType(struct:Dynamic) {
+		if (Std.is(struct, String)) {
+			return macro : String;
+		}
+		var fieldNames = Reflect.fields(struct);
+		
+		var array = [];
+		
+		return TAnonymous([
+			for (id in fieldNames) {
+				{
+					name: id,
+					pos: Context.currentPos(),
+					kind:FVar(buildComplexType(Reflect.field(struct, id)))
+				}
+			}
+		]);
+	}
+	
+	static function getFileStructure(directory:String, ?filterExtensions:Array<String>) {
+		
+		var files = {};
+		
+		var resolvedPath = #if (ios || tvos) Context.resolvePath(directory) #else directory #end;
+		var directoryInfo = FileSystem.readDirectory(resolvedPath);
+		for (name in directoryInfo) {
+			if (!FileSystem.isDirectory(resolvedPath + name)) {
+				if (name.startsWith("."))
+					continue;
+				
+				if (filterExtensions != null) {
+					var extension:String = name.split('.')[1];
+					if (filterExtensions.indexOf(extension) == -1)
+						continue;
+				}
+				
+				Reflect.setField(files, normalizeName(name), directory + name);
+			} else {
+				var split:Array<String> = name.split('/');
+				var folder = split[split.length - 1];
+				
+				Reflect.setField(files, normalizeName(name), getFileStructure(directory + name + '/', filterExtensions));
+			}
+		}
+		
+		return files;
+	}
+	
+	static function normalizeName(name:String):String {
+		return name.replace(' ', '_').replace('.', '_');
+	}
+
 }

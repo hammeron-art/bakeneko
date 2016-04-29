@@ -2,13 +2,13 @@ package bakeneko.asset;
 
 import bakeneko.core.AppSystem;
 
-@:build(bakeneko.asset.Macros.build())
-
+@:build(bakeneko.asset.Macros.build('Assets/'))
 class AssetManager extends AppSystem {
 	
-	static public var gids;
+	@assets
+	static public var assets;
 	
 	override public function onInit():Void {
-		//gids
+		trace(assets.textures.colorGrid_png);
 	}
 }

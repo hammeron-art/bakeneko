@@ -1,5 +1,7 @@
 package bakeneko.utils;
 
+using StringTools;
+
 class Utils {
 
 	// Generate unique string ID
@@ -48,6 +50,43 @@ class Utils {
 	@:generic
 	public static inline function angleDifference<T:(Float, Int)>(angle1:T, angle2:T) {
 		return ((((angle1 - angle2) % 360) + 540) % 360) - 180;
+	}
+	
+	public static function formatedCodeString(code:String) {
+		var str = code.replace('{ ', '{\n').replace(' }', '\n}').replace('[', '[\n').replace(']', '\n]')
+		.replace(', ', ',').replace(',', ',\n').replace('; ', ';').replace(';', ';\n')
+		.replace(' : ', ':').replace('\n\n', '\n');
+		
+		var result = '';
+		var c = '';
+		var tabs = 0;
+		
+		var i = 0;
+		while (i < str.length) {
+			c = str.charAt(i);
+			
+			if (c == '{' || c == '[') {
+				++tabs;
+			}
+			if (c == '}' || c == ']') {
+				--tabs;
+				result = result.substr(0, result.length - 1);
+			}
+			
+			if (c == '\n') {
+				result += c;
+				for (ii in 0...tabs) {
+					result += '\t';
+				}
+				++i;
+				continue;
+			}
+			
+			result += c;
+			++i;
+		}
+		
+		return result;
 	}
 
 }
