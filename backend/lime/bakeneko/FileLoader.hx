@@ -22,7 +22,7 @@ class FileLoader {
 		library = new DefaultAssetLibrary();
 	}
 	
-	static public function loadText(id:String):Task<String> {
+	/*static public function loadText(id:String):Task<String> {
 		var promise = new Promise<String> ();
 		
 		var tcs = new TaskCompletionSource();
@@ -34,7 +34,7 @@ class FileLoader {
 		});
 		
 		return tcs.task;
-	}
+	}*/
 	
 	static public function loadImage(id:String):Task<Image> {
 		var promise = new Promise<Image> ();
@@ -50,7 +50,7 @@ class FileLoader {
 		return tcs.task;
 	}
 	
-	static public function loadFont(id:String):Task<lime.text.Font> {
+	/*static public function loadFont(id:String):Task<lime.text.Font> {
 		var promise = new Promise<lime.text.Font> ();
 		
 		var tcs = new TaskCompletionSource();
@@ -62,13 +62,13 @@ class FileLoader {
 		});
 		
 		return tcs.task;
-	}
+	}*/
 	
 	static public function getText(path:String) {
 		return library.getText(path);
 	}
 	
-	static public function getBytes(path:String):Bytes {
+	inline static public function getBytes(path:String):Bytes {
 		return library.getBytes(path);
 	}
 	

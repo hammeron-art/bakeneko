@@ -1,5 +1,7 @@
 package states;
 
+import bakeneko.asset.AssetManager;
+import bakeneko.asset.Texture;
 import bakeneko.core.System;
 import bakeneko.hxsl.Printer;
 import bakeneko.hxsl.Shader;
@@ -13,6 +15,7 @@ import bakeneko.hxsl.GlslOut;
 import bakeneko.hxsl.RuntimeShader;
 import bakeneko.hxsl.ShaderList;
 import bakeneko.hxsl.SharedShader;
+import bakeneko.hxsl.Types.Sampler2D;
 import bakeneko.input.KeyCode;
 import bakeneko.render.Color;
 import bakeneko.state.State;
@@ -20,12 +23,14 @@ import format.agal.Tools;
 import haxe.Timer;
 import lime.utils.UInt16Array;
 import lime.utils.Float32Array;
+import lime.utils.UInt8Array;
 
 #if !flash
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLUniformLocation;
+import lime.graphics.opengl.GLTexture;
 
 private class Graphics {
 	
@@ -34,12 +39,15 @@ private class Graphics {
 	var program:GLProgram;
 	var vertex:GLBuffer;
 	var index:GLBuffer;
+	var glTextures:Array<GLTexture>;
 	var vertexLocation:GLUniformLocation;
 	var fragmentLocation:GLUniformLocation;
+	var vertTexLocations:Array<GLUniformLocation>;
+	var fragTexLocations:Array<GLUniformLocation>;
 	
 	var backColor:Color;
 	
-	public function new(compiledShader:RuntimeShader, vertexData:Float32Array, indexData:UInt16Array, backColor: Color) {
+	public function new(compiledShader:RuntimeShader, vertexData:Float32Array, indexData:UInt16Array, backColor: Color, textures:Array<Texture>) {
 		this.compiledShader = compiledShader;
 		this.backColor = backColor;
 		
@@ -58,10 +66,12 @@ private class Graphics {
 		GL.bindBuffer(GL.ARRAY_BUFFER, vertex);
 		GL.bufferData(GL.ARRAY_BUFFER, vertexData, GL.STATIC_DRAW);
 		
-		GL.vertexAttribPointer(0, 3, GL.FLOAT, false, 7 * 4, 0);
+		GL.vertexAttribPointer(0, 3, GL.FLOAT, false, 9 * 4, 0);
 		GL.enableVertexAttribArray(0);
-		GL.vertexAttribPointer(1, 4, GL.FLOAT, false, 7 * 4, 3 * 4);
+		GL.vertexAttribPointer(1, 4, GL.FLOAT, false, 9 * 4, 3 * 4);
 		GL.enableVertexAttribArray(1);
+		GL.vertexAttribPointer(2, 2, GL.FLOAT, false, 9 * 4, (3 + 4) * 4);
+		GL.enableVertexAttribArray(2);
 		
 		var vertexShader = GL.createShader(GL.VERTEX_SHADER);
 		var fragmentShader = GL.createShader(GL.FRAGMENT_SHADER);
@@ -76,8 +86,7 @@ private class Graphics {
 
 		GL.linkProgram(program);
 
-		if (GL.getProgramParameter(program, GL.LINK_STATUS) == 0)
-		{
+		if (GL.getProgramParameter(program, GL.LINK_STATUS) == 0) {
 			Log.error(GL.getProgramInfoLog(program));
 			GL.deleteProgram(program);
 		}
@@ -86,13 +95,69 @@ private class Graphics {
 		
 		vertexLocation = GL.getUniformLocation(program, 'vertexParams');
 		fragmentLocation = GL.getUniformLocation(program, 'fragmentParams');
+		vertTexLocations = [
+			for (i in 0...compiledShader.vertex.textures2DCount) {
+				GL.getUniformLocation(program, 'vertexTextures[$i]');
+			}
+		];
+		fragTexLocations = [
+			for (i in 0...compiledShader.fragment.textures2DCount) {
+				GL.getUniformLocation(program, 'fragmentTextures[$i]');
+			}
+		];
+		
+		/*glTextures = [];
+		var param = compiledShader.fragment.textures2D;
+		
+		var i = 0;
+		while (param != null) {
+			var texture = shader.getParamValue(param.index);
+			
+			var tex = GL.createTexture();
+			GL.activeTexture(i);
+			GL.bindTexture(GL.TEXTURE_2D, tex);
+			GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, texture.image.width, texture.image.height, 0, GL.RGBA, GL.UNSIGNED_BYTE, texture.image.buffer.data);
+			
+			glTextures.push(tex);
+			
+			//vertexParams[param.index] = shader.getParamValue(param.index);
+			param = compiledShader.fragment.params.next;
+		}*/
+		
+		
+		glTextures = [
+			for (i in 0...compiledShader.fragment.textures2DCount) {
+				var texture = textures[i];
+				var tex = GL.createTexture();
+				GL.activeTexture(0);
+				GL.bindTexture(GL.TEXTURE_2D, tex);
+				GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, texture.image.width, texture.image.height, 0, GL.RGBA, GL.UNSIGNED_BYTE, texture.image.buffer.data);
+				
+				tex;
+			}
+		];
 	}
 	
 	public function render(vertexValues:Float32Array, fragmentValues:Float32Array) {
+		
 		if (compiledShader.vertex.paramsSize > 0)
 			GL.uniform4fv(vertexLocation, vertexValues);
 		if (compiledShader.fragment.paramsSize > 0)
 			GL.uniform4fv(fragmentLocation, fragmentValues);
+		for (i in 0...compiledShader.vertex.textures2DCount) {
+			
+		}
+		for (i in 0...compiledShader.fragment.textures2DCount) {
+			GL.activeTexture(GL.TEXTURE0 + i);
+			GL.uniform1i(fragTexLocations[i], i);
+			GL.bindTexture(GL.TEXTURE_2D, glTextures[i]);
+			
+			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT);
+			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.REPEAT);
+
+			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+		}
 		
 		GL.clearColor(backColor.r, backColor.g, backColor.b, backColor.a);
 		GL.clear(GL.COLOR_BUFFER_BIT);
@@ -159,7 +224,7 @@ private class Graphics {
 		vertexSource = opt.optimize(vertexSource);
 		fragmentSource = opt.optimize(fragmentSource);
 		
-		Log.info('${format.agal.Tools.toString(vertexSource)}\n\n${format.agal.Tools.toString(fragmentSource)}', 0);
+		//Log.info('${format.agal.Tools.toString(vertexSource)}\n\n${format.agal.Tools.toString(fragmentSource)}', 0);
 		
 		var vBytes = new haxe.io.BytesOutput();
 		new format.agal.Writer(vBytes).write(vertexSource);
@@ -213,12 +278,15 @@ class HxslTest extends State {
 	
 	var vertexParams:Float32Array;
 	var fragmentParams:Float32Array;
+	var vertTextParams:Array<Texture>;
+	var fragTextParams:Array<Texture>;
 	var vertexData:Float32Array;
 	var indexData:UInt16Array;
 	
 	var graphics:Graphics;
-	
 	var backColor:Color;
+	
+	var texture:Texture;
 	
 	override public function onInit():Void {
 		
@@ -239,19 +307,25 @@ class HxslTest extends State {
 
 		vertexParams = new Float32Array(compiledShader.vertex.paramsSize << 2);
 		fragmentParams = new Float32Array(compiledShader.fragment.paramsSize << 2);
+
+		vertTextParams = [ for (i in 0...compiledShader.vertex.textures2DCount) null ];
+		fragTextParams = [ for (i in 0...compiledShader.fragment.textures2DCount) null ];
 		
 		vertexData = new Float32Array([
-			 0.0,  0.5,  0.0,  0.9,	 0.9,  0.83, 1.0,
-			 0.5, -0.5,  0.0,  0.5,	 0.65, 0.75, 1.0,
-			-0.5, -0.5,  0.0,  0.55, 0.87, 1.0,  1.0
+			 0.0,  0.5,  0.0,  0.9,	 0.9,  0.83, 1.0, 0.0, 1.0,
+			 0.5, -0.5,  0.0,  0.5,	 0.65, 0.75, 1.0, 0.0, 0.0,
+			-0.5, -0.5,  0.0,  0.55, 0.87, 1.0,  1.0, 1.0, 0.0
 		]);
 		indexData = new UInt16Array([0, 1, 2]);
 		
-		
 		backColor = new Color(0.12, 0.05, 0.16, 1.0);
-		graphics = new Graphics(compiledShader, vertexData, indexData, backColor);
 		
-		app.renderSystem.onRenderEvent.add(render);
+		app.assets.loadTexture({id: AssetManager.assets.textures.colorGrid_png}).onSuccess(function(task) {
+			texture = task.result;
+			shader.texture = texture;
+			graphics = new Graphics(compiledShader, vertexData, indexData, backColor, [texture]);
+			app.renderSystem.onRenderEvent.add(render);
+		});
 	}
 	
 	override public function onDestroy():Void {
@@ -284,6 +358,20 @@ class HxslTest extends State {
 			vertexParams[param.index] = shader.getParamValue(param.index);
 			param = compiledShader.vertex.params.next;
 		}
+		
+		param = compiledShader.fragment.textures2D;
+		i = 0;
+		while (param != null) {
+			fragTextParams[i] = shader.getParamValue(param.index);
+			param = compiledShader.fragment.textures2D.next;
+		}
+		
+		param = compiledShader.vertex.textures2D;
+		i = 0;
+		while (param != null) {
+			vertTextParams[i] = shader.getParamValue(param.index);
+			param = compiledShader.vertex.textures2D.next;
+		}
 	}
 	
 	function compileShaders(shaders:ShaderList) {
@@ -300,6 +388,7 @@ private class TestShader extends bakeneko.hxsl.Shader {
 		@input var input: {
 			var position:Vec3;
 			var color:Vec4;
+			var uv:Vec2;
 		};
 		
 		var output : {
@@ -308,6 +397,7 @@ private class TestShader extends bakeneko.hxsl.Shader {
 		};
 		
 		@param var factor:Float;
+		@param var texture:Sampler2D;
 		@const var constTest:Bool;
 		var localTest:Float;
 		
@@ -320,8 +410,10 @@ private class TestShader extends bakeneko.hxsl.Shader {
 		}
 		
 		function fragment() {
+			var c = texture.get(input.uv);
+			
 			if (constTest)
-				output.color = input.color * (localTest + 0.8) * factor;
+				output.color = c * (input.color * (localTest + 0.8) * factor);
 			else
 				output.color = input.color;
 		}

@@ -1,9 +1,12 @@
 package bakeneko.asset;
 
 import bakeneko.utils.MacroUtils;
+import bakeneko.utils.Utils;
+import haxe.macro.ComplexTypeTools;
 import haxe.macro.Context;
 import haxe.macro.Expr.Field;
 import haxe.macro.Expr;
+import haxe.macro.ExprTools;
 import sys.FileSystem;
 
 using StringTools;
@@ -17,40 +20,21 @@ class Macros {
 		var files = getFileStructure(root);
 		
 		var expr:Array<{field:String, expr:Expr}> = [];
-		
+
 		for (i in 0...fields.length) {
 			for (meta in fields[i].meta) {
 				if (meta.name == 'assets') {
 					fields[i] = {
 						name: fields[i].name,
 						pos: Context.currentPos(),
-						kind: FVar(buildComplexType(files), {expr: MacroUtils.reifyDynamicStruct(files), pos: Context.currentPos()}),
-						access: [AStatic],
+						kind: FVar(MacroUtils.reifyStructComplexType(files), macro $v{files}),
+						access: fields[i].access,
 					};
 				}
 			}
 		}
 		
 		return fields;
-	}
-	
-	static function buildComplexType(struct:Dynamic) {
-		if (Std.is(struct, String)) {
-			return macro : String;
-		}
-		var fieldNames = Reflect.fields(struct);
-		
-		var array = [];
-		
-		return TAnonymous([
-			for (id in fieldNames) {
-				{
-					name: id,
-					pos: Context.currentPos(),
-					kind:FVar(buildComplexType(Reflect.field(struct, id)))
-				}
-			}
-		]);
 	}
 	
 	static function getFileStructure(directory:String, ?filterExtensions:Array<String>) {

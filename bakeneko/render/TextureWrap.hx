@@ -1,6 +1,6 @@
 package bakeneko.render;
 
-enum TextureAddressing {
+enum TextureWrap {
 	Repeat;
 	Mirror;
 	Clamp;

@@ -1,7 +1,7 @@
 package bakeneko.render;
 
 enum TextureFilter {
-	PointFilter;
-	LinearFilter;
-	AnisotropicFilter;
+	Point;
+	Linear;
+	Anisotropic;
 }
