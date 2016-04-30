@@ -4,6 +4,9 @@ import bakeneko.hxsl.AgalOptim;
 import bakeneko.hxsl.AgalOut;
 import bakeneko.hxsl.RuntimeShader;
 import bakeneko.render.Color;
+import bakeneko.render.MeshData;
+import bakeneko.render.MeshTools;
+import bakeneko.render.VertexStructure;
 import flash.display.Stage3D;
 import flash.display3D.Context3D;
 import flash.display3D.IndexBuffer3D;
@@ -32,7 +35,7 @@ class FlashGraphics implements IGraphics {
 	var fragmentParams:flash.Vector<Float>;
 	var vertexParams:flash.Vector<Float>;
 	
-	public function new(compiledShader:RuntimeShader, vertexData:Float32Array, indexData:UInt16Array, backColor:Color, textures) {
+	public function new(compiledShader:RuntimeShader, data:MeshData, backColor:Color, textures) {
 		this.compiledShader = compiledShader;
 		this.backColor = backColor;
 		
@@ -43,18 +46,21 @@ class FlashGraphics implements IGraphics {
 		globalFragmentParams = new Float32Array(compiledShader.fragment.consts.length << 2);
 		for (i in 0...compiledShader.vertex.consts.length)
 			globalFragmentParams[i] = compiledShader.fragment.consts[i];*/
-		
+			
 		stage3D = flash.Lib.current.stage.stage3Ds[0];
-		stage3D.addEventListener(flash.events.Event.CONTEXT3D_CREATE, init.bind(_, vertexData, indexData));
+		stage3D.addEventListener(flash.events.Event.CONTEXT3D_CREATE, init.bind(_, data));
 		stage3D.requestContext3D(cast flash.display3D.Context3DRenderMode.AUTO, flash.display3D.Context3DProfile.STANDARD);
 	}
 	
-	public function init(_, vertexData:Float32Array, indexData:UInt16Array) {
+	public function init(_, data:MeshData) {
 		context3D = stage3D.context3D;
 		//context3D.configureBackBuffer(System.app.windows[0].width, System.app.windows[0].height, 0, true);
 		
-		vertex  = context3D.createVertexBuffer(3, 7);
-		index = context3D.createIndexBuffer(3);
+		var vertexData = MeshTools.buildVertexData(data);
+		var indexData = new UInt16Array(data.indices);
+		
+		vertex  = context3D.createVertexBuffer(data.vertexCount, data.structure.totalNumValues);
+		index = context3D.createIndexBuffer(data.vertexCount);
 	
 		vertex.uploadFromByteArray(vertexData.buffer.getData(), 0, 0, 3);
 		index.uploadFromByteArray(indexData.buffer.getData(), 0, 0, 3);
@@ -94,7 +100,7 @@ class FlashGraphics implements IGraphics {
 		if (compiledShader.fragment.paramsSize > 0)
 			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.FRAGMENT, compiledShader.fragment.globalsSize, compiledShader.fragment.paramsSize, buffer.fragment.params.buffer.getData(), 0);
 
-		buffer.vertex.globals[0] = 1.0;
+		//buffer.vertex.globals[0] = 1.0;
 		if (compiledShader.vertex.globalsSize > 0)
 			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.VERTEX, 0, compiledShader.vertex.globalsSize, buffer.vertex.globals.buffer.getData(), 0);
 		if (compiledShader.fragment.globalsSize > 0)

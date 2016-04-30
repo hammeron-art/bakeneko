@@ -12,11 +12,11 @@ typedef SamplerCube = h3d.mat.Texture;
 
 #else
 
-typedef Vec = Array<Float>;
+typedef Vec = bakeneko.math.Vector4;
 typedef IVec = Array<Int>;
 typedef BVec = Array<Bool>;
-typedef Matrix = Array<Float>;
-typedef Texture = Dynamic;
+typedef Matrix = bakeneko.math.Matrix4x4;
+typedef Texture = bakeneko.asset.Texture;
 typedef Sampler2D = Dynamic;
 typedef SamplerCube = Dynamic;
 

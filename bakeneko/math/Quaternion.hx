@@ -1,6 +1,7 @@
 package bakeneko.math;
+
 import haxe.ds.Vector;
-import bakeneko.backend.buffer.Float32Array;
+import lime.utils.Float32Array;
 
 /**
  * The underlying type of Quaternion

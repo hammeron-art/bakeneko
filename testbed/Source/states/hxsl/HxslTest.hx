@@ -43,9 +43,6 @@ class HxslTest extends State {
 	
 	var programBuffer:ProgramBuffer;
 	
-	var vertexData:Float32Array;
-	var indexData:UInt16Array;
-	
 	var graphics:Graphics;
 	var backColor:Color;
 	
@@ -59,24 +56,15 @@ class HxslTest extends State {
 		cache.constsToGlobal = true;
 		#end
 		
-		var globals = new Globals();
+		globals = new Globals();
 		output = cache.allocOutputVars(["output.position", "output.color"]);
 		
 		testShader = new TestShader();
-		//testShader.constTest = true;
-		//testShader.factor = 1.0;
 		
 		shaderList = new ShaderList(testShader);
 		compiledShader = compileShaders(shaderList);
 
 		programBuffer = new ProgramBuffer(compiledShader);
-		
-		/*vertexData = new Float32Array([
-			 0.0,  0.5,  0.0,  0.9,	 0.9,  0.83, 1.0, 0.0, 1.0,
-			 0.5, -0.5,  0.0,  0.5,	 0.65, 0.75, 1.0, 0.0, 0.0,
-			-0.5, -0.5,  0.0,  0.55, 0.87, 1.0,  1.0, 1.0, 0.0
-		]);*/
-		indexData = new UInt16Array([0, 1, 2]);
 		
 		backColor = new Color(0.12, 0.05, 0.16, 1.0);
 		
@@ -93,11 +81,7 @@ class HxslTest extends State {
 			structure: format,
 		}
 		
-		vertexData = MeshTools.buildVertexData(data);
-		
-		trace(vertexData.length, format.totalNumValues * data.vertexCount);
-		
-		graphics = new Graphics(compiledShader, vertexData, indexData, backColor, textures);
+		graphics = new Graphics(compiledShader, data, backColor, textures);
 		app.renderSystem.onRenderEvent.add(render);
 		
 		/*var tasks:Array<Task<Texture>> = [];
@@ -122,11 +106,12 @@ class HxslTest extends State {
 	}
 	
 	override public function onUpdate(delta:Float):Void {
-		//testShader.factor = 0.5 + (Math.cos(Timer.stamp()) * 0.5 + 0.5) * 0.5;
+		testShader.factor = 0.5 + (Math.cos(Timer.stamp()) * 0.5 + 0.5) * 0.5;
 	}
 	
 	function render(window:Window) {
 		setParams(programBuffer, compiledShader, shaderList);
+		setGlobals(programBuffer, compiledShader);
 		
 		window.renderer.begin();
 		graphics.render(programBuffer);
@@ -156,9 +141,13 @@ class HxslTest extends State {
 	public function setParams(buffer:ProgramBuffer, shader:RuntimeShader, shaderList:ShaderList) {
 		
 		function set(buffer:ShaderBuffer, shaderData:RuntimeShaderData) {
+			if (shaderData.paramsSize <= 0)
+				return;
+
 			var param = shaderData.params;
 			while (param != null) {
-				buffer.params[param.pos] = getParamValue(param, shaderList);
+				fillRec(getParamValue(param, shaderList), param.type, buffer.params, param.pos);
+				param = param.next;
 			}
 			
 			var tid:Int = 0;
@@ -185,32 +174,162 @@ class HxslTest extends State {
 		
 		set(buffer.vertex, shader.vertex);
 		set(buffer.fragment, shader.fragment);
+		
 	}
 	
-	/*function setGlobals(buffer:ProgramBuffer, shaderList:ShaderList) {
+	function setGlobals(pBuffer:ProgramBuffer, shader:RuntimeShader) {
+		
 		function set(buffer:ShaderBuffer, shaderData:RuntimeShaderData) {
 			var global = shaderData.globals;
 			
 			while (global != null) {
-				
 				var value = globals.fastGet(global.gid);
 				if (value == null) {
 					
 					if (global.path == '__consts__') {
-						for (i in 0...shaderData.consts.length) {
-							buffer.globals[global.pos + i] = shaderData.consts[i];
-						}
+						fillRec(shaderData.consts, global.type, buffer.globals, global.pos);
 						global = global.next;
 						continue;
 					}
 					throw 'Missing global value ${global.path}';
-					
+	
 				}
-				//buffer.globals[global.pos
-				
+				fillRec(value, global.type, buffer.globals, global.pos);
+				global = global.next;
 			}
 		}
-	}*/
+		
+		set(pBuffer.vertex, shader.vertex);
+		set(pBuffer.fragment, shader.fragment);
+	}
+	
+	@:noDebug
+	function fillRec( v : Dynamic, type : bakeneko.hxsl.Ast.Type, out : Float32Array, pos : Int ) {
+		switch( type ) {
+		case TFloat:
+			out[pos] = v;
+			return 1;
+		case TVec(n, _):
+			var v : bakeneko.math.Vector4 = v;
+			out[pos++] = v.x;
+			out[pos++] = v.y;
+			switch( n ) {
+			case 3:
+				out[pos++] = v.z;
+			case 4:
+				out[pos++] = v.z;
+				out[pos++] = v.w;
+			}
+			return n;
+		case TMat4:
+			var m : bakeneko.math.Matrix4x4 = v;
+			for (i in 0...16) {
+				out[pos++] = m.m[i];
+			}
+			/*out[pos++] = m._11;
+			out[pos++] = m._21;
+			out[pos++] = m._31;
+			out[pos++] = m._41;
+			out[pos++] = m._12;
+			out[pos++] = m._22;
+			out[pos++] = m._32;
+			out[pos++] = m._42;
+			out[pos++] = m._13;
+			out[pos++] = m._23;
+			out[pos++] = m._33;
+			out[pos++] = m._43;
+			out[pos++] = m._14;
+			out[pos++] = m._24;
+			out[pos++] = m._34;
+			out[pos++] = m._44;*/
+			return 16;
+		case TMat3x4:
+			var m : bakeneko.math.Matrix4x4 = v;
+			for (i in 0...12) {
+				out[pos++] = m.m[i];
+			}
+			/*var m : h3d.Matrix = v;
+			out[pos++] = m._11;
+			out[pos++] = m._21;
+			out[pos++] = m._31;
+			out[pos++] = m._41;
+			out[pos++] = m._12;
+			out[pos++] = m._22;
+			out[pos++] = m._32;
+			out[pos++] = m._42;
+			out[pos++] = m._13;
+			out[pos++] = m._23;
+			out[pos++] = m._33;
+			out[pos++] = m._43;*/
+			return 12;
+		case TMat3:
+			var m : bakeneko.math.Matrix4x4 = v;
+			out[pos++] = m.m[0];
+			out[pos++] = m.m[1];
+			out[pos++] = m.m[2];
+			out[pos++] = 0;
+			out[pos++] = m.m[4];
+			out[pos++] = m.m[5];
+			out[pos++] = m.m[6];
+			out[pos++] = 0;
+			out[pos++] = m.m[8];
+			out[pos++] = m.m[9];
+			out[pos++] = m.m[10];
+			out[pos++] = 0;
+			return 12;
+		case TArray(TVec(4,VFloat), SConst(len)):
+			var v : Array<bakeneko.math.Vector4> = v;
+			for( i in 0...len ) {
+				var n = v[i];
+				if( n == null ) break;
+				out[pos++] = n.x;
+				out[pos++] = n.y;
+				out[pos++] = n.z;
+				out[pos++] = n.w;
+			}
+			return len * 4;
+		case TArray(TMat3x4, SConst(len)):
+			var v : Array<bakeneko.math.Matrix4x4> = v;
+			for( i in 0...len ) {
+				var m = v[i];
+				if ( m == null ) break;
+				for (i in 0...12) {
+					out[pos++] = m.m[i];
+				}
+				/*out[pos++] = m._11;
+				out[pos++] = m._21;
+				out[pos++] = m._31;
+				out[pos++] = m._41;
+				out[pos++] = m._12;
+				out[pos++] = m._22;
+				out[pos++] = m._32;
+				out[pos++] = m._42;
+				out[pos++] = m._13;
+				out[pos++] = m._23;
+				out[pos++] = m._33;
+				out[pos++] = m._43;*/
+			}
+			return len * 12;
+		case TArray(t, SConst(len)):
+			var v : Array<Dynamic> = v;
+			var size = 0;
+			for( i in 0...len ) {
+				var n = v[i];
+				if( n == null ) break;
+				size = fillRec(n, t, out, pos);
+				pos += size;
+			}
+			return len * size;
+		case TStruct(vl):
+			var tot = 0;
+			for( vv in vl )
+				tot += fillRec(Reflect.field(v, vv.name), vv.type, out, pos + tot);
+			return tot;
+		default:
+			throw "assert " + type;
+		}
+		return 0;
+	}
 	
 	function compileShaders(shaders:ShaderList) {
 		for (shader in shaders)
@@ -233,13 +352,21 @@ private class TestShader extends Shader {
 			var color:Vec4;
 		}
 		
+		@param var factor:Float;
+		
 		function vertex() {
-			output.position = vec4(input.position, 1.0);
+			output.position = vec4(input.position * factor, 1.0);
 		}
 		
 		function fragment() {
-			output.color = input.color;
+			output.color = input.color * factor;
 		}
+	}
+	
+	public function new() {
+		super();
+		
+		factor = 1.0;
 	}
 	
 }

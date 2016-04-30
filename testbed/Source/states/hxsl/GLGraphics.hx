@@ -5,6 +5,9 @@ import bakeneko.core.Log;
 import bakeneko.hxsl.GlslOut;
 import bakeneko.hxsl.RuntimeShader;
 import bakeneko.render.Color;
+import bakeneko.render.MeshData;
+import bakeneko.render.MeshTools;
+import bakeneko.render.VertexStructure;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLProgram;
@@ -29,7 +32,7 @@ class GLGraphics implements IGraphics {
 	
 	var backColor:Color;
 	
-	public function new(compiledShader:RuntimeShader, vertexData:Float32Array, indexData:UInt16Array, backColor: Color, textures:Array<Texture>) {
+	public function new(compiledShader:RuntimeShader, data:MeshData, backColor: Color, textures:Array<Texture>) {
 		this.compiledShader = compiledShader;
 		this.backColor = backColor;
 		
@@ -38,6 +41,9 @@ class GLGraphics implements IGraphics {
 		var fragmentSource = out.run(compiledShader.fragment.data);
 		
 		Log.info('$vertexSource\n\n$fragmentSource', 0);
+		
+		var vertexData = MeshTools.buildVertexData(data);
+		var indexData = new UInt16Array(data.indices);
 		
 		vertex = GL.createBuffer();
 		index = GL.createBuffer();
@@ -48,12 +54,17 @@ class GLGraphics implements IGraphics {
 		GL.bindBuffer(GL.ARRAY_BUFFER, vertex);
 		GL.bufferData(GL.ARRAY_BUFFER, vertexData, GL.STATIC_DRAW);
 		
-		GL.vertexAttribPointer(0, 3, GL.FLOAT, false, 9 * 4, 0);
-		GL.enableVertexAttribArray(0);
-		GL.vertexAttribPointer(1, 4, GL.FLOAT, false, 9 * 4, 3 * 4);
-		GL.enableVertexAttribArray(1);
-		GL.vertexAttribPointer(2, 2, GL.FLOAT, false, 9 * 4, (3 + 4) * 4);
-		GL.enableVertexAttribArray(2);
+		var i = 0;
+		var offset = 0;
+		for (element in data.structure.elements) {
+			var size = element.numData();
+			
+			GL.vertexAttribPointer(i, size, GL.FLOAT, false, data.structure.totalSize, offset * 4);
+			GL.enableVertexAttribArray(i);
+			
+			offset += size;
+			++i;
+		}
 		
 		var vertexShader = GL.createShader(GL.VERTEX_SHADER);
 		var fragmentShader = GL.createShader(GL.FRAGMENT_SHADER);

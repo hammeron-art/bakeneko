@@ -13,7 +13,7 @@ class ShaderBuffer {
 	
 	public function new(shaderData:RuntimeShaderData) {
 		globals = new Float32Array(shaderData.globalsSize * 4);
-		params = new Float32Array(shaderData.globalsSize * 4);
+		params = new Float32Array(shaderData.paramsSize * 4);
 		textures = new haxe.ds.Vector(shaderData.textures2DCount);
 	}
 }
