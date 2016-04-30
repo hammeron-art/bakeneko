@@ -7,7 +7,7 @@ import bakeneko.render.Color;
 import bakeneko.state.State;
 import bakeneko.utils.Utils;
 import states.AssetTest;
-import states.HxslTest;
+import states.hxsl.HxslTest;
 import states.InputTest;
 import states.RenderTest;
 

@@ -4,6 +4,7 @@ import bakeneko.core.Application;
 import bakeneko.core.Log;
 import bakeneko.render.VertexStructure;
 import bakeneko.render.MeshData;
+import lime.utils.Float32Array;
 
 class MeshTools {
 
@@ -65,10 +66,11 @@ class MeshTools {
 	 * @param	customFormat use other format instead of the actual mesh format
 	 * @return
 	 */
-	public static function buildVertexData(mesh:MeshData, format:VertexStructure):Array<Float> {
+	public static function buildVertexData(data:MeshData, ?format:VertexStructure):Float32Array {
+		format = format != null ? format : data.structure;
 		Log.assert(format != null, "Can't build vertex data without a vertex format");
 
-		var vertexData:Array<Float> = [];
+		var vertexData = new Float32Array(format.totalNumValues * data.vertexCount);
 		
 		// Validate mesh data
 		Log.check({
@@ -80,13 +82,13 @@ class MeshTools {
 
 				switch (element.semantic) {
 					case SPosition:
-						check(mesh.positions);
+						check(data.positions);
 					case STexcoord:
-						check(mesh.uvs);
+						check(data.uvs);
 					case SNormal:
-						check(mesh.normals);
+						check(data.normals);
 					case SColor:
-						check(mesh.colors);
+						check(data.colors);
 					case SJointIndex | SWeight:
 						Log.api("Not implemented!");
 				}
@@ -94,25 +96,26 @@ class MeshTools {
 		});
 		
 		// Build vertex data
-		for (i in 0...format.totalNumValues) {
+		var pos = 0;
+		for (i in 0...data.vertexCount) {
 			for (element in format.elements) {
 				var n = element.numData();
 				
 				inline function addData(array:Vector) {
 					for (ii in 0...n) {
-						vertexData.push(array[ii]);
+						vertexData[pos++] = array[ii];
 					}
 				}
 
 				switch (element.semantic) {
 					case SPosition:
-						addData(mesh.positions[i]);
+						addData(data.positions[i]);
 					case STexcoord:
-						addData(mesh.uvs[i]);
+						addData(data.uvs[i]);
 					case SNormal:
 						Log.api("Not implemented!");
 					case SColor:
-						addData(mesh.colors[i]);
+						addData(data.colors[i]);
 					case SJointIndex | SWeight:
 						Log.api("Not implemented!");
 				}
