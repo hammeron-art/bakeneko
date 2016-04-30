@@ -17,7 +17,7 @@ typedef IVec = Array<Int>;
 typedef BVec = Array<Bool>;
 typedef Matrix = bakeneko.math.Matrix4x4;
 typedef Texture = bakeneko.asset.Texture;
-typedef Sampler2D = Dynamic;
-typedef SamplerCube = Dynamic;
+typedef Sampler2D = bakeneko.asset.Texture;
+typedef SamplerCube = bakeneko.asset.Texture;
 
 #end

@@ -77,6 +77,7 @@ class HxslTest extends State {
 		var format = new VertexStructure();
 		format.push(new VertexElement(TFloat(3), SPosition));
 		format.push(new VertexElement(TFloat(4), SColor));
+		format.push(new VertexElement(TFloat(2), STexcoord));
 		
 		var data:MeshData = {
 			vertexCount: 3,
@@ -87,10 +88,7 @@ class HxslTest extends State {
 			structure: format,
 		}
 		
-		graphics = new Graphics(compiledShader, data, backColor, textures);
-		app.renderSystem.onRenderEvent.add(render);
-		
-		/*var tasks:Array<Task<Texture>> = [];
+		var tasks:Array<Task<Texture>> = [];
 		
 		tasks.push(app.assets.loadTexture({id: AssetManager.assets.textures.colorGrid_png}));
 		tasks.push(app.assets.loadTexture({id: AssetManager.assets.textures.uvGrid_png}));
@@ -98,13 +96,12 @@ class HxslTest extends State {
 		Task.whenAllResult(tasks).onSuccess(function(results) {
 			textures = results.result;
 
-			testShader.texture1 = textures[1];
-			testShader.texture2 = textures[0];
+			testShader.texture1 = textures[0];
+			testShader.texture2 = textures[1];
 			
-			graphics = new Graphics(compiledShader, vertexData, indexData, backColor, textures);
+			graphics = new Graphics(compiledShader, data, backColor);
 			app.renderSystem.onRenderEvent.add(render);
-		});*/
-		
+		});
 	}
 	
 	override public function onDestroy():Void {
@@ -140,8 +137,9 @@ class HxslTest extends State {
 			si = si.next;
 			
 		var value = si.s.getParamValue(param.index);
-		if (value == null)
+		if (value == null) {
 			throw 'Missing param value ${si.s}.${param.name}';
+		}
 		
 		return value;
 	}
@@ -353,6 +351,7 @@ private class TestShader extends Shader {
 		@input var input: {
 			var position:Vec3;
 			var color:Vec4;
+			var uv:Vec2;
 		}
 		
 		var output: {
@@ -361,6 +360,8 @@ private class TestShader extends Shader {
 		}
 		
 		@param var factor:Float;
+		@param var texture1:Sampler2D;
+		@param var texture2:Sampler2D;
 		@global var time:Float;
 		@const var changeColor:Bool;
 		
@@ -375,10 +376,15 @@ private class TestShader extends Shader {
 		}
 		
 		function fragment() {
+			var c1 = texture1.get(input.uv);
+			var c2 = texture2.get(input.uv);
+			
 			if (changeColor)
-				output.color = vec4(input.color.rgb * factor, input.color.a);
+				output.color = c1 * vec4(input.color.rgb * factor, input.color.a);
 			else
 				output.color = input.color;
+			
+			output.color.r = c2.r;
 		}
 	}
 	

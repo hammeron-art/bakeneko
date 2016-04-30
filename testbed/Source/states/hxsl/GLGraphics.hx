@@ -24,7 +24,6 @@ class GLGraphics implements IGraphics {
 	var program:GLProgram;
 	var vertex:GLBuffer;
 	var index:GLBuffer;
-	var glTextures:Array<GLTexture>;
 	var vertexLocation:GLUniformLocation;
 	var fragmentLocation:GLUniformLocation;
 	var vertGlobalLocation:GLUniformLocation;
@@ -34,7 +33,7 @@ class GLGraphics implements IGraphics {
 	
 	var backColor:Color;
 	
-	public function new(compiledShader:RuntimeShader, data:MeshData, backColor: Color, textures:Array<Texture>) {
+	public function new(compiledShader:RuntimeShader, data:MeshData, backColor: Color) {
 		this.compiledShader = compiledShader;
 		this.backColor = backColor;
 		
@@ -42,7 +41,7 @@ class GLGraphics implements IGraphics {
 		var vertexSource = out.run(compiledShader.vertex.data);
 		var fragmentSource = out.run(compiledShader.fragment.data);
 		
-		Log.info('$vertexSource\n\n$fragmentSource', 0);
+		//Log.info('$vertexSource\n\n$fragmentSource', 0);
 		
 		var vertexData = MeshTools.buildVertexData(data);
 		var indexData = new UInt16Array(data.indices);
@@ -102,18 +101,6 @@ class GLGraphics implements IGraphics {
 				GL.getUniformLocation(program, 'fragmentTextures[$i]');
 			}
 		];
-		
-		glTextures = [
-			for (i in 0...compiledShader.fragment.textures2DCount) {
-				var texture = textures[i];
-				var tex = GL.createTexture();
-				GL.activeTexture(0);
-				GL.bindTexture(GL.TEXTURE_2D, tex);
-				GL.texImage2D(GL.TEXTURE_2D, 0, GL.RGBA, texture.image.width, texture.image.height, 0, GL.RGBA, GL.UNSIGNED_BYTE, texture.image.buffer.data);
-				
-				tex;
-			}
-		];
 	}
 	
 	public function render(buffer:ProgramBuffer) {
@@ -127,19 +114,17 @@ class GLGraphics implements IGraphics {
 		if (compiledShader.fragment.globalsSize > 0)
 			GL.uniform4fv(fragGlobalLocation, buffer.fragment.globals);
 			
-		for (i in 0...compiledShader.vertex.textures2DCount) {
-			
-		}
+		/*for (i in 0...compiledShader.vertex.textures2DCount) {
+			GL.activeTexture(GL.TEXTURE0 + i);
+			GL.uniform1i(vertTexLocations[i], i);
+			@:privateAccess
+			GL.bindTexture(GL.TEXTURE_2D, buffer.vertex.textures[i].nativeTexture.texture);
+		}*/
 		for (i in 0...compiledShader.fragment.textures2DCount) {
 			GL.activeTexture(GL.TEXTURE0 + i);
 			GL.uniform1i(fragTexLocations[i], i);
-			GL.bindTexture(GL.TEXTURE_2D, glTextures[i]);
-			
-			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT);
-			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.REPEAT);
-
-			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
-			GL.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+			@:privateAccess
+			GL.bindTexture(GL.TEXTURE_2D, buffer.fragment.textures[i].nativeTexture.texture);
 		}
 		
 		GL.clearColor(backColor.r, backColor.g, backColor.b, backColor.a);

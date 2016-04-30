@@ -10,6 +10,7 @@ import bakeneko.hxsl.Shader;
 import bakeneko.hxsl.ShaderList;
 import bakeneko.render.IRenderer;
 import bakeneko.render.Color;
+import lime.utils.UInt8Array;
 
 #if !flash
 import lime.graphics.GLRenderContext;
@@ -136,6 +137,36 @@ class Renderer implements IRenderer {
 		
 		boundIndexBuffer = buffer;
 	}
+	
+	public function createTexture(width:Int, height:Int, ?format:TextureFormat):NativeTexture {
+		var texture = gl.createTexture();
+		var native = new NativeTexture(texture, width, height, format);
+		
+		return native;
+	}
+	
+	public function deleteTexture(texture:NativeTexture):Void {
+		gl.deleteTexture(texture.texture);
+	}
+	
+	public function updaloadTexturePixel(texture:NativeTexture, pixel:UInt8Array):Void {
+		gl.bindTexture(gl.TEXTURE_2D, texture.texture);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texture.width, texture.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+		
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	}
+	
+	/*public function setTextureProp() {
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, props.wrapS);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, props.wrapT);
+
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, props.minFilter);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, props.magFilter);
+	}*/
 	
 	function getElementType(element:VertexElement) {
 		return switch (element.type) {
