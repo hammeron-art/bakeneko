@@ -27,6 +27,8 @@ class GLGraphics implements IGraphics {
 	var glTextures:Array<GLTexture>;
 	var vertexLocation:GLUniformLocation;
 	var fragmentLocation:GLUniformLocation;
+	var vertGlobalLocation:GLUniformLocation;
+	var fragGlobalLocation:GLUniformLocation;
 	var vertTexLocations:Array<GLUniformLocation>;
 	var fragTexLocations:Array<GLUniformLocation>;
 	
@@ -88,6 +90,8 @@ class GLGraphics implements IGraphics {
 		
 		vertexLocation = GL.getUniformLocation(program, 'vertexParams');
 		fragmentLocation = GL.getUniformLocation(program, 'fragmentParams');
+		vertGlobalLocation = GL.getUniformLocation(program, 'vertexGlobals');
+		fragGlobalLocation = GL.getUniformLocation(program, 'fragmentGlobals');
 		vertTexLocations = [
 			for (i in 0...compiledShader.vertex.textures2DCount) {
 				GL.getUniformLocation(program, 'vertexTextures[$i]');
@@ -118,6 +122,11 @@ class GLGraphics implements IGraphics {
 			GL.uniform4fv(vertexLocation, buffer.vertex.params);
 		if (compiledShader.fragment.paramsSize > 0)
 			GL.uniform4fv(fragmentLocation, buffer.fragment.params);
+		if (compiledShader.vertex.globalsSize > 0)
+			GL.uniform4fv(vertGlobalLocation, buffer.vertex.globals);
+		if (compiledShader.fragment.globalsSize > 0)
+			GL.uniform4fv(fragGlobalLocation, buffer.fragment.globals);
+			
 		for (i in 0...compiledShader.vertex.textures2DCount) {
 			
 		}

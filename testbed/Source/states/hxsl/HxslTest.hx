@@ -32,6 +32,7 @@ typedef Graphics = FlashGraphics;
 /**
  * Hxsl usage test with native OpenGl or Stage3D
  */
+@:build(bakeneko.hxsl.Macros.buildGlobals())
 class HxslTest extends State {
 	
 	var globals:Globals;
@@ -48,6 +49,8 @@ class HxslTest extends State {
 	
 	var textures:Array<Texture>;
 	
+	@global("time") var globalTime : Float = Timer.stamp();
+	
 	override public function onInit():Void {
 		
 		cache = Cache.get();
@@ -58,12 +61,15 @@ class HxslTest extends State {
 		
 		globals = new Globals();
 		output = cache.allocOutputVars(["output.position", "output.color"]);
+
+		initGlobals();
 		
 		testShader = new TestShader();
+		testShader.changeColor = true;
 		
 		shaderList = new ShaderList(testShader);
 		compiledShader = compileShaders(shaderList);
-
+		
 		programBuffer = new ProgramBuffer(compiledShader);
 		
 		backColor = new Color(0.12, 0.05, 0.16, 1.0);
@@ -110,8 +116,10 @@ class HxslTest extends State {
 	}
 	
 	function render(window:Window) {
+		setGlobals();
+		//globals.set('time', 1.0);
 		setParams(programBuffer, compiledShader, shaderList);
-		setGlobals(programBuffer, compiledShader);
+		setGlobalParams(programBuffer, compiledShader);
 		
 		window.renderer.begin();
 		graphics.render(programBuffer);
@@ -141,8 +149,8 @@ class HxslTest extends State {
 	public function setParams(buffer:ProgramBuffer, shader:RuntimeShader, shaderList:ShaderList) {
 		
 		function set(buffer:ShaderBuffer, shaderData:RuntimeShaderData) {
-			if (shaderData.paramsSize <= 0)
-				return;
+			/*if (shaderData.paramsSize <= 0)
+				return;*/
 
 			var param = shaderData.params;
 			while (param != null) {
@@ -177,7 +185,7 @@ class HxslTest extends State {
 		
 	}
 	
-	function setGlobals(pBuffer:ProgramBuffer, shader:RuntimeShader) {
+	function setGlobalParams(pBuffer:ProgramBuffer, shader:RuntimeShader) {
 		
 		function set(buffer:ShaderBuffer, shaderData:RuntimeShaderData) {
 			var global = shaderData.globals;
@@ -353,19 +361,29 @@ private class TestShader extends Shader {
 		}
 		
 		@param var factor:Float;
+		@global var time:Float;
+		@const var changeColor:Bool;
+		
+		var minSize:Float;
+		
+		function __init__() {
+			minSize = 0.5;
+		}
 		
 		function vertex() {
-			output.position = vec4(input.position * factor, 1.0);
+			output.position = vec4(input.position * (minSize + (1.0 - minSize) * (cos(time * 0.34) * sin(time * 0.47))), 1.0);
 		}
 		
 		function fragment() {
-			output.color = input.color * factor;
+			if (changeColor)
+				output.color = vec4(input.color.rgb * factor, input.color.a);
+			else
+				output.color = input.color;
 		}
 	}
 	
 	public function new() {
 		super();
-		
 		factor = 1.0;
 	}
 	
