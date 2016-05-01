@@ -13,10 +13,8 @@ import bakeneko.render.Color;
 import lime.utils.UInt8Array;
 
 #if !flash
-import lime.graphics.GLRenderContext;
-#end
 
-#if !flash
+import lime.graphics.GLRenderContext;
 
 @:access(bakeneko.render.VertexBuffer)
 @:access(bakeneko.render.IndexBuffer)
@@ -138,18 +136,17 @@ class Renderer implements IRenderer {
 		boundIndexBuffer = buffer;
 	}
 	
-	public function createTexture(width:Int, height:Int, ?format:TextureFormat):NativeTexture {
-		var texture = gl.createTexture();
-		var native = new NativeTexture(texture, width, height, format);
-		
-		return native;
+	inline public function createTexture(width:Int, height:Int, ?format:TextureFormat):NativeTexture {
+		return new NativeTexture(gl.createTexture(), width, height, format);
 	}
 	
-	public function deleteTexture(texture:NativeTexture):Void {
+	inline public function deleteTexture(texture:NativeTexture):Void {
 		gl.deleteTexture(texture.texture);
 	}
 	
 	public function updaloadTexturePixel(texture:NativeTexture, pixel:UInt8Array):Void {
+		Log.assert(pixel != null, 'Pixel data can\'t be null');
+		
 		gl.bindTexture(gl.TEXTURE_2D, texture.texture);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texture.width, texture.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
 		
@@ -389,7 +386,7 @@ class Renderer implements IRenderer {
 	
 	public function reset():Void {
 		begin();
-		context.setBlendFactors(Context3DBlendFactor.SOURCE_ALPHA, Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
+		//context.setBlendFactors(Context3DBlendFactor.SOURCE_ALPHA, Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
 		clear(Color.BLACK);
 		end();
 		
@@ -542,6 +539,22 @@ class Renderer implements IRenderer {
 		case DecrementWrap:
 			return Context3DStencilAction.DECREMENT_WRAP;
 		}
+	}
+	
+	public function createTexture(width:Int, height:Int, ?format:TextureFormat):NativeTexture {
+		var native = context.createTexture(width, height, flash.display3D.Context3DTextureFormat.BGRA, false);
+		trace(native);
+		return new NativeTexture(native, width, height, format);
+	}
+	
+	public function deleteTexture(texture:NativeTexture):Void {
+		texture.texture.dispose();
+		texture.texture = null;
+	}
+	
+	public function updaloadTexturePixel(texture:NativeTexture, pixel:UInt8Array):Void {
+		trace(pixel.buffer.getData().length, texture.width * texture.height * 4);
+		texture.texture.uploadFromByteArray(pixel.toBytes().getData(), 0);
 	}
 	
 	inline public function viewport(x:Int, y:Int, width:Int, height:Int): Void{

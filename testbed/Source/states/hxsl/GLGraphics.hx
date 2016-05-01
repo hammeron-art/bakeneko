@@ -14,7 +14,9 @@ import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLTexture;
 import lime.graphics.opengl.GLUniformLocation;
 import lime.utils.Float32Array;
+import lime.utils.Int32Array;
 import lime.utils.UInt16Array;
+import lime.utils.UInt32Array;
 
 
 class GLGraphics implements IGraphics {
@@ -41,7 +43,7 @@ class GLGraphics implements IGraphics {
 		var vertexSource = out.run(compiledShader.vertex.data);
 		var fragmentSource = out.run(compiledShader.fragment.data);
 		
-		//Log.info('$vertexSource\n\n$fragmentSource', 0);
+		Log.info('$vertexSource\n\n$fragmentSource', 0);
 		
 		var vertexData = MeshTools.buildVertexData(data);
 		var indexData = new UInt16Array(data.indices);
@@ -98,7 +100,9 @@ class GLGraphics implements IGraphics {
 		];
 		fragTexLocations = [
 			for (i in 0...compiledShader.fragment.textures2DCount) {
-				GL.getUniformLocation(program, 'fragmentTextures[$i]');
+				var v = GL.getUniformLocation(program, 'fragmentTextures[$i]');
+				trace(v);
+				v;
 			}
 		];
 	}
@@ -113,6 +117,8 @@ class GLGraphics implements IGraphics {
 			GL.uniform4fv(vertGlobalLocation, buffer.vertex.globals);
 		if (compiledShader.fragment.globalsSize > 0)
 			GL.uniform4fv(fragGlobalLocation, buffer.fragment.globals);
+		//if (compiledShader.fragment.textures2DCount > 0)
+			//GL.uniform1iv(GL.getUniformLocation(program, 'fragmentTextures'), new Int32Array([0, 1]));
 			
 		/*for (i in 0...compiledShader.vertex.textures2DCount) {
 			GL.activeTexture(GL.TEXTURE0 + i);
@@ -121,10 +127,10 @@ class GLGraphics implements IGraphics {
 			GL.bindTexture(GL.TEXTURE_2D, buffer.vertex.textures[i].nativeTexture.texture);
 		}*/
 		for (i in 0...compiledShader.fragment.textures2DCount) {
-			GL.activeTexture(GL.TEXTURE0 + i);
-			GL.uniform1i(fragTexLocations[i], i);
 			@:privateAccess
 			GL.bindTexture(GL.TEXTURE_2D, buffer.fragment.textures[i].nativeTexture.texture);
+			GL.activeTexture(GL.TEXTURE0 + i);
+			GL.uniform1i(fragTexLocations[i], i);
 		}
 		
 		GL.clearColor(backColor.r, backColor.g, backColor.b, backColor.a);

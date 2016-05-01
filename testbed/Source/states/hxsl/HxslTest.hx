@@ -49,7 +49,7 @@ class HxslTest extends State {
 	
 	var textures:Array<Texture>;
 	
-	@global("time") var globalTime : Float = Timer.stamp();
+	@global("time") var globalTime : Float = Math.sin(Timer.stamp());
 	
 	override public function onInit():Void {
 		
@@ -83,10 +83,13 @@ class HxslTest extends State {
 			vertexCount: 3,
 			positions: [[0.0, 0.5, 0.0], [0.5, -0.5, 0.0], [ -0.5, -0.5, 0.0]],
 			colors: [[0.9, 0.9, 0.83, 1.0], [0.5, 0.65, 0.75, 1.0], [0.55, 0.87, 1.0, 1.0]],
-			uvs: [[1.0, 1.0], [0.0, 0.0], [1.0, 0.0]],
+			uvs: [[0.5, 1.0], [0.0, 0.0], [1.0, 0.0]],
 			indices: [0, 1, 2],
 			structure: format,
 		}
+		
+		//graphics = new Graphics(compiledShader, data, backColor);
+		//app.renderSystem.onRenderEvent.add(render);
 		
 		var tasks:Array<Task<Texture>> = [];
 		
@@ -98,6 +101,9 @@ class HxslTest extends State {
 
 			testShader.texture1 = textures[0];
 			testShader.texture2 = textures[1];
+			
+			for (i in 0...4)
+				trace(textures[0].image.data[i]);
 			
 			graphics = new Graphics(compiledShader, data, backColor);
 			app.renderSystem.onRenderEvent.add(render);
@@ -114,7 +120,6 @@ class HxslTest extends State {
 	
 	function render(window:Window) {
 		setGlobals();
-		//globals.set('time', 1.0);
 		setParams(programBuffer, compiledShader, shaderList);
 		setGlobalParams(programBuffer, compiledShader);
 		
@@ -364,6 +369,67 @@ private class TestShader extends Shader {
 		@param var texture2:Sampler2D;
 		@global var time:Float;
 		@const var changeColor:Bool;
+		var calculatedUV : Vec2;
+		
+		var minSize:Float;
+		
+		function __init__() {
+			minSize = 0.8;
+		}
+		
+		function vertex() {
+			calculatedUV = input.uv;
+			output.position = vec4(input.position * (minSize + (1.0 - minSize) * (cos(time * 0.34) * sin(time * 0.47))), 1.0);
+		}
+		
+		function fragment() {
+			if (changeColor) {
+				var c1 = texture1.get(calculatedUV);
+				var c2 = texture2.get(input.uv);
+				
+				output.color = input.color * 0.0 + c1 * vec4(1.0);//vec4(input.color.rgb /* factor*/, input.color.a);
+				//output.color.r = c2.r;
+				/*var c1 = texture1.get(calculatedUV);
+				//var c2 = texture2.get(input.uv);
+				
+				//output.color = c1;
+				output.color = vec4(input.color.rgb * factor * calculatedUV.x, input.color.a);
+				output.color = c1;
+				//output.color.a = c1.r;
+				*/
+			} else {
+				output.color = input.color;
+			}
+		}
+	}
+	
+	public function new() {
+		super();
+		factor = 1.0;
+	}
+	
+}
+
+/*
+private class TestShader extends Shader {
+	
+	static var SRC = {
+		@input var input: {
+			var position:Vec3;
+			var color:Vec4;
+			var uv:Vec2;
+		}
+		
+		var output: {
+			var position:Vec4;
+			var color:Vec4;
+		}
+		
+		@param var factor:Float;
+		@param var texture1:Sampler2D;
+		@param var texture2:Sampler2D;
+		@global var time:Float;
+		@const var changeColor:Bool;
 		
 		var minSize:Float;
 		
@@ -376,15 +442,15 @@ private class TestShader extends Shader {
 		}
 		
 		function fragment() {
-			var c1 = texture1.get(input.uv);
-			var c2 = texture2.get(input.uv);
-			
-			if (changeColor)
+			if (changeColor) {
+				var c1 = texture1.get(input.uv);
+				var c2 = texture2.get(input.uv);
+				
 				output.color = c1 * vec4(input.color.rgb * factor, input.color.a);
-			else
+				output.color.r = c2.r;
+			} else {
 				output.color = input.color;
-			
-			output.color.r = c2.r;
+			}
 		}
 	}
 	
@@ -393,7 +459,7 @@ private class TestShader extends Shader {
 		factor = 1.0;
 	}
 	
-}
+}*/
 
 /*private class TestShader extends bakeneko.hxsl.Shader {
 
