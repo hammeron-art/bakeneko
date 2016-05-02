@@ -26,7 +26,7 @@ class VertexBuffer {
 		this.structure = structure;
 		size = count;
 		
-		data = new Float32Array(size * structure.totalNumValues);
+		//data = new Float32Array(size * structure.totalNumValues);
 		
 		/*this.usage = usage;
 		this.instanceDataStepRate = instanceDataStepRate;
@@ -90,6 +90,9 @@ class VertexBuffer {
 	}
 	
 	inline public function lock():Float32Array {
+		if (data == null)
+			data = new Float32Array(size * structure.totalNumValues);
+		
 		return data;
 	}
 	

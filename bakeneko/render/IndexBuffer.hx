@@ -16,11 +16,12 @@ class IndexBuffer {
 		this.usage = usage != null ? usage : Usage.StaticUsage;
 		this.render = render;
 		size = count;
-		
-		data = new UInt16Array(size);
 	}
 	
 	public function lock():UInt16Array {
+		if (data == null)
+			data = new UInt16Array(size);
+			
 		return data;
 	}
 	

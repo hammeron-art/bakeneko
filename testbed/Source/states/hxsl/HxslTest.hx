@@ -141,9 +141,9 @@ class HxslTest extends State {
 		while (n-- > 0)
 			si = si.next;
 			
-		var value = si.s.getParamValue(param.index);
+		var value = si.shader.getParamValue(param.index);
 		if (value == null) {
-			throw 'Missing param value ${si.s}.${param.name}';
+			throw 'Missing param value ${si.shader}.${param.name}';
 		}
 		
 		return value;

@@ -1,14 +1,14 @@
 package bakeneko.hxsl;
 
 class ShaderList {
-	public var s : bakeneko.hxsl.Shader;
+	public var shader : bakeneko.hxsl.Shader;
 	public var next : ShaderList;
 	public function new(s, ?n) {
-		this.s = s;
+		this.shader = s;
 		this.next = n;
 	}
 	public function clone() {
-		return new ShaderList(s.clone(), next == null ? null : next.clone());
+		return new ShaderList(shader.clone(), next == null ? null : next.clone());
 	}
 	public inline function iterator() {
 		return new ShaderIterator(this,null);
@@ -29,7 +29,7 @@ private class ShaderIterator {
 		return l != last;
 	}
 	public inline function next() {
-		var s = l.s;
+		var s = l.shader;
 		l = l.next;
 		return s;
 	}

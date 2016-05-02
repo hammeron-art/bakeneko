@@ -6,11 +6,14 @@ import bakeneko.core.Window;
 import bakeneko.hxsl.Cache;
 import bakeneko.hxsl.Globals;
 import bakeneko.hxsl.GlslOut;
+import bakeneko.hxsl.RuntimeShader;
 import bakeneko.hxsl.Shader;
 import bakeneko.hxsl.ShaderList;
 import bakeneko.render.IRenderer;
 import bakeneko.render.Color;
-import lime.utils.UInt8Array;
+import bakeneko.utils.UInt8Array;
+import lime.graphics.opengl.GLUniformLocation;
+import states.hxsl.ProgramBuffer;
 
 #if !flash
 
@@ -24,15 +27,12 @@ class Renderer implements IRenderer {
 	var window:bakeneko.core.Window;
 	var gl:GLRenderContext;
 	
-	var defaultPass:Pass;
-	
 	var boundVertexBuffer:VertexBuffer = null;
 	var boundIndexBuffer:IndexBuffer = null;
 	//var boundProgram:Dynamic = null;
 	
 	public function new(window:bakeneko.core.Window) {
 		this.window = window != null ? window : cast System.app.windows[0];
-		defaultPass = new Pass();
 		
 		gl = switch (@:privateAccess this.window.limeWindow.renderer.context) {
 			case OPENGL(gl):
@@ -69,6 +69,79 @@ class Renderer implements IRenderer {
 		
 	}
 	
+	public function createEffect(compiledShader:RuntimeShader):Effect {
+		
+		var out = new GlslOut();
+		var vertexSource = out.run(compiledShader.vertex.data);
+		var fragmentSource = out.run(compiledShader.fragment.data);
+		
+		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(vertexShader, vertexSource);
+		gl.shaderSource(fragmentShader, fragmentSource);
+		gl.compileShader(vertexShader);
+		gl.compileShader(fragmentShader);
+		
+		var program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+
+		gl.linkProgram(program);
+
+		if (gl.getProgramParameter(program, gl.LINK_STATUS) == 0) {
+			Log.error(gl.getProgramInfoLog(program));
+			gl.deleteProgram(program);
+		}
+		
+		gl.useProgram(program);
+		
+		var vertexLocation = gl.getUniformLocation(program, 'vertexParams');
+		var fragmentLocation = gl.getUniformLocation(program, 'fragmentParams');
+		var vertGlobalLocation = gl.getUniformLocation(program, 'vertexGlobals');
+		var fragGlobalLocation = gl.getUniformLocation(program, 'fragmentGlobals');
+		var vertTexLocations = [
+			for (i in 0...compiledShader.vertex.textures2DCount) {
+				gl.getUniformLocation(program, 'vertexTextures[$i]');
+			}
+		];
+		var fragTexLocations = [
+			for (i in 0...compiledShader.fragment.textures2DCount) {
+				var v = gl.getUniformLocation(program, 'fragmentTextures[$i]');
+				trace(v);
+				v;
+			}
+		];
+		
+		return new Effect(compiledShader, vertexShader, fragmentShader, program, vertexLocation, fragmentLocation, vertGlobalLocation, fragGlobalLocation, vertTexLocations, fragTexLocations);
+	}
+	
+	@:access(bakeneko.render.Effect)
+	public function applyEffect(effect:Effect, buffer:ProgramBuffer):Void {
+		if (effect.runtimeShader.vertex.paramsSize > 0)
+			gl.uniform4fv(effect.vertexLocation, buffer.vertex.params);
+		if (effect.runtimeShader.fragment.paramsSize > 0)
+			gl.uniform4fv(effect.fragmentLocation, buffer.fragment.params);
+		if (effect.runtimeShader.vertex.globalsSize > 0)
+			gl.uniform4fv(effect.vertGlobalLocation, buffer.vertex.globals);
+		if (effect.runtimeShader.fragment.globalsSize > 0)
+			gl.uniform4fv(effect.fragGlobalLocation, buffer.fragment.globals);
+		//if (compiledShader.fragment.textures2DCount > 0)
+			//GL.uniform1iv(GL.getUniformLocation(program, 'fragmentTextures'), new Int32Array([0, 1]));
+			
+		/*for (i in 0...compiledShader.vertex.textures2DCount) {
+			GL.activeTexture(GL.TEXTURE0 + i);
+			GL.uniform1i(vertTexLocations[i], i);
+			@:privateAccess
+			GL.bindTexture(GL.TEXTURE_2D, buffer.vertex.textures[i].nativeTexture.texture);
+		}*/
+		for (i in 0...effect.runtimeShader.fragment.textures2DCount) {
+			@:privateAccess
+			gl.bindTexture(gl.TEXTURE_2D, buffer.fragment.textures[i].nativeTexture.texture);
+			gl.activeTexture(gl.TEXTURE0 + i);
+			gl.uniform1i(effect.fragTexLocations[i], i);
+		}
+	}
+	
 	public function createVertexBuffer(vertexCount:Int, structure: VertexStructure, ?usage:Usage) {
 		var buffer = gl.createBuffer();
 		
@@ -76,6 +149,29 @@ class Renderer implements IRenderer {
 		vBuffer.buffer = buffer;
 		
 		return vBuffer;
+	}
+	
+	public function applyVertexAttributes(structure:VertexStructure) {
+		//GL.bindBuffer(GL.ARRAY_BUFFER, vertex);
+		//GL.bufferData(GL.ARRAY_BUFFER, vertexData, GL.STATIC_DRAW);
+		
+		var i = 0;
+		var offset = 0;
+		for (element in structure.elements) {
+			var size = element.numData();
+			
+			gl.vertexAttribPointer(i, size, gl.FLOAT, false, structure.totalSize, offset * 4);
+			gl.enableVertexAttribArray(i);
+			
+			offset += size;
+			++i;
+		}
+	}
+	
+	public function drawBuffer(vertex:VertexBuffer, index:IndexBuffer):Void {
+		bindVertexBuffer(vertex);
+		bindIndexBuffer(index);
+		gl.drawElements(gl.TRIANGLES, index.count(), gl.UNSIGNED_SHORT, 0);
 	}
 	
 	public function createIndexBuffer(vertexCount:Int, structure: VertexStructure, ?usage:Usage) {
@@ -87,13 +183,29 @@ class Renderer implements IRenderer {
 		return iBuffer;
 	}
 
-	function uploadVertexBuffer(buffer:VertexBuffer) {
+	function bindVertexBuffer(buffer:VertexBuffer) {
+		if (boundVertexBuffer == buffer)
+			return;
+		
 		gl.bindBuffer(gl.ARRAY_BUFFER, buffer.buffer);
+		boundVertexBuffer = buffer;
+	}
+	
+	function bindIndexBuffer(buffer:IndexBuffer) {
+		if (boundIndexBuffer == buffer)
+			return;
+		
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.buffer);
+		boundIndexBuffer = buffer;
+	}
+	
+	function uploadVertexBuffer(buffer:VertexBuffer) {
+		bindVertexBuffer(buffer);
 		gl.bufferData(gl.ARRAY_BUFFER, cast buffer.data, buffer.usage == Usage.DynamicUsage ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
 	}
 	
 	function uploadIndexBuffer(buffer:IndexBuffer) {
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.buffer);
+		bindIndexBuffer(buffer);
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cast buffer.data, buffer.usage == Usage.DynamicUsage ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW);
 	}
 	
@@ -179,7 +291,7 @@ class Renderer implements IRenderer {
 	public function compileShader(shader:Shader) {
 	}
 	
-	public function setRenderState(pipe:RenderState) {
+	public function applyRenderState(pipe:RenderState) {
 		setCullMode(pipe.cullMode);
 		setDepthMode(pipe.depthWrite, pipe.depthMode);
 		setStencilParameters(pipe.stencilMode, pipe.stencilBothPass, pipe.stencilDepthFail, pipe.stencilFail, pipe.stencilReferenceValue, pipe.stencilReadMask, pipe.stencilWriteMask);

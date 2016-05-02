@@ -40,6 +40,10 @@ class Application {
 		return application;
 	}
 	
+	public function getRenderer() {
+		return windows[0].renderer;
+	}
+	
 	/**
 	 * User defined
 	 * Create app systems
