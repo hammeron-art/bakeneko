@@ -41,7 +41,11 @@ class Texture extends Asset {
 				if (task.isSuccessed) {
 					image = task.result;
 					
+					#if flash
+					image.data = pixelFormat(image);
+					#end
 					image.buffer.data = image.data;
+					//image.format = PixelFormat.ARGB32;
 					
 					Log.assert(image != null, 'Image for $id can\'t be null');
 					
@@ -63,12 +67,22 @@ class Texture extends Asset {
 		if (nativeTexture != null && (nativeTexture.width != image.width || nativeTexture.height != image.height))
 			render.deleteTexture(nativeTexture);
 		
-			
-		trace(image.format == PixelFormat.BGRA32, image.buffer.data);
+		
+		//trace(image.format == PixelFormat.BGRA32, image.buffer.data);
 		//lime.graphics.im
 		
+		/*for (i in 0...4) {
+			trace(image.data[i]);
+		}
+		
+		var newImage = pixelFormat(image);
+		
+		for (i in 0...4) {
+			trace(newImage[i]);
+		}*/
+		
 		nativeTexture = render.createTexture(image.width, image.height);
-		render.updaloadTexturePixel(nativeTexture, image.data/*pixelFormat(image)*/);
+		render.updaloadTexturePixel(nativeTexture, image.data);
 	}
 	
 	function pixelFormat(image:Image/*, format:TextureFormat*/) {
@@ -81,7 +95,7 @@ class Texture extends Asset {
 		var r1, g1, b1, a1, r2, g2, b2, a2;
 		var r, g, b, a;
 		
-		switch (image.format) {
+		/*switch (image.format) {
 			case RGBA32:
 				r1 = 0;
 				g1 = 1;
@@ -97,11 +111,16 @@ class Texture extends Asset {
 				g1 = 1;
 				b1 = 0;
 				a1 = 3;
-		}
+		}*/
 		
-		r2 = 2;
+		r1 = 1;
+		g1 = 2;
+		b1 = 3;
+		a1 = 0;
+		
+		r2 = 0;
 		g2 = 1;
-		b2 = 0;
+		b2 = 2;
 		a2 = 3;
 				
 		/*switch (format) {

@@ -106,7 +106,7 @@ class FlashGraphics implements IGraphics {
 		for (element in data.structure.elements) {
 			var size = element.numData();
 			
-			context3D.setVertexBufferAt(i, vertex, offset, flashSize[i]);
+			context3D.setVertexBufferAt(i, vertex, offset, flashSize[size]);
 			//GL.vertexAttribPointer(i, size, GL.FLOAT, false, data.structure.totalSize, offset * 4);
 			//GL.enableVertexAttribArray(i);
 			
@@ -129,10 +129,30 @@ class FlashGraphics implements IGraphics {
 			
 		context3D.clear(backColor.r, backColor.g, backColor.b, backColor.a);
 		
+		/*var flashSize = [
+			flash.display3D.Context3DVertexBufferFormat.FLOAT_1,
+			flash.display3D.Context3DVertexBufferFormat.FLOAT_2,
+			flash.display3D.Context3DVertexBufferFormat.FLOAT_3,
+			flash.display3D.Context3DVertexBufferFormat.FLOAT_4,
+		];
+		
+		var i = 0;
+		var offset = 0;
+		for (element in data.structure.elements) {
+			var size = element.numData();
+			
+			context3D.setVertexBufferAt(i, vertex, offset, flashSize[size]);
+			//GL.vertexAttribPointer(i, size, GL.FLOAT, false, data.structure.totalSize, offset * 4);
+			//GL.enableVertexAttribArray(i);
+			
+			offset += size;
+			++i;
+		}*/
+		
 		//context3D.setProgram(program);
 		context3D.setVertexBufferAt(0, vertex, 0, flash.display3D.Context3DVertexBufferFormat.FLOAT_3);
-		context3D.setVertexBufferAt(1, vertex, 3, flash.display3D.Context3DVertexBufferFormat.FLOAT_4);
-		context3D.setVertexBufferAt(2, vertex, 7, flash.display3D.Context3DVertexBufferFormat.FLOAT_2);
+		//context3D.setVertexBufferAt(1, vertex, 3, flash.display3D.Context3DVertexBufferFormat.FLOAT_4);
+		context3D.setVertexBufferAt(1, vertex, 3, flash.display3D.Context3DVertexBufferFormat.FLOAT_2);
 		//context3D.setProgram(program);
 		
 		
