@@ -21,7 +21,7 @@ class Testbed extends Application {
 		super();
 		
 		createState = [];
-		currentState = 4;
+		currentState = 0;
 	}
 	
 	override public function onInit():Void {
@@ -42,6 +42,7 @@ class Testbed extends Application {
 		if (dir != 0) {
 			currentState = Utils.cycle(currentState + dir, createState.length);
 			changeState(currentState);
+			trace(currentState);
 		}
 	}
 	
@@ -50,6 +51,7 @@ class Testbed extends Application {
 	}
 	
 	function changeState(index:Int) {
+		trace('Changed to ${createState[currentState]}');
 		stateManager.change(createState[currentState]);
 	}
 	

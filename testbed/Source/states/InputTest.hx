@@ -11,7 +11,7 @@ class InputTest extends State {
 	var input:InputSystem;
 	
 	override public function onInit():Void {
-		var input = app.input;
+		input = app.input;
 		
 		input.bindKey('up', KeyCode.W);
 		input.bindKey('down', KeyCode.S);
@@ -28,9 +28,19 @@ class InputTest extends State {
 		input.bindPadKey('left', PadKey.DPAD_LEFT);
 		input.bindPadKey('right', PadKey.DPAD_RIGHT);
 		
-		input.onKeyEvent.add(function(event) Log.info(event, 0));
-		input.onPointerEvent.add(function(event) Log.info(event, 0));
-		input.onPadEvent.add(function(event) Log.info(event, 0));
+		input.onKeyEvent.add(log);
+		input.onPointerEvent.add(log);
+		input.onPadEvent.add(log);
+	}
+	
+	override public function onDestroy():Void {
+		input.onKeyEvent.remove(log);
+		input.onPointerEvent.remove(log);
+		input.onPadEvent.remove(log);
+	}
+	
+	function log(event:Dynamic) {
+		Log.info(event, 0);
 	}
 	
 }

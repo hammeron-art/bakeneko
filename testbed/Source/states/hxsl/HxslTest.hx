@@ -73,7 +73,7 @@ class HxslTest extends State {
 		
 		programBuffer = new ProgramBuffer(compiledShader);
 		
-		backColor = new Color(0.12, 0.05, 0.16, 1.0);
+		backColor = new Color(0.8, 0.05, 0.16, 1.0);
 		
 		var format = new VertexStructure();
 		format.push(new VertexElement(TFloat(3), SPosition));

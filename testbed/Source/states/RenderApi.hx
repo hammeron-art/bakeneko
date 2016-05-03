@@ -28,9 +28,6 @@ import lime.utils.UInt16Array;
 import bakeneko.render.ProgramBuffer;
 import bakeneko.render.ProgramBuffer.ShaderBuffer;
 
-/**
- * Hxsl usage test with native OpenGl or Stage3D
- */
 @:build(bakeneko.hxsl.Macros.buildGlobals())
 class RenderApi extends State {
 	
@@ -188,95 +185,3 @@ private class TestShader extends Shader {
 	}
 	
 }
-
-/*
-private class TestShader extends Shader {
-	
-	static var SRC = {
-		@input var input: {
-			var position:Vec3;
-			var color:Vec4;
-			var uv:Vec2;
-		}
-		
-		var output: {
-			var position:Vec4;
-			var color:Vec4;
-		}
-		
-		@param var factor:Float;
-		@param var texture1:Sampler2D;
-		@param var texture2:Sampler2D;
-		@global var time:Float;
-		@const var changeColor:Bool;
-		
-		var minSize:Float;
-		
-		function __init__() {
-			minSize = 0.5;
-		}
-		
-		function vertex() {
-			output.position = vec4(input.position * (minSize + (1.0 - minSize) * (cos(time * 0.34) * sin(time * 0.47))), 1.0);
-		}
-		
-		function fragment() {
-			if (changeColor) {
-				var c1 = texture1.get(input.uv);
-				var c2 = texture2.get(input.uv);
-				
-				output.color = c1 * vec4(input.color.rgb * factor, input.color.a);
-				output.color.r = c2.r;
-			} else {
-				output.color = input.color;
-			}
-		}
-	}
-	
-	public function new() {
-		super();
-		factor = 1.0;
-	}
-	
-}*/
-
-/*private class TestShader extends bakeneko.hxsl.Shader {
-
-	static var SRC = {
-		@input var input: {
-			var position:Vec3;
-			var color:Vec4;
-			var uv:Vec2;
-		};
-		
-		var output : {
-			var position:Vec4;
-			var color:Vec4;
-		};
-		
-		@param var factor:Float;
-		@param var texture1:Sampler2D;
-		@param var texture2:Sampler2D;
-		@const var constTest:Bool;
-		var localTest:Float;
-		
-		function __init__() {
-			localTest = 0.20;
-		}
-		
-		function vertex() {
-			output.position = vec4(input.position.xyz * factor * (localTest + 0.75), 1.0);
-		}
-		
-		function fragment() {
-			var c1 = texture1.get(input.uv);
-			var c2 = texture2.get(input.uv);
-			
-			if (constTest)
-				output.color = (c2 * 0.2) + (c1 * (input.color * (localTest + 0.8) * factor));
-			else
-				output.color = input.color;
-		}
-	}
-
-}*/

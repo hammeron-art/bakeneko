@@ -52,7 +52,7 @@ class GLRenderer implements IRenderer {
 		
 		present();
 		
-		Log.info('Renderer for window(${window.id}) reset');
+		//Log.info('Renderer for window(${window.id}) reset');
 	}
 	
 	public function begin(surfaces:Array<Surface> = null):Void {		
