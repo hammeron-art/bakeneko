@@ -1,4 +1,4 @@
-package states.api;
+package states;
 
 import bakeneko.asset.AssetManager;
 import bakeneko.asset.Texture;
@@ -32,7 +32,7 @@ import bakeneko.render.ProgramBuffer.ShaderBuffer;
  * Hxsl usage test with native OpenGl or Stage3D
  */
 @:build(bakeneko.hxsl.Macros.buildGlobals())
-class HxslTest extends State {
+class RenderApi extends State {
 	
 	var manager:ShaderManager;
 	var globals(get, never):Globals;

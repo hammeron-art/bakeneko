@@ -10,6 +10,7 @@ import states.AssetTest;
 import states.hxsl.HxslTest;
 import states.InputTest;
 import states.RenderTest;
+import states.RenderApi;
 
 class Testbed extends Application {
 	
@@ -28,7 +29,7 @@ class Testbed extends Application {
 		addState(new HxslTest());
 		addState(new RenderTest());
 		addState(new AssetTest());
-		addState(new states.api.HxslTest());
+		addState(new RenderApi());
 	}
 	
 	override public function initialState():Void {
