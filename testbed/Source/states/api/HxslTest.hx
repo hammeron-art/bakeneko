@@ -104,7 +104,7 @@ class HxslTest extends State {
 			/*for (i in 0...4)
 				trace(textures[0].image.data[i]);*/
 			
-			graphics = new Graphics(effect.runtimeShader, mesh, backColor);
+			graphics = new Graphics(effect.runtimeShader, mesh, backColor, effect);
 			app.renderSystem.onRenderEvent.add(renderFunc);
 		});
 	}

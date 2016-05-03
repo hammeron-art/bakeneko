@@ -26,7 +26,7 @@ class GLRenderer implements IRenderer {
 	
 	var boundVertexBuffer:VertexBuffer = null;
 	var boundIndexBuffer:IndexBuffer = null;
-	//var boundProgram:Dynamic = null;
+	var boundEffect:Effect = null;
 	
 	public function new(window:bakeneko.core.Window) {
 		this.window = window != null ? window : cast System.app.windows[0];
@@ -116,6 +116,8 @@ class GLRenderer implements IRenderer {
 	
 	@:access(bakeneko.render.Effect)
 	public function applyEffect(effect:Effect, buffer:ProgramBuffer):Void {
+		bindEffect(effect);
+		
 		if (effect.runtimeShader.vertex.paramsSize > 0)
 			gl.uniform4fv(effect.vertexLocation, buffer.vertex.params);
 		if (effect.runtimeShader.fragment.paramsSize > 0)
@@ -199,6 +201,15 @@ class GLRenderer implements IRenderer {
 		
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer.buffer);
 		boundIndexBuffer = buffer;
+	}
+	
+	function bindEffect(effect:Effect) {
+		if (boundEffect == effect)
+			return;
+
+		@:privateAccess
+		gl.useProgram(effect.program);
+		boundEffect = effect;
 	}
 	
 	function uploadVertexBuffer(buffer:VertexBuffer) {
