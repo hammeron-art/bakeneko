@@ -6,8 +6,10 @@ import bakeneko.hxsl.AgalOptim;
 import bakeneko.hxsl.AgalOut;
 import bakeneko.hxsl.RuntimeShader;
 import bakeneko.render.Color;
+import bakeneko.render.Mesh;
 import bakeneko.render.MeshData;
 import bakeneko.render.MeshTools;
+import bakeneko.render.Renderer;
 import bakeneko.render.VertexStructure;
 import flash.display.Stage3D;
 import flash.display3D.Context3D;
@@ -29,8 +31,9 @@ class FlashGraphics implements IGraphics {
 	var context3D:Context3D;
 	
 	var program:Program3D;
-	var vertex:VertexBuffer3D;
-	var index:IndexBuffer3D;
+	//var vertex:VertexBuffer3D;
+	//var index:IndexBuffer3D;
+	var mesh:Mesh;
 	var location:Int;
 	
 	//var globalVertexParams:Float32Array;
@@ -42,7 +45,7 @@ class FlashGraphics implements IGraphics {
 	
 	var tex:flash.display3D.textures.Texture;
 	
-	public function new(compiledShader:RuntimeShader, data:MeshData, backColor:Color) {
+	public function new(compiledShader:RuntimeShader, mesh:Mesh, backColor:Color) {
 		this.compiledShader = compiledShader;
 		this.backColor = backColor;
 		
@@ -55,25 +58,16 @@ class FlashGraphics implements IGraphics {
 			globalFragmentParams[i] = compiledShader.fragment.consts[i];*/
 			
 		stage3D = flash.Lib.current.stage.stage3Ds[0];
-		init(null, data);
+		init(null, mesh);
 		//stage3D.addEventListener(flash.events.Event.CONTEXT3D_CREATE, init.bind(_, data));
 		//stage3D.requestContext3D(cast flash.display3D.Context3DRenderMode.AUTO, flash.display3D.Context3DProfile.STANDARD);
 	}
 	
-	public function init(_, data:MeshData) {
+	public function init(_, mesh:Mesh) {
 		@:privateAccess
 		context3D = Application.get().windows[0].renderer.context;
-		//context3D = stage3D.context3D;
-		//context3D.configureBackBuffer(System.app.windows[0].width, System.app.windows[0].height, 0, true);
 		
-		var vertexData = MeshTools.buildVertexData(data);
-		var indexData = new UInt16Array(data.indices);
-		
-		vertex  = context3D.createVertexBuffer(data.vertexCount, data.structure.totalNumValues);
-		index = context3D.createIndexBuffer(data.vertexCount);
-	
-		vertex.uploadFromByteArray(vertexData.buffer.getData(), 0, 0, 3);
-		index.uploadFromByteArray(indexData.buffer.getData(), 0, 0, 3);
+		this.mesh = mesh;
 		
 		var vertexSource = AgalOut.toAgal(compiledShader.vertex, 2);
 		var fragmentSource = AgalOut.toAgal(compiledShader.fragment, 2);
@@ -94,37 +88,9 @@ class FlashGraphics implements IGraphics {
 		program = context3D.createProgram();
 		program.upload(vb, fb);
 		context3D.setProgram(program);
-		
-		/*var flashSize = [
-			flash.display3D.Context3DVertexBufferFormat.FLOAT_1,
-			flash.display3D.Context3DVertexBufferFormat.FLOAT_2,
-			flash.display3D.Context3DVertexBufferFormat.FLOAT_3,
-			flash.display3D.Context3DVertexBufferFormat.FLOAT_4,
-		];
-		
-		var i = 0;
-		var offset = 0;
-		for (element in data.structure.elements) {
-			var size = element.numData();
-			
-			context3D.setVertexBufferAt(i, vertex, offset, flashSize[size]);
-			//GL.vertexAttribPointer(i, size, GL.FLOAT, false, data.structure.totalSize, offset * 4);
-			//GL.enableVertexAttribArray(i);
-			
-			offset += size;
-			++i;
-		}*/
-		
-		/*var width = 1024;
-		var height = 1024;
-		tex = context3D.createTexture(width, height, flash.display3D.Context3DTextureFormat.BGRA, false);
-		var data = new UInt8Array(width * height * 4);
-		for (i in 0...data.length)
-			data[i] = Std.int(Math.random() * 255);
-		tex.uploadFromByteArray(data.toBytes().getData(), 0, 0);*/
 	}
 	
-	public function render(buffer:ProgramBuffer) {
+	public function render(render:Renderer, buffer:ProgramBuffer) {
 		if (context3D == null)
 			return;
 			
@@ -137,25 +103,18 @@ class FlashGraphics implements IGraphics {
 			flash.display3D.Context3DVertexBufferFormat.FLOAT_4,
 		];
 		
-		var i = 0;
-		var offset = 0;
-		for (element in data.structure.elements) {
-			var size = element.numData();
-			
-			context3D.setVertexBufferAt(i, vertex, offset, flashSize[size]);
-			//GL.vertexAttribPointer(i, size, GL.FLOAT, false, data.structure.totalSize, offset * 4);
-			//GL.enableVertexAttribArray(i);
-			
-			offset += size;
-			++i;
+		@:privateAccess {
+			var i = 0;
+			var offset = 0;
+			for (element in mesh.structure.elements) {
+				var size = element.numData();
+				
+				context3D.setVertexBufferAt(i, mesh.meshBuffer.vertexBuffer.buffer, offset, flashSize[size-1]);
+				
+				offset += size;
+				++i;
+			}
 		}*/
-		
-		//context3D.setProgram(program);
-		context3D.setVertexBufferAt(0, vertex, 0, flash.display3D.Context3DVertexBufferFormat.FLOAT_3);
-		//context3D.setVertexBufferAt(1, vertex, 3, flash.display3D.Context3DVertexBufferFormat.FLOAT_4);
-		context3D.setVertexBufferAt(1, vertex, 3, flash.display3D.Context3DVertexBufferFormat.FLOAT_2);
-		//context3D.setProgram(program);
-		
 		
 		if (compiledShader.vertex.paramsSize > 0)
 			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.VERTEX, compiledShader.vertex.globalsSize, compiledShader.vertex.paramsSize, buffer.vertex.params.buffer.getData(), 0);
@@ -173,24 +132,12 @@ class FlashGraphics implements IGraphics {
 			context3D.setTextureAt(i, buffer.fragment.textures[i].nativeTexture.texture);
 			context3D.setSamplerStateAt(i, flash.display3D.Context3DWrapMode.REPEAT, flash.display3D.Context3DTextureFilter.NEAREST, flash.display3D.Context3DMipFilter.MIPNONE);
 		}
-		/*if (tex == null) {
-			var width = 1024;
-			var height = 1024;
-			
-			tex = context3D.createTexture(width, height, flash.display3D.Context3DTextureFormat.BGRA, false);
-			var data = new UInt8Array(width * height * 4);
-			for (i in 0...data.length)
-				data[i] = Std.int(Math.random() * 255);
-			@:privateAccess
-			tex.uploadFromByteArray(buffer.fragment.textures[0].image.data.toBytes().getData(), 0, 0);
-		}*/
-		//@:privateAccess
-		//trace(buffer.fragment.textures[0].nativeTexture.texture.);
-		//@:privateAccess
-		//context3D.setTextureAt(0, tex);
-		//context3D.setTextureAt(0, buffer.fragment.textures[0].nativeTexture.texture);
-			
-		context3D.drawTriangles(index);
+		
+		@:privateAccess
+		//context3D.drawTriangles(mesh.meshBuffer.indexBuffer.buffer);
+		@:privateAccess {
+			render.drawBuffer(mesh.meshBuffer.vertexBuffer, mesh.meshBuffer.indexBuffer);
+		}
 		
 		context3D.present();
 	}

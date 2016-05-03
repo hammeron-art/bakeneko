@@ -185,7 +185,7 @@ class FlashRenderer implements IRenderer {
 	
 	public function drawBuffer(vertex:VertexBuffer, index:IndexBuffer):Void {
 		applyVertexAttributes(vertex);
-		context.drawTriangles(index.buffer, 0, index.count());
+		context.drawTriangles(index.buffer, 0, Std.int(index.count() / 3));
 	}
 	
 	@:access(bakeneko.render.Effect)

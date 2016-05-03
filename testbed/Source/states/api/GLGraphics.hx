@@ -5,8 +5,10 @@ import bakeneko.core.Log;
 import bakeneko.hxsl.GlslOut;
 import bakeneko.hxsl.RuntimeShader;
 import bakeneko.render.Color;
+import bakeneko.render.Mesh;
 import bakeneko.render.MeshData;
 import bakeneko.render.MeshTools;
+import bakeneko.render.Renderer;
 import bakeneko.render.VertexStructure;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLBuffer;
@@ -25,8 +27,8 @@ class GLGraphics implements IGraphics {
 	var compiledShader:RuntimeShader;
 	
 	var program:GLProgram;
-	var vertex:GLBuffer;
-	var index:GLBuffer;
+	//var vertex:GLBuffer;
+	//var index:GLBuffer;
 	var vertexLocation:GLUniformLocation;
 	var fragmentLocation:GLUniformLocation;
 	var vertGlobalLocation:GLUniformLocation;
@@ -36,7 +38,7 @@ class GLGraphics implements IGraphics {
 	
 	var backColor:Color;
 	
-	public function new(compiledShader:RuntimeShader, data:MeshData, backColor: Color) {
+	public function new(compiledShader:RuntimeShader, mesh:Mesh, backColor: Color) {
 		this.compiledShader = compiledShader;
 		this.backColor = backColor;
 		
@@ -46,28 +48,30 @@ class GLGraphics implements IGraphics {
 		
 		Log.info('$vertexSource\n\n$fragmentSource', 0);
 		
-		var vertexData = MeshTools.buildVertexData(data);
-		var indexData = new UInt16Array(data.indices);
+		//var vertexData = MeshTools.buildVertexData(data);
+		//var indexData = new UInt16Array(data.indices);
 		
-		vertex = GL.createBuffer();
-		index = GL.createBuffer();
+		//vertex = GL.createBuffer();
+		//index = GL.createBuffer();
 		
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, index);
-		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, indexData, GL.STATIC_DRAW);
-		
-		GL.bindBuffer(GL.ARRAY_BUFFER, vertex);
-		GL.bufferData(GL.ARRAY_BUFFER, vertexData, GL.STATIC_DRAW);
-		
-		var i = 0;
-		var offset = 0;
-		for (element in data.structure.elements) {
-			var size = element.numData();
+		@:privateAccess {
+			//GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.meshBuffer.indexBuffer.buffer);
+			//GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.meshBuffer.indexBuffer.data, GL.STATIC_DRAW);
 			
-			GL.vertexAttribPointer(i, size, GL.FLOAT, false, data.structure.totalSize, offset * 4);
-			GL.enableVertexAttribArray(i);
-			
-			offset += size;
-			++i;
+			//GL.bindBuffer(GL.ARRAY_BUFFER, mesh.meshBuffer.vertexBuffer.buffer);
+			//GL.bufferData(GL.ARRAY_BUFFER, mesh.meshBuffer.vertexBuffer.data, GL.STATIC_DRAW);
+		
+			var i = 0;
+			var offset = 0;
+			for (element in mesh.structure.elements) {
+				var size = element.numData();
+				
+				GL.vertexAttribPointer(i, size, GL.FLOAT, false, mesh.structure.totalSize, offset * 4);
+				GL.enableVertexAttribArray(i);
+				
+				offset += size;
+				++i;
+			}
 		}
 		
 		var vertexShader = GL.createShader(GL.VERTEX_SHADER);
@@ -108,7 +112,7 @@ class GLGraphics implements IGraphics {
 		];
 	}
 	
-	public function render(buffer:ProgramBuffer) {
+	public function render(render:Renderer, buffer:ProgramBuffer) {
 		
 		if (compiledShader.vertex.paramsSize > 0)
 			GL.uniform4fv(vertexLocation, buffer.vertex.params);

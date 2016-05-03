@@ -10,6 +10,7 @@ import bakeneko.hxsl.Shader;
 import bakeneko.hxsl.ShaderList;
 import bakeneko.hxsl.Types.Sampler2D;
 import bakeneko.render.Color;
+import bakeneko.render.Mesh;
 import bakeneko.render.MeshData;
 import bakeneko.render.MeshTools;
 import bakeneko.render.ShaderManager;
@@ -39,8 +40,6 @@ class HxslTest extends State {
 	
 	var manager:ShaderManager;
 	var globals(get, never):Globals;
-	/*var cache:Cache;
-	var output:Int;*/
 	
 	var shaderList:ShaderList;
 	var testShader:TestShader;
@@ -75,7 +74,6 @@ class HxslTest extends State {
 		
 		var format = new VertexStructure();
 		format.push(new VertexElement(TFloat(3), SPosition));
-		//format.push(new VertexElement(TFloat(4), SColor));
 		format.push(new VertexElement(TFloat(2), STexcoord));
 		
 		var data:MeshData = {
@@ -87,8 +85,7 @@ class HxslTest extends State {
 			structure: format,
 		}
 		
-		//graphics = new Graphics(compiledShader, data, backColor);
-		//app.renderSystem.onRenderEvent.add(render);
+		var mesh = new Mesh(data, null, data.structure);
 		
 		var tasks:Array<Task<Texture>> = [];
 		
@@ -104,7 +101,7 @@ class HxslTest extends State {
 			/*for (i in 0...4)
 				trace(textures[0].image.data[i]);*/
 			
-			graphics = new Graphics(compiledShader, data, backColor);
+			graphics = new Graphics(compiledShader, mesh, backColor);
 			app.renderSystem.onRenderEvent.add(render);
 		});
 	}
@@ -123,7 +120,7 @@ class HxslTest extends State {
 		manager.setGlobalParams(programBuffer, compiledShader);
 		
 		window.renderer.begin();
-		graphics.render(programBuffer);
+		graphics.render(window.renderer, programBuffer);
 		window.renderer.end();
 	}
 	
