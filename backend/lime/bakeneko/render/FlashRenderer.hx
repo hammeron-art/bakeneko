@@ -301,7 +301,6 @@ class FlashRenderer implements IRenderer {
 	
 	public function createTexture(width:Int, height:Int, ?format:TextureFormat):NativeTexture {
 		var native = context.createTexture(width, height, flash.display3D.Context3DTextureFormat.BGRA, false);
-		trace(native);
 		return new NativeTexture(native, width, height, format);
 	}
 	
@@ -311,7 +310,6 @@ class FlashRenderer implements IRenderer {
 	}
 	
 	public function updaloadTexturePixel(texture:NativeTexture, pixel:UInt8Array):Void {
-		trace(pixel.buffer.getData().length, texture.width * texture.height * 4);
 		texture.texture.uploadFromByteArray(pixel.toBytes().getData(), 0);
 	}
 	

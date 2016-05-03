@@ -16,6 +16,15 @@ class ShaderBuffer {
 		params = new Float32Array(shaderData.paramsSize * 4);
 		textures = new haxe.ds.Vector(shaderData.textures2DCount);
 	}
+	
+	// Debug
+	public function toString() {
+		var sGlobals = [ for (i in 0...globals.length) globals[i] ];
+		var sParams = [ for (i in 0...params.length) params[i] ];
+		var sTextures = [ for (i in 0...textures.length) textures[i] ];
+		
+		return 'Globals: $sGlobals\nParams: $sParams\nTextures: $sTextures';
+	}
 }
 
 class ProgramBuffer {
@@ -28,4 +37,8 @@ class ProgramBuffer {
 		fragment = new ShaderBuffer(shader.fragment);
 	}
 	
+	// Debug
+	public function toString() {
+		return 'Vertex: $vertex\nFragment: $fragment';
+	}
 }

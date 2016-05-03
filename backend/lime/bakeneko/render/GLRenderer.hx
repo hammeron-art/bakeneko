@@ -72,7 +72,7 @@ class GLRenderer implements IRenderer {
 		var vertexSource = out.run(compiledShader.vertex.data);
 		var fragmentSource = out.run(compiledShader.fragment.data);
 		
-		//Log.info('$vertexSource\n\n$fragmentSource', 0);
+		Log.info('$vertexSource\n\n$fragmentSource', 0);
 		
 		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 		var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -84,7 +84,18 @@ class GLRenderer implements IRenderer {
 		var program = gl.createProgram();
 		gl.attachShader(program, vertexShader);
 		gl.attachShader(program, fragmentShader);
-
+		
+		var vars = compiledShader.vertex.data.vars;
+		
+		var i = 0;
+		for (v in vars) {
+			switch (v.kind) {
+				case Input:
+					gl.bindAttribLocation(program, i++, v.name);
+				default:
+			}
+		}
+		
 		gl.linkProgram(program);
 
 		if (gl.getProgramParameter(program, gl.LINK_STATUS) == 0) {
@@ -95,12 +106,18 @@ class GLRenderer implements IRenderer {
 		gl.useProgram(program);
 		
 		var vertexLocation = gl.getUniformLocation(program, 'vertexParams');
+		trace(vertexLocation);
 		var fragmentLocation = gl.getUniformLocation(program, 'fragmentParams');
+		trace(fragmentLocation);
 		var vertGlobalLocation = gl.getUniformLocation(program, 'vertexGlobals');
+		trace(vertGlobalLocation);
 		var fragGlobalLocation = gl.getUniformLocation(program, 'fragmentGlobals');
+		trace(fragGlobalLocation);
 		var vertTexLocations = [
 			for (i in 0...compiledShader.vertex.textures2DCount) {
-				gl.getUniformLocation(program, 'vertexTextures[$i]');
+				var v = gl.getUniformLocation(program, 'vertexTextures[$i]');
+				trace(v);
+				v;
 			}
 		];
 		var fragTexLocations = [
@@ -126,6 +143,7 @@ class GLRenderer implements IRenderer {
 			gl.uniform4fv(effect.vertGlobalLocation, buffer.vertex.globals);
 		if (effect.runtimeShader.fragment.globalsSize > 0)
 			gl.uniform4fv(effect.fragGlobalLocation, buffer.fragment.globals);
+			
 		//if (compiledShader.fragment.textures2DCount > 0)
 			//GL.uniform1iv(GL.getUniformLocation(program, 'fragmentTextures'), new Int32Array([0, 1]));
 			
@@ -163,8 +181,10 @@ class GLRenderer implements IRenderer {
 		for (element in vertex.structure.elements) {
 			var size = element.numData();
 			
-			gl.vertexAttribPointer(i, size, gl.FLOAT, false, vertex.structure.totalSize, offset * 4);
 			gl.enableVertexAttribArray(i);
+			gl.vertexAttribPointer(i, size, gl.FLOAT, false, vertex.structure.totalSize, offset * 4);
+			//gl.enableVertexAttribArray(i);
+			//trace(i, size, gl.FLOAT, false, vertex.structure.totalSize, offset * 4);
 			
 			offset += size;
 			++i;

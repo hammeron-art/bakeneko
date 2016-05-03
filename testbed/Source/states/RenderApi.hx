@@ -72,6 +72,7 @@ class RenderApi extends State {
 		var format = new VertexStructure();
 		format.push(new VertexElement(TFloat(3), SPosition));
 		format.push(new VertexElement(TFloat(2), STexcoord));
+		format.push(new VertexElement(TFloat(4), SColor));
 		
 		var data:MeshData = {
 			vertexCount: 3,
@@ -133,8 +134,8 @@ private class TestShader extends Shader {
 	static var SRC = {
 		@input var input: {
 			var position:Vec3;
-			//var color:Vec4;
 			var uv:Vec2;
+			var color:Vec4;
 		}
 		
 		var output: {
@@ -161,7 +162,8 @@ private class TestShader extends Shader {
 			#else
 			calculatedUV = input.uv;
 			#end
-			output.position = vec4(input.position * (minSize + (1.0 - minSize) * (cos(time * 0.34) * sin(time * 0.47))), 1.0);
+			output.position = vec4(input.position, 1.0);
+			//output.position = vec4(input.position * (minSize + (1.0 - minSize) * (cos(time * 0.34) * sin(time * 0.47))), 1.0);
 		}
 		
 		function fragment() {
@@ -169,7 +171,7 @@ private class TestShader extends Shader {
 				var c1 = texture1.get(calculatedUV);
 				var c2 = texture2.get(input.uv);
 				
-				output.color = c1;
+				output.color = c1 + input.color;
 				//output.color = input.color * 0.0 + c1 * vec4(1.0);//vec4(input.color.rgb /* factor*/, input.color.a);
 				//output.color.r = c2.r;
 				/*var c1 = texture1.get(calculatedUV);
