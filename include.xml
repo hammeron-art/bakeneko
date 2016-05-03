@@ -7,7 +7,7 @@
 	<template path="backend/lime/templates" />
 	<source path="backend/lime" />
 	
-	<!-- <haxelib name="format" /> -->
+	<haxelib name="format" if="flash" />
 	
 	<window width="960" height="540" />
 	<window fps="60" />

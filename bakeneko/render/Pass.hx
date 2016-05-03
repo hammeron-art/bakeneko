@@ -1,9 +1,9 @@
 package bakeneko.render;
 
 import bakeneko.core.Application;
+import bakeneko.hxsl.Globals;
 import bakeneko.hxsl.Shader;
 import bakeneko.hxsl.ShaderList;
-import states.hxsl.ProgramBuffer;
 
 @:build(bakeneko.hxsl.Macros.buildGlobals())
 class Pass {
@@ -15,9 +15,15 @@ class Pass {
 	var manager:ShaderManager;
 	var render:Renderer;
 	
+	var globals(get, never):Globals;
+	
+	inline function get_globals() return manager.globals;
+	
 	public function new() {
 		manager = new ShaderManager(['output.position', 'output.color']);
 		render = Application.get().getRenderer();
+		
+		initGlobals();
 	}
 	
 	public function addShader(shader:Shader) {

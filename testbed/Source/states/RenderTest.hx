@@ -32,7 +32,7 @@ class RenderTest extends State {
 	var shader:PixelColorShader;
 	
 	override public function onInit():Void {
-		color = Color.fromInt32(0x4b151e);
+		color = Color.fromInt32(0xff4b151e);
 		
 		var structure = new VertexStructure();
 		structure.push(new VertexElement(VertexData.TFloat(3), VertexSemantic.SPosition));
@@ -42,6 +42,7 @@ class RenderTest extends State {
 		renderState.vertexStructures = [structure];
 		
 		shader = new PixelColorShader();
+		shader.factor = 1.0;
 		
 		var pass = new Pass();
 		pass.state = renderState;
@@ -54,6 +55,7 @@ class RenderTest extends State {
 			positions: [[ -1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 1.0, 0.0]],
 			colors: [[1.0, 0.0, 0.0, 1.0], [0.0, 1.0, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0]],
 			indices: [0, 1, 2],
+			structure: structure
 		};
 		
 		mesh = new Mesh(data, material, structure);

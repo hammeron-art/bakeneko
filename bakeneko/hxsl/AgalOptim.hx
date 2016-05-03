@@ -1,4 +1,5 @@
 package bakeneko.hxsl;
+
 import format.agal.Data;
 
 private class RegInfos {

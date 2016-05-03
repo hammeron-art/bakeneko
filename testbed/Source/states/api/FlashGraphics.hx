@@ -1,4 +1,4 @@
-package states.hxsl;
+package states.api;
 
 import bakeneko.core.Application;
 import bakeneko.core.Log;

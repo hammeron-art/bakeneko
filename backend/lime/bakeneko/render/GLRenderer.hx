@@ -12,7 +12,6 @@ import bakeneko.hxsl.ShaderList;
 import bakeneko.render.IRenderer;
 import bakeneko.render.Color;
 import bakeneko.utils.UInt8Array;
-import states.hxsl.ProgramBuffer;
 
 import lime.graphics.GLRenderContext;
 import lime.graphics.opengl.GLUniformLocation;
@@ -164,7 +163,6 @@ class GLRenderer implements IRenderer {
 			
 			gl.vertexAttribPointer(i, size, gl.FLOAT, false, vertex.structure.totalSize, offset * 4);
 			gl.enableVertexAttribArray(i);
-			trace(vertex.structure.totalSize);
 			
 			offset += size;
 			++i;

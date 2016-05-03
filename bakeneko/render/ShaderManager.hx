@@ -5,7 +5,7 @@ import bakeneko.hxsl.Globals;
 import bakeneko.hxsl.RuntimeShader;
 import bakeneko.hxsl.ShaderList;
 import bakeneko.utils.Float32Array;
-import states.hxsl.ProgramBuffer;
+import bakeneko.render.ProgramBuffer.ShaderBuffer;
 
 class ShaderManager {
 	

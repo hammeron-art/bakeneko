@@ -1,4 +1,4 @@
-package states.hxsl;
+package bakeneko.render;
 
 import bakeneko.asset.Texture;
 import bakeneko.hxsl.RuntimeShader;

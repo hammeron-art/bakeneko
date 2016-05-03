@@ -20,7 +20,7 @@ class Testbed extends Application {
 		super();
 		
 		createState = [];
-		currentState = 2;
+		currentState = 4;
 	}
 	
 	override public function onInit():Void {
@@ -28,6 +28,7 @@ class Testbed extends Application {
 		addState(new HxslTest());
 		addState(new RenderTest());
 		addState(new AssetTest());
+		addState(new states.api.HxslTest());
 	}
 	
 	override public function initialState():Void {

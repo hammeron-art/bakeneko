@@ -4,7 +4,6 @@ import bakeneko.hxsl.RuntimeShader;
 import bakeneko.hxsl.ShaderList;
 import bakeneko.render.Color;
 import lime.utils.UInt8Array;
-import states.hxsl.ProgramBuffer;
 
 interface IRenderer {
 	public function reset():Void;

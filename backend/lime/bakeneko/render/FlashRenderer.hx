@@ -14,7 +14,7 @@ import bakeneko.hxsl.ShaderList;
 import bakeneko.render.IRenderer;
 import bakeneko.render.Color;
 import bakeneko.utils.UInt8Array;
-import states.hxsl.ProgramBuffer;
+import bakeneko.render.ProgramBuffer;
 
 import flash.events.Event;
 import flash.display.StageScaleMode;

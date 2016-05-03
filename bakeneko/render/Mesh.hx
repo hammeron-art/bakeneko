@@ -24,19 +24,21 @@ class Mesh {
 		var vertexBuffer = render.createVertexBuffer(data.vertexCount, structure);
 		var indexBuffer = render.createIndexBuffer(data.vertexCount, structure);
 		
-		meshBuffer = new MeshBuffer(vertexBuffer, indexBuffer, vertexData, new UInt16Array(data.indices));
-		
 		@:privateAccess
 		vertexBuffer.data = vertexData;
 		vertexBuffer.unlock();
 		
 		trace(vertexData.length);
 		
-		var iData = indexBuffer.lock();
+		/*var iData = indexBuffer.lock();
 		for (i in 0...iData.length) {
 			iData[i] = data.indices[i];
-		}
+		}*/
+		@:privateAccess
+		indexBuffer.data = new UInt16Array(data.indices);
 		indexBuffer.unlock();
+		
+		meshBuffer = new MeshBuffer(vertexBuffer, indexBuffer);
 	}
 	
 	public function setMaterial(material:Material) {
@@ -44,6 +46,7 @@ class Mesh {
 	}
 	
 	public function draw() {
+		//render.applyVertexAttributes(meshBuffer.vertexBuffer);
 		material.apply();
 		render.drawBuffer(meshBuffer.vertexBuffer, meshBuffer.indexBuffer);
 	}
@@ -55,15 +58,11 @@ class Mesh {
 }
 
 private class MeshBuffer {
-	public var vertexData:Float32Array;
-	public var indexData:UInt16Array;
 	public var vertexBuffer:VertexBuffer;
 	public var indexBuffer:IndexBuffer;
 	
-	inline public function new(vertexBuffer, indexBuffer, vertexData, indexData) {
+	inline public function new(vertexBuffer, indexBuffer) {
 		this.vertexBuffer = vertexBuffer;
 		this.indexBuffer = indexBuffer;
-		this.vertexData = vertexData;
-		this.indexData = indexData;
 	}
 }

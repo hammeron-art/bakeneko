@@ -1,4 +1,4 @@
-package states.hxsl;
+package states.api;
 
 import bakeneko.asset.Texture;
 import bakeneko.core.Log;
