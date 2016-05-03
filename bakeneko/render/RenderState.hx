@@ -42,7 +42,7 @@ class RenderState {
 
 		cullMode = CullMode.None;
 
-		depthWrite = false;
+		depthWrite = true;
 		depthMode = CompareMode.Always;
 
 		stencilMode = CompareMode.Always;

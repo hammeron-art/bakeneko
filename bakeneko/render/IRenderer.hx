@@ -14,7 +14,7 @@ interface IRenderer {
 	
 	public function createVertexBuffer(vertexCount:Int, structure: VertexStructure, ?usage:Usage):VertexBuffer;
 	public function createIndexBuffer(vertexCount:Int, structure: VertexStructure, ?usage:Usage):IndexBuffer;
-	public function applyVertexAttributes(structure:VertexStructure):Void;
+	public function applyVertexAttributes(vertex:VertexBuffer):Void;
 	
 	public function drawBuffer(vertex:VertexBuffer, index:IndexBuffer):Void;
 	

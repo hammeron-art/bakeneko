@@ -30,6 +30,8 @@ class Mesh {
 		vertexBuffer.data = vertexData;
 		vertexBuffer.unlock();
 		
+		trace(vertexData.length);
+		
 		var iData = indexBuffer.lock();
 		for (i in 0...iData.length) {
 			iData[i] = data.indices[i];
@@ -44,7 +46,6 @@ class Mesh {
 	public function draw() {
 		material.apply();
 		render.drawBuffer(meshBuffer.vertexBuffer, meshBuffer.indexBuffer);
-		//GL.drawElements(GL.TRIANGLES, 3, GL.UNSIGNED_SHORT, 0);
 	}
 	
 	public function init() {

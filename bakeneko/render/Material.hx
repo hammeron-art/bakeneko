@@ -6,7 +6,6 @@ class Material {
 	
 	public function new(?pass:Pass) {
 		this.pass = pass;
-		
 		init();
 	}
 	

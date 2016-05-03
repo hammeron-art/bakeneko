@@ -1,13 +1,16 @@
 package bakeneko.render;
 
 import bakeneko.hxsl.RuntimeShader;
+
+#if !flash
+
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLShader;
 import lime.graphics.opengl.GLUniformLocation;
 
 class Effect {
 
-	var runtimeShader:RuntimeShader;
+	public var runtimeShader:RuntimeShader;
 	var vertexShader:GLShader;
 	var fragmentShader:GLShader;
 	var program:GLProgram;
@@ -34,3 +37,19 @@ class Effect {
 	}
 	
 }
+
+#else
+
+class Effect {
+	
+	public var runtimeShader:RuntimeShader;
+	var program:flash.display3D.Program3D;
+	
+	public function new(runtimeShader, program) {
+		this.program = program;
+		this.runtimeShader = runtimeShader;
+	}
+	
+}
+
+#end

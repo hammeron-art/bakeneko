@@ -21,6 +21,7 @@ import bakeneko.render.VertexStructure;
 import bakeneko.render.VertexBuffer;
 import bakeneko.render.Color;
 import bakeneko.render.MeshData;
+import haxe.Timer;
 import lime.graphics.opengl.GL;
 import lime.graphics.opengl.GLProgram;
 
@@ -28,19 +29,19 @@ class RenderTest extends State {
 	
 	var color:Color;
 	var mesh:Mesh;
+	var shader:PixelColorShader;
 	
 	override public function onInit():Void {
 		color = Color.fromInt32(0x4b151e);
 		
-		var renderer:Renderer = cast app.windows[0].renderer;
-		
 		var structure = new VertexStructure();
 		structure.push(new VertexElement(VertexData.TFloat(3), VertexSemantic.SPosition));
+		structure.push(new VertexElement(VertexData.TFloat(4), VertexSemantic.SColor));
 		
 		var renderState = new RenderState();
 		renderState.vertexStructures = [structure];
 		
-		var shader = new PixelColorShader();
+		shader = new PixelColorShader();
 		
 		var pass = new Pass();
 		pass.state = renderState;
@@ -51,6 +52,7 @@ class RenderTest extends State {
 		var data:MeshData = {
 			vertexCount: 3,
 			positions: [[ -1.0, -1.0, 0.0], [1.0, -1.0, 0.0], [0.0, 1.0, 0.0]],
+			colors: [[1.0, 0.0, 0.0, 1.0], [0.0, 1.0, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0]],
 			indices: [0, 1, 2],
 		};
 		
@@ -63,9 +65,14 @@ class RenderTest extends State {
 		app.renderSystem.onRenderEvent.remove(render);
 	}
 	
+	override public function onUpdate(delta:Float):Void {
+		shader.factor = 0.5 + (Math.cos(Timer.stamp()) * 0.5 + 0.5) * 0.5;
+	}
+	
+	@:access(bakeneko.render.Renderer)
 	function render(window:Window) {
 		var g = window.renderer;
-		
+		  
 		g.begin();
 		g.clear(color);
 		
@@ -89,8 +96,10 @@ class PixelColorShader extends bakeneko.hxsl.Shader {
 			var color:Vec4;
 		}
 
+		@param var factor:Float;
+		
 		function vertex() {
-			output.position = vec4(input.position, 1.0);
+			output.position = vec4(input.position * factor, 1.0);
 		}
 		
 		function fragment() {

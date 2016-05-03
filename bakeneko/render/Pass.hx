@@ -5,6 +5,7 @@ import bakeneko.hxsl.Shader;
 import bakeneko.hxsl.ShaderList;
 import states.hxsl.ProgramBuffer;
 
+@:build(bakeneko.hxsl.Macros.buildGlobals())
 class Pass {
 
 	public var state:RenderState;
@@ -43,12 +44,16 @@ class Pass {
 
 	public function init() {
 		effect = render.createEffect(compileShader(shaderList));
+		programBuffer = new ProgramBuffer(effect.runtimeShader);
 	}
 	
 	public function apply() {
 		render.applyRenderState(state);
-		render.applyVertexAttributes(state.vertexStructures[0]);
 		render.applyEffect(effect, programBuffer);
+		
+		setGlobals();
+		manager.setParams(programBuffer, effect.runtimeShader, shaderList);
+		manager.setGlobalParams(programBuffer, effect.runtimeShader);
 	}
 	
 	function compileShader(shaders:ShaderList):bakeneko.hxsl.RuntimeShader {
