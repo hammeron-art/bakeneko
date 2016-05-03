@@ -28,8 +28,6 @@ class GLGraphics implements IGraphics {
 	
 	var program:GLProgram;
 	var mesh:Mesh;
-	//var vertex:GLBuffer;
-	//var index:GLBuffer;
 	var vertexLocation:GLUniformLocation;
 	var fragmentLocation:GLUniformLocation;
 	var vertGlobalLocation:GLUniformLocation;

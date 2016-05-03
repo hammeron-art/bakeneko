@@ -2,6 +2,7 @@ package states.api;
 
 import bakeneko.asset.AssetManager;
 import bakeneko.asset.Texture;
+import bakeneko.core.Application;
 import bakeneko.core.Window;
 import bakeneko.hxsl.Cache;
 import bakeneko.hxsl.Globals;
@@ -10,6 +11,7 @@ import bakeneko.hxsl.Shader;
 import bakeneko.hxsl.ShaderList;
 import bakeneko.hxsl.Types.Sampler2D;
 import bakeneko.render.Color;
+import bakeneko.render.Effect;
 import bakeneko.render.Mesh;
 import bakeneko.render.MeshData;
 import bakeneko.render.MeshTools;
@@ -43,7 +45,6 @@ class HxslTest extends State {
 	
 	var shaderList:ShaderList;
 	var testShader:TestShader;
-	var compiledShader:RuntimeShader;
 	
 	var programBuffer:ProgramBuffer;
 	
@@ -51,12 +52,14 @@ class HxslTest extends State {
 	var backColor:Color;
 	
 	var textures:Array<Texture>;
+	var effect:Effect;
 	
 	@global("time") var globalTime : Float = Math.sin(Timer.stamp());
 	
 	inline function get_globals() return manager.globals;
 	
 	override public function onInit():Void {
+		var render = Application.get().getRenderer();
 		
 		manager = new ShaderManager(["output.position", "output.color"]);
 
@@ -66,9 +69,9 @@ class HxslTest extends State {
 		testShader.changeColor = true;
 		
 		shaderList = new ShaderList(testShader);
-		compiledShader = manager.compileShaders(shaderList);
+		effect = render.createEffect(manager.compileShaders(shaderList));
 		
-		programBuffer = new ProgramBuffer(compiledShader);
+		programBuffer = new ProgramBuffer(effect.runtimeShader);
 		
 		backColor = new Color(0.12, 0.05, 0.16, 1.0);
 		
@@ -101,23 +104,23 @@ class HxslTest extends State {
 			/*for (i in 0...4)
 				trace(textures[0].image.data[i]);*/
 			
-			graphics = new Graphics(compiledShader, mesh, backColor);
-			app.renderSystem.onRenderEvent.add(render);
+			graphics = new Graphics(effect.runtimeShader, mesh, backColor);
+			app.renderSystem.onRenderEvent.add(renderFunc);
 		});
 	}
 	
 	override public function onDestroy():Void {
-		app.renderSystem.onRenderEvent.remove(render);
+		app.renderSystem.onRenderEvent.remove(renderFunc);
 	}
 	
 	override public function onUpdate(delta:Float):Void {
 		testShader.factor = 0.5 + (Math.cos(Timer.stamp()) * 0.5 + 0.5) * 0.5;
 	}
 	
-	function render(window:Window) {
+	function renderFunc(window:Window) {
 		setGlobals();
-		manager.setParams(programBuffer, compiledShader, shaderList);
-		manager.setGlobalParams(programBuffer, compiledShader);
+		manager.setParams(programBuffer, effect.runtimeShader, shaderList);
+		manager.setGlobalParams(programBuffer, effect.runtimeShader);
 		
 		window.renderer.begin();
 		graphics.render(window.renderer, programBuffer);

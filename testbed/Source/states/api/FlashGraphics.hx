@@ -96,32 +96,11 @@ class FlashGraphics implements IGraphics {
 			
 		context3D.clear(backColor.r, backColor.g, backColor.b, backColor.a);
 		
-		/*var flashSize = [
-			flash.display3D.Context3DVertexBufferFormat.FLOAT_1,
-			flash.display3D.Context3DVertexBufferFormat.FLOAT_2,
-			flash.display3D.Context3DVertexBufferFormat.FLOAT_3,
-			flash.display3D.Context3DVertexBufferFormat.FLOAT_4,
-		];
-		
-		@:privateAccess {
-			var i = 0;
-			var offset = 0;
-			for (element in mesh.structure.elements) {
-				var size = element.numData();
-				
-				context3D.setVertexBufferAt(i, mesh.meshBuffer.vertexBuffer.buffer, offset, flashSize[size-1]);
-				
-				offset += size;
-				++i;
-			}
-		}*/
-		
 		if (compiledShader.vertex.paramsSize > 0)
 			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.VERTEX, compiledShader.vertex.globalsSize, compiledShader.vertex.paramsSize, buffer.vertex.params.buffer.getData(), 0);
 		if (compiledShader.fragment.paramsSize > 0)
 			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.FRAGMENT, compiledShader.fragment.globalsSize, compiledShader.fragment.paramsSize, buffer.fragment.params.buffer.getData(), 0);
 
-		//buffer.vertex.globals[0] = 1.0;
 		if (compiledShader.vertex.globalsSize > 0)
 			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.VERTEX, 0, compiledShader.vertex.globalsSize, buffer.vertex.globals.buffer.getData(), 0);
 		if (compiledShader.fragment.globalsSize > 0)
@@ -133,8 +112,6 @@ class FlashGraphics implements IGraphics {
 			context3D.setSamplerStateAt(i, flash.display3D.Context3DWrapMode.REPEAT, flash.display3D.Context3DTextureFilter.NEAREST, flash.display3D.Context3DMipFilter.MIPNONE);
 		}
 		
-		@:privateAccess
-		//context3D.drawTriangles(mesh.meshBuffer.indexBuffer.buffer);
 		@:privateAccess {
 			render.drawBuffer(mesh.meshBuffer.vertexBuffer, mesh.meshBuffer.indexBuffer);
 		}
