@@ -28,12 +28,6 @@ import lime.utils.UInt16Array;
 import bakeneko.render.ProgramBuffer;
 import bakeneko.render.ProgramBuffer.ShaderBuffer;
 
-#if !flash
-typedef Graphics = GLGraphics;
-#else
-typedef Graphics = FlashGraphics;
-#end
-
 /**
  * Hxsl usage test with native OpenGl or Stage3D
  */
@@ -48,11 +42,11 @@ class HxslTest extends State {
 	
 	var programBuffer:ProgramBuffer;
 	
-	var graphics:Graphics;
 	var backColor:Color;
 	
 	var textures:Array<Texture>;
 	var effect:Effect;
+	var mesh:Mesh;
 	
 	@global("time") var globalTime : Float = Math.sin(Timer.stamp());
 	
@@ -88,7 +82,7 @@ class HxslTest extends State {
 			structure: format,
 		}
 		
-		var mesh = new Mesh(data, null, data.structure);
+		mesh = new Mesh(data, null, data.structure);
 		
 		var tasks:Array<Task<Texture>> = [];
 		
@@ -100,11 +94,7 @@ class HxslTest extends State {
 
 			testShader.texture1 = textures[0];
 			testShader.texture2 = textures[1];
-			
-			/*for (i in 0...4)
-				trace(textures[0].image.data[i]);*/
-			
-			graphics = new Graphics(effect.runtimeShader, mesh, backColor, effect);
+
 			app.renderSystem.onRenderEvent.add(renderFunc);
 		});
 	}
@@ -122,9 +112,18 @@ class HxslTest extends State {
 		manager.setParams(programBuffer, effect.runtimeShader, shaderList);
 		manager.setGlobalParams(programBuffer, effect.runtimeShader);
 		
-		window.renderer.begin();
-		graphics.render(window.renderer, programBuffer);
-		window.renderer.end();
+		var render = window.renderer;
+
+		render.begin();
+		
+		render.applyEffect(effect, programBuffer);
+		render.clear(backColor);
+		
+		@:privateAccess {
+			render.drawBuffer(mesh.meshBuffer.vertexBuffer, mesh.meshBuffer.indexBuffer);
+		}
+		
+		render.end();
 	}
 	
 }
