@@ -42,10 +42,9 @@ class Texture extends Asset {
 					image = task.result;
 					
 					#if flash
-					//image.data = pixelFormat(image);
+					image.data = convert(image);
 					#end
 					image.buffer.data = image.data;
-					//image.format = PixelFormat.ARGB32;
 					
 					Log.assert(image != null, 'Image for $id can\'t be null');
 					
@@ -67,25 +66,11 @@ class Texture extends Asset {
 		if (nativeTexture != null && (nativeTexture.width != image.width || nativeTexture.height != image.height))
 			render.deleteTexture(nativeTexture);
 		
-		
-		//trace(image.format == PixelFormat.BGRA32, image.buffer.data);
-		//lime.graphics.im
-		
-		/*for (i in 0...4) {
-			trace(image.data[i]);
-		}
-		
-		var newImage = pixelFormat(image);
-		
-		for (i in 0...4) {
-			trace(newImage[i]);
-		}*/
-		
 		nativeTexture = render.createTexture(image.width, image.height);
 		render.updaloadTexturePixel(nativeTexture, image.data);
 	}
 	
-	function pixelFormat(image:Image/*, format:TextureFormat*/) {
+	function convert(image:Image/*, format:TextureFormat*/) {
 		
 		var data = image.data;
 		var newData = new UInt8Array(data.length);

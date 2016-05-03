@@ -63,6 +63,7 @@ class RenderApi extends State {
 		testShader.changeColor = true;
 		
 		shaderList = new ShaderList(testShader);
+		
 		effect = render.createEffect(manager.compileShaders(shaderList));
 		
 		programBuffer = new ProgramBuffer(effect.runtimeShader);
@@ -78,7 +79,7 @@ class RenderApi extends State {
 			vertexCount: 3,
 			positions: [[0.0, 0.5, 0.0], [0.5, -0.5, 0.0], [ -0.5, -0.5, 0.0]],
 			colors: [[0.9, 0.9, 0.83, 1.0], [0.5, 0.65, 0.75, 1.0], [0.55, 0.87, 1.0, 1.0]],
-			uvs: [[0.5, 1.0], [0.0, 0.0], [1.0, 0.0]],
+			uvs: [[0.5, 1.0], [1.0, 0.0], [0.0, 0.0]],
 			indices: [0, 1, 2],
 			structure: format,
 		}
@@ -163,7 +164,6 @@ private class TestShader extends Shader {
 			#else
 			calculatedUV = input.uv;
 			#end
-			//output.position = vec4(input.position, 1.0);
 			output.position = vec4(input.position * (minSize + (1.0 - minSize) * (cos(time * 0.34) * sin(time * 0.47))), 1.0);
 		}
 		
@@ -172,22 +172,12 @@ private class TestShader extends Shader {
 				var c1 = texture1.get(calculatedUV);
 				var c2 = texture2.get(calculatedUV);
 				
-				//output.color = c1 + input.color;
-				output.color = input.color;//vec4(input.color.rgb /* factor*/, input.color.a);
+				output.color = input.color * factor;
 				output.color.r = c1.r;
 				output.color.a = c2.r;
-				output.color = c2;
-				//output.color.r = c2.r;
-				/*var c1 = texture1.get(calculatedUV);
-				//var c2 = texture2.get(input.uv);
-				
-				//output.color = c1;
-				output.color = vec4(input.color.rgb * factor * calculatedUV.x, input.color.a);
 				output.color = c1;
-				//output.color.a = c1.r;
-				*/
 			} else {
-				//output.color = input.color;
+				output.color = input.color;
 			}
 		}
 	}
