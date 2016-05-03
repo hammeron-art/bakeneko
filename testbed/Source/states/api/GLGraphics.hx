@@ -27,6 +27,7 @@ class GLGraphics implements IGraphics {
 	var compiledShader:RuntimeShader;
 	
 	var program:GLProgram;
+	var mesh:Mesh;
 	//var vertex:GLBuffer;
 	//var index:GLBuffer;
 	var vertexLocation:GLUniformLocation;
@@ -41,38 +42,13 @@ class GLGraphics implements IGraphics {
 	public function new(compiledShader:RuntimeShader, mesh:Mesh, backColor: Color) {
 		this.compiledShader = compiledShader;
 		this.backColor = backColor;
+		this.mesh = mesh;
 		
 		var out = new GlslOut();
 		var vertexSource = out.run(compiledShader.vertex.data);
 		var fragmentSource = out.run(compiledShader.fragment.data);
 		
 		Log.info('$vertexSource\n\n$fragmentSource', 0);
-		
-		//var vertexData = MeshTools.buildVertexData(data);
-		//var indexData = new UInt16Array(data.indices);
-		
-		//vertex = GL.createBuffer();
-		//index = GL.createBuffer();
-		
-		@:privateAccess {
-			//GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, mesh.meshBuffer.indexBuffer.buffer);
-			//GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, mesh.meshBuffer.indexBuffer.data, GL.STATIC_DRAW);
-			
-			//GL.bindBuffer(GL.ARRAY_BUFFER, mesh.meshBuffer.vertexBuffer.buffer);
-			//GL.bufferData(GL.ARRAY_BUFFER, mesh.meshBuffer.vertexBuffer.data, GL.STATIC_DRAW);
-		
-			var i = 0;
-			var offset = 0;
-			for (element in mesh.structure.elements) {
-				var size = element.numData();
-				
-				GL.vertexAttribPointer(i, size, GL.FLOAT, false, mesh.structure.totalSize, offset * 4);
-				GL.enableVertexAttribArray(i);
-				
-				offset += size;
-				++i;
-			}
-		}
 		
 		var vertexShader = GL.createShader(GL.VERTEX_SHADER);
 		var fragmentShader = GL.createShader(GL.FRAGMENT_SHADER);
@@ -122,15 +98,7 @@ class GLGraphics implements IGraphics {
 			GL.uniform4fv(vertGlobalLocation, buffer.vertex.globals);
 		if (compiledShader.fragment.globalsSize > 0)
 			GL.uniform4fv(fragGlobalLocation, buffer.fragment.globals);
-		//if (compiledShader.fragment.textures2DCount > 0)
-			//GL.uniform1iv(GL.getUniformLocation(program, 'fragmentTextures'), new Int32Array([0, 1]));
 			
-		/*for (i in 0...compiledShader.vertex.textures2DCount) {
-			GL.activeTexture(GL.TEXTURE0 + i);
-			GL.uniform1i(vertTexLocations[i], i);
-			@:privateAccess
-			GL.bindTexture(GL.TEXTURE_2D, buffer.vertex.textures[i].nativeTexture.texture);
-		}*/
 		for (i in 0...compiledShader.fragment.textures2DCount) {
 			@:privateAccess
 			GL.bindTexture(GL.TEXTURE_2D, buffer.fragment.textures[i].nativeTexture.texture);
@@ -140,7 +108,10 @@ class GLGraphics implements IGraphics {
 		
 		GL.clearColor(backColor.r, backColor.g, backColor.b, backColor.a);
 		GL.clear(GL.COLOR_BUFFER_BIT);
-		GL.drawElements(GL.TRIANGLES, 3, GL.UNSIGNED_SHORT, 0);
+		
+		@:privateAccess {
+			render.drawBuffer(mesh.meshBuffer.vertexBuffer, mesh.meshBuffer.indexBuffer);
+		}
 	}
 
 }
