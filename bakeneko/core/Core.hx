@@ -1,4 +1,4 @@
-package bakeneko.core;
+/*package bakeneko.core;
 
 import bakeneko.SystemImpl;
 import bakeneko.input.Input.PointerKey;
@@ -41,7 +41,8 @@ class Core extends lime.app.Application {
 		var config = new hxtelemetry.HxTelemetry.Config();
 		config.app_name = 'Bakeneko App';
 		config.allocations = false;
-		telemetry = new hxtelemetry.HxTelemetry(/*config*/);
+		telemetry = new hxtelemetry.HxTelemetry();
+		trace('Telemetry');
 		#end
 		
 		super ();
@@ -69,9 +70,6 @@ class Core extends lime.app.Application {
 	
 	override public function update(deltaTime:Int):Void {
 		//nextFrame(deltaTime / 1000.0);
-		/*UpdateTimer.update();
-		bkApp.update(deltaTime/1000);
-		bkApp.render(renderer);*/
 	}
 	
 	public override function render (renderer:Renderer):Void {
@@ -249,3 +247,4 @@ class UpdateTimer {
 	}
 
 }
+*/

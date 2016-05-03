@@ -58,7 +58,7 @@ class RenderApi extends State {
 		manager = new ShaderManager(["output.position", "output.color"]);
 
 		initGlobals();
-		
+		 
 		testShader = new TestShader();
 		testShader.changeColor = true;
 		

@@ -46,9 +46,6 @@ class ShaderManager {
 	public function setParams(buffer:ProgramBuffer, shader:RuntimeShader, shaderList:ShaderList) {
 		
 		function set(buffer:ShaderBuffer, shaderData:RuntimeShaderData) {
-			/*if (shaderData.paramsSize <= 0)
-				return;*/
-
 			var param = shaderData.params;
 			while (param != null) {
 				fillRec(getParamValue(param, shaderList), param.type, buffer.params, param.pos);

@@ -11,11 +11,23 @@ import lime.ui.Window;
 class LimeApplication extends lime.app.Application {
 	
 	var bWindows:Map<lime.ui.Window, bakeneko.core.Window>;
+	// Debug and telemetry
+	#if telemetry
+	var telemetry:hxtelemetry.HxTelemetry;
+	#end
 	
 	public function new() {
 		super();
 		
 		bWindows = new Map();
+		
+		#if telemetry
+		var config = new hxtelemetry.HxTelemetry.Config();
+		config.app_name = 'Bakeneko App';
+		config.allocations = false;
+		telemetry = new hxtelemetry.HxTelemetry(/*config*/);
+		trace('Telemetry initied');
+		#end
 	}
 	
 	override public function create(config:Config):Void {
@@ -50,11 +62,18 @@ class LimeApplication extends lime.app.Application {
 	
 	override public function update(deltaTime:Int):Void {
 		System.app.update(deltaTime / 1000.0);
+		System.app.render(bWindows[renderer.window]);
+		#if telemetry
+		telemetry.advance_frame();
+		#end
 	}
 	
-	override public function render(renderer:Renderer):Void {
+	/*override public function render(renderer:Renderer):Void {
 		System.app.render(bWindows[renderer.window]);
-	}
+		#if telemetry
+		telemetry.advance_frame();
+		#end
+	}*/
 	
 	override public function onKeyDown(window:lime.ui.Window, keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier):Void {
 		System.app.keyDown(bWindows[window], keyCode, modifier);
