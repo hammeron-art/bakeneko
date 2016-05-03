@@ -42,7 +42,7 @@ class Texture extends Asset {
 					image = task.result;
 					
 					#if flash
-					image.data = pixelFormat(image);
+					//image.data = pixelFormat(image);
 					#end
 					image.buffer.data = image.data;
 					//image.format = PixelFormat.ARGB32;

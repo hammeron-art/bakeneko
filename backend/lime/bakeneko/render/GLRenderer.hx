@@ -106,25 +106,18 @@ class GLRenderer implements IRenderer {
 		gl.useProgram(program);
 		
 		var vertexLocation = gl.getUniformLocation(program, 'vertexParams');
-		trace(vertexLocation);
 		var fragmentLocation = gl.getUniformLocation(program, 'fragmentParams');
-		trace(fragmentLocation);
 		var vertGlobalLocation = gl.getUniformLocation(program, 'vertexGlobals');
-		trace(vertGlobalLocation);
 		var fragGlobalLocation = gl.getUniformLocation(program, 'fragmentGlobals');
-		trace(fragGlobalLocation);
 		var vertTexLocations = [
 			for (i in 0...compiledShader.vertex.textures2DCount) {
-				var v = gl.getUniformLocation(program, 'vertexTextures[$i]');
-				trace(v);
-				v;
+				gl.getUniformLocation(program, 'vertexTextures[$i]');
 			}
 		];
 		var fragTexLocations = [
 			for (i in 0...compiledShader.fragment.textures2DCount) {
-				var v = gl.getUniformLocation(program, 'fragmentTextures[$i]');
-				trace(v);
-				v;
+				trace(i);
+				gl.getUniformLocation(program, 'fragmentTextures[$i]');
 			}
 		];
 		
@@ -154,9 +147,9 @@ class GLRenderer implements IRenderer {
 			GL.bindTexture(GL.TEXTURE_2D, buffer.vertex.textures[i].nativeTexture.texture);
 		}*/
 		for (i in 0...effect.runtimeShader.fragment.textures2DCount) {
+			gl.activeTexture(gl.TEXTURE0 + i);
 			@:privateAccess
 			gl.bindTexture(gl.TEXTURE_2D, buffer.fragment.textures[i].nativeTexture.texture);
-			gl.activeTexture(gl.TEXTURE0 + i);
 			gl.uniform1i(effect.fragTexLocations[i], i);
 		}
 	}
@@ -258,9 +251,6 @@ class GLRenderer implements IRenderer {
 		
 		var i = 0;
 		for (element in buffer.structure.elements) {
-			//var verticeAttribute = driver.getAttribLocation(shader.program, element.attributeName());
-			//Log.assert(verticeAttribute >= 0, 'Vertex attribute (${element.attributeName()}) not found for shader (${this.shader}). Check the vertexFormat or not used variables in the shader.');
-			
 			gl.enableVertexAttribArray(i);
 			gl.vertexAttribPointer(i, element.numData(), getElementType(element), false, stride, offset);
 

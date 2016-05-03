@@ -21,7 +21,7 @@ class Testbed extends Application {
 		super();
 		
 		createState = [];
-		currentState = 2;
+		currentState = 4;
 	}
 	
 	override public function onInit():Void {

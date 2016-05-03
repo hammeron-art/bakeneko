@@ -94,6 +94,7 @@ class RenderApi extends State {
 			textures = results.result;
 
 			testShader.texture1 = textures[0];
+			trace(testShader.texture1);
 			testShader.texture2 = textures[1];
 
 			app.renderSystem.onRenderEvent.add(renderFunc);
@@ -162,17 +163,20 @@ private class TestShader extends Shader {
 			#else
 			calculatedUV = input.uv;
 			#end
-			output.position = vec4(input.position, 1.0);
-			//output.position = vec4(input.position * (minSize + (1.0 - minSize) * (cos(time * 0.34) * sin(time * 0.47))), 1.0);
+			//output.position = vec4(input.position, 1.0);
+			output.position = vec4(input.position * (minSize + (1.0 - minSize) * (cos(time * 0.34) * sin(time * 0.47))), 1.0);
 		}
 		
 		function fragment() {
 			if (changeColor) {
 				var c1 = texture1.get(calculatedUV);
-				var c2 = texture2.get(input.uv);
+				var c2 = texture2.get(calculatedUV);
 				
-				output.color = c1 + input.color;
-				//output.color = input.color * 0.0 + c1 * vec4(1.0);//vec4(input.color.rgb /* factor*/, input.color.a);
+				//output.color = c1 + input.color;
+				output.color = input.color;//vec4(input.color.rgb /* factor*/, input.color.a);
+				output.color.r = c1.r;
+				output.color.a = c2.r;
+				output.color = c2;
 				//output.color.r = c2.r;
 				/*var c1 = texture1.get(calculatedUV);
 				//var c2 = texture2.get(input.uv);
