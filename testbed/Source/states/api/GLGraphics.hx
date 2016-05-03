@@ -55,8 +55,6 @@ class GLGraphics implements IGraphics {
 		
 		render.begin();
 		render.clear(backColor);
-		//GL.clearColor(backColor.r, backColor.g, backColor.b, backColor.a);
-		//GL.clear(GL.COLOR_BUFFER_BIT);
 		
 		@:privateAccess {
 			render.drawBuffer(mesh.meshBuffer.vertexBuffer, mesh.meshBuffer.indexBuffer);

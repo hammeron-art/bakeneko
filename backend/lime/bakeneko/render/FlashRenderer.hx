@@ -202,7 +202,7 @@ class FlashRenderer implements IRenderer {
 		if (compiledShader.fragment.paramsSize > 0)
 			context.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.FRAGMENT, compiledShader.fragment.globalsSize, compiledShader.fragment.paramsSize, buffer.fragment.params.buffer.getData(), 0);
 
-		buffer.vertex.globals[0] = 1.0;
+		//buffer.vertex.globals[0] = 1.0;
 		if (compiledShader.vertex.globalsSize > 0)
 			context.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.VERTEX, 0, compiledShader.vertex.globalsSize, buffer.vertex.globals.buffer.getData(), 0);
 		if (compiledShader.fragment.globalsSize > 0)
@@ -322,7 +322,7 @@ class FlashRenderer implements IRenderer {
 	}
 	
 	public function clear(?color:Color, ?depth:Float, ?stencil:Int):Void {
-		var clearMask: UInt = 0;
+		var clearMask:UInt = 0;
 		
 		if (color != null) clearMask |= Context3DClearMask.COLOR;
 		if (depth != null) clearMask |= Context3DClearMask.DEPTH;

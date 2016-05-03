@@ -6,6 +6,7 @@ import bakeneko.hxsl.AgalOptim;
 import bakeneko.hxsl.AgalOut;
 import bakeneko.hxsl.RuntimeShader;
 import bakeneko.render.Color;
+import bakeneko.render.Effect;
 import bakeneko.render.Mesh;
 import bakeneko.render.MeshData;
 import bakeneko.render.MeshTools;
@@ -30,7 +31,7 @@ class FlashGraphics implements IGraphics {
 	var stage3D:Stage3D;
 	var context3D:Context3D;
 	
-	var program:Program3D;
+	var effect:Effect;
 	//var vertex:VertexBuffer3D;
 	//var index:IndexBuffer3D;
 	var mesh:Mesh;
@@ -45,22 +46,13 @@ class FlashGraphics implements IGraphics {
 	
 	var tex:flash.display3D.textures.Texture;
 	
-	public function new(compiledShader:RuntimeShader, mesh:Mesh, backColor:Color) {
+	public function new(compiledShader:RuntimeShader, mesh:Mesh, backColor:Color, effect:Effect) {
 		this.compiledShader = compiledShader;
 		this.backColor = backColor;
+		this.effect = effect;
 		
-		/*globalVertexParams = new Float32Array(compiledShader.vertex.consts.length << 2);
-		for (i in 0...compiledShader.vertex.consts.length)
-			globalVertexParams[i] = compiledShader.vertex.consts[i];
-			
-		globalFragmentParams = new Float32Array(compiledShader.fragment.consts.length << 2);
-		for (i in 0...compiledShader.vertex.consts.length)
-			globalFragmentParams[i] = compiledShader.fragment.consts[i];*/
-			
 		stage3D = flash.Lib.current.stage.stage3Ds[0];
 		init(null, mesh);
-		//stage3D.addEventListener(flash.events.Event.CONTEXT3D_CREATE, init.bind(_, data));
-		//stage3D.requestContext3D(cast flash.display3D.Context3DRenderMode.AUTO, flash.display3D.Context3DProfile.STANDARD);
 	}
 	
 	public function init(_, mesh:Mesh) {
@@ -77,40 +69,19 @@ class FlashGraphics implements IGraphics {
 		
 		Log.info('${format.agal.Tools.toString(vertexSource)}\n\n${format.agal.Tools.toString(fragmentSource)}', 0);
 		
-		var vBytes = new haxe.io.BytesOutput();
-		new format.agal.Writer(vBytes).write(vertexSource);
-		var fBytes = new haxe.io.BytesOutput();
-		new format.agal.Writer(fBytes).write(fragmentSource);
-		
-		var vb = vBytes.getBytes().getData();
-		var fb = fBytes.getBytes().getData();
-		
-		program = context3D.createProgram();
-		program.upload(vb, fb);
-		context3D.setProgram(program);
+		//@:privateAccess
+		//context3D.setProgram(effect.program);
 	}
 	
 	public function render(render:Renderer, buffer:ProgramBuffer) {
 		if (context3D == null)
 			return;
-			
-		context3D.clear(backColor.r, backColor.g, backColor.b, backColor.a);
 		
-		if (compiledShader.vertex.paramsSize > 0)
-			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.VERTEX, compiledShader.vertex.globalsSize, compiledShader.vertex.paramsSize, buffer.vertex.params.buffer.getData(), 0);
-		if (compiledShader.fragment.paramsSize > 0)
-			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.FRAGMENT, compiledShader.fragment.globalsSize, compiledShader.fragment.paramsSize, buffer.fragment.params.buffer.getData(), 0);
-
-		if (compiledShader.vertex.globalsSize > 0)
-			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.VERTEX, 0, compiledShader.vertex.globalsSize, buffer.vertex.globals.buffer.getData(), 0);
-		if (compiledShader.fragment.globalsSize > 0)
-			context3D.setProgramConstantsFromByteArray(flash.display3D.Context3DProgramType.FRAGMENT, 0, compiledShader.fragment.globalsSize, buffer.fragment.globals.buffer.getData(), 0);
-
-		for (i in 0...compiledShader.fragment.textures2DCount) {
-			@:privateAccess
-			context3D.setTextureAt(i, buffer.fragment.textures[i].nativeTexture.texture);
-			context3D.setSamplerStateAt(i, flash.display3D.Context3DWrapMode.REPEAT, flash.display3D.Context3DTextureFilter.NEAREST, flash.display3D.Context3DMipFilter.MIPNONE);
-		}
+		//context3D.clear(backColor.r, backColor.g, backColor.b, backColor.a);
+		//render.begin();
+		render.clear(backColor);
+		
+		render.applyEffect(effect, buffer);
 		
 		@:privateAccess {
 			render.drawBuffer(mesh.meshBuffer.vertexBuffer, mesh.meshBuffer.indexBuffer);

@@ -22,7 +22,7 @@ class RenderSystem extends AppSystem {
 		var g = window.renderer;
 		
 		g.begin();
-		g.clear(backColor);
+		g.clear(backColor, 1.0, 0);
 		g.end();
 		
 		onRenderEvent.dispatch(window);
